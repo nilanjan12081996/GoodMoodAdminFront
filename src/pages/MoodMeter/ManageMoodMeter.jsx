@@ -11,13 +11,14 @@ import {
 
 import { ToastContainer } from "react-toastify";
 import AddMoodMeterModal from "./AddMoodMeterModal";
+import UpdateMoodMeterModal from "./UpdateMoodMeterModal";
 
 const ManageMoodMeter = () => {
   const dispatch = useDispatch();
   const { allMoodMeter } = useSelector((state) => state?.moodData);
   const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
-  const [tagId, setTagId] = useState();
+  const [moodmeterId, setMoodMeterId] = useState();
   useEffect(() => {
     dispatch(getMoodMeter());
   }, []);
@@ -52,7 +53,7 @@ const ManageMoodMeter = () => {
             const newStatus = isChecked ? 0 : 1;
             dispatch(
               getActiveDeactiveMoodMeter({
-                tag_id: params.data.id,
+                mood_meter_id: params.data.id,
                 status: newStatus,
               })
             ).then(() => {
@@ -114,8 +115,9 @@ const ManageMoodMeter = () => {
   );
 
   const handleUpdateTags = (id) => {
+    console.log(id, "id");
     setOpenUpdateTagModal(true);
-    setTagId(id);
+    setMoodMeterId(id);
   };
 
   return (
@@ -150,6 +152,13 @@ const ManageMoodMeter = () => {
           <AddMoodMeterModal
             openAddTagModal={openAddTagModal}
             setOpenTagModal={setOpenTagModal}
+          />
+        )}
+        {openUpdateTagModal && (
+          <UpdateMoodMeterModal
+            openUpdateTagModal={openUpdateTagModal}
+            setOpenUpdateTagModal={setOpenUpdateTagModal}
+            moodmeterId={moodmeterId}
           />
         )}
       </div>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 let domain = window.location.origin
-const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add'];
+const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add', '/admin/mood-meter/update-image'];
 api.interceptors.request.use((req) => {
   let userTokenData;
   try {

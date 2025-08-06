@@ -18,6 +18,22 @@ export const getMoodMeter = createAsyncThunk(
     }
 )
 
+export const getSingleMoodMeter = createAsyncThunk(
+    'getSingleMoodMeter',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/admin/mood-meter/get-mood-meter`, user_input);
+            if (response?.data?.status_code === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 export const addMoodMeter = createAsyncThunk(
     'addMoodMeter',
     async (user_input, { rejectWithValue }) => {
@@ -52,11 +68,46 @@ export const getActiveDeactiveMoodMeter = createAsyncThunk(
     }
 )
 
+export const uploadMoodAvatar = createAsyncThunk(
+    'uploadMoodAvatar',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/admin/mood-meter/update-image`, user_input);
+            if (response?.data?.status_code === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const updateMoodMeter = createAsyncThunk(
+    'updateMoodMeter',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/admin/mood-meter/update`, user_input);
+            if (response?.data?.status_code === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 const initialState = {
     loading: false,
     allMoodMeter: [],
     error: false,
-    addMoodMeterData: ""
+    addMoodMeterData: "",
+    singleMoodMeter: [],
+    uploadAvatarData: {},
+    updateMoodMeterData: {}
 }
 const MoodMeterSlice = createSlice(
     {
@@ -86,6 +137,42 @@ const MoodMeterSlice = createSlice(
                     state.error = false
                 })
                 .addCase(addMoodMeter.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(getSingleMoodMeter.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(getSingleMoodMeter.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.singleMoodMeter = payload
+                    state.error = false
+                })
+                .addCase(getSingleMoodMeter.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(uploadMoodAvatar.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(uploadMoodAvatar.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.uploadAvatarData = payload
+                    state.error = false
+                })
+                .addCase(uploadMoodAvatar.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(updateMoodMeter.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(updateMoodMeter.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.updateMoodMeterData = payload
+                    state.error = false
+                })
+                .addCase(updateMoodMeter.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
