@@ -2,11 +2,11 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 let domain = window.location.origin
-const formDataURL = ['product/add-product-images', '/user/update-profile', '/admin/update-subscripiton-plans', '/operation-head/coach/add-coach', '/admin/course/add-course-step-one', '/admin/course/add-course-step-two', '/oparational-head/batch/add-batch-banner'];
+const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add'];
 api.interceptors.request.use((req) => {
   let userTokenData;
   try {
-    userTokenData = JSON.parse(sessionStorage.getItem('chess_admin_token'));
+    userTokenData = JSON.parse(sessionStorage.getItem('good_mood_admin_token'));
     // console.log("UserTokenData", userTokenData);
   } catch (error) {
     userTokenData = null;
@@ -30,7 +30,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && [401, 403].includes(error.response.status)) {
-      sessionStorage.removeItem('chess_admin_token');
+      sessionStorage.removeItem('good_mood_admin_token');
     }
     return Promise.reject(error);
   }

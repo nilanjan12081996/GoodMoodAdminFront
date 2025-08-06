@@ -90,7 +90,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-4 py-5 lg:py-[23px]">
         <NavLink className="text-center w-full" to="/manage-zone">
-          {/* <img src={logo} alt="Logo" className='w-40' /> */}
+   
           {sidebarOpen ?
             <>
               <div className="text-center mb-8">
@@ -139,7 +139,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li> */}
 
-              <li>
+              {/* <li>
                 <NavLink
                   to="/manage-zone"
                   className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('coaches') &&
@@ -157,7 +157,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </>
                   }
                 </NavLink>
-              </li>
+              </li> */}
               {/* Child menu for Coach Sessions */}
 
 
@@ -184,7 +184,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/manage-category"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-batch') &&
+                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-category') &&
                     'bg-graydark dark:bg-meta-4'
                     }`}
                 >
@@ -195,7 +195,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     :
                     <>
                       <MdCategory className='text-xl' />
-                      Manage Category
+                      Manage Funda-Mentals
                     </>
                   }
                 </NavLink>
@@ -203,8 +203,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
              
               <li>
                 <NavLink
-                  to="/manage-tag"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('courses') &&
+                  to="/manage-mood-meter"
+                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-meter') &&
                     'bg-graydark dark:bg-meta-4'
                     }`}
                 >
@@ -215,7 +215,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     :
                     <>
                       <CiShoppingTag className='text-xl' />
-                      Manage Tag
+                      Manage Mood Meter
                     </>
                   }
                 </NavLink>

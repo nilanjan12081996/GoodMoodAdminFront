@@ -27,7 +27,8 @@ import PaymentMethodList from '../pages/PaymentMethod/PaymentMethodList.jsx';
 import ManageZones from '../pages/ManageZones/ManageZones.jsx';
 import ManageCategory from '../pages/ManageCategory/ManageCategory.jsx';
 import ManageCateDes from '../pages/ManageCategoryDes/ManageCateDes.jsx';
-import ManageTag from '../pages/ManageTag/ManageTag.jsx';
+
+import ManageMoodMeter from '../pages/MoodMeter/ManageMoodMeter.jsx';
 
 
 const allRoutes = [
@@ -115,12 +116,12 @@ const allRoutes = [
   },
 
   {
-    path: '/manage-tag',
+    path: '//manage-mood-meter',
     element: <InsideLayout />,
     children: [
       {
         index: true,
-        element: <ManageTag />,
+        element: <ManageMoodMeter />,
       },
     ],
   },

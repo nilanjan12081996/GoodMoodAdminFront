@@ -64,10 +64,10 @@ const Login = () => {
             Cookies.remove("username");
             Cookies.remove("password");
           }
-          navigate("/manage-zone");
+          navigate("/manage-category");
         }
-      } else if (res?.payload?.status_code === 400) {
-        setErrorMessage(res?.payload?.message);
+      } else if (res?.payload?.response?.data?.status_code === 400) {
+        setErrorMessage(res?.payload?.response?.data?.message);
       } else if (res?.payload?.status === 422) {
         setErrorMessage(
           res?.payload?.response?.data?.data?.[0]?.message

@@ -166,7 +166,7 @@ export const deleteCategory = createAsyncThunk(
     'deleteCategory',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin/category/delete`, user_input);
+            const response = await api.post(`/admin/category/delete-category`, user_input);
             if (response?.data?.status_code === 200) {
                 return response?.data;
             } else {
@@ -177,6 +177,24 @@ export const deleteCategory = createAsyncThunk(
         }
     }
 )
+
+export const uploadAvatar = createAsyncThunk(
+    'uploadAvatar',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/admin/category/change-category-image`, user_input);
+            if (response?.data?.status_code === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+
 
 const initialState = {
     loading: false,
@@ -189,7 +207,8 @@ const initialState = {
     allDes: [],
     upDateDesData: {},
     deleteDesCate: {},
-    delCat: {}
+    delCat: {},
+    uploadPic: {}
 }
 const CategorySlice = createSlice(
     {
@@ -303,6 +322,18 @@ const CategorySlice = createSlice(
                     state.error = false
                 })
                 .addCase(deleteCategory.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(uploadAvatar.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(uploadAvatar.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.uploadPic = payload
+                    state.error = false
+                })
+                .addCase(uploadAvatar.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })

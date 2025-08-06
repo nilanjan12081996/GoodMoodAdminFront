@@ -176,7 +176,7 @@ const AuthSlice = createSlice(
                 state.currentUser = {};
                 state.message = null;
                 state.error = null
-                sessionStorage.removeItem('chess_admin_token')
+                sessionStorage.removeItem('good_mood_admin_token')
                 localStorage.removeItem('user_role_id')
                 localStorage.removeItem('user_short_name')
                 localStorage.clear()
@@ -239,11 +239,11 @@ const AuthSlice = createSlice(
                     state.loadingLogin = false;
 
                     sessionStorage.setItem(
-                        'chess_admin_token',
+                        'good_mood_admin_token',
                         JSON.stringify({ token: payload?.token })
                     )
-                    localStorage.setItem('user_role_id', payload?.role_id)
-                    localStorage.setItem("user_short_name", payload?.role_short_name)
+                    // localStorage.setItem('user_role_id', payload?.role_id)
+                    // localStorage.setItem("user_short_name", payload?.role_short_name)
 
                 })
 

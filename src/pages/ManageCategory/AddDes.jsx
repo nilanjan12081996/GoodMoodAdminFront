@@ -1,10 +1,14 @@
-import { Button, Label, Modal, TextInput } from "flowbite-react";
+import { Button, FileInput, Label, Modal, TextInput } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { addCategoryDes } from "../../Reducer/CategorySlice";
+import {
+  addCateGory,
+  addCategoryDes,
+  getCateGory,
+} from "../../Reducer/CategorySlice";
 import { toast } from "react-toastify";
 
-const AddDes = ({ openAddDesModal, setOpenAddDesModal, cateGoryId }) => {
+const AddDes = ({ openAddDesModal, setOpenAddDesModal }) => {
   const dispatch = useDispatch();
   const {
     register,
@@ -12,43 +16,42 @@ const AddDes = ({ openAddDesModal, setOpenAddDesModal, cateGoryId }) => {
     formState: { errors },
   } = useForm();
   const onSubmit = (data) => {
-    dispatch(addCategoryDes({ ...data, category_id: cateGoryId })).then(
-      (res) => {
-        if (res?.payload?.status_code === 201) {
-          setOpenAddDesModal(false);
-          toast.success(res?.payload?.message);
-        }
+    console.log("cate_Data: ", data);
+    const formData = new FormData();
+    formData.append("category_name", data?.category_name);
+    formData.append("category_file", data?.category_file?.[0]);
+    dispatch(addCateGory(formData)).then((res) => {
+      if (res?.payload?.status_code === 201) {
+        dispatch(getCateGory());
+        setOpenAddDesModal(false);
+
+        toast.success(res?.payload?.message);
       }
-    );
+    });
   };
   return (
     <>
       <Modal show={openAddDesModal} onClose={() => setOpenAddDesModal(false)}>
-        <Modal.Header>Add Category Description</Modal.Header>
+        <Modal.Header>Add Funda-Mentals</Modal.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Body>
             <div className="space-y-4">
               <div>
                 <div className="mb-2 block">
-                  <Label htmlFor="name" value="Content Type" />
+                  <Label htmlFor="name" value="Funda-Mentals" />
                 </div>
                 <TextInput
                   id="name"
                   type="text"
-                  placeholder="Enter Content Type"
-                  {...register("content_type")}
+                  placeholder="Enter Funda-Mentals"
+                  {...register("category_name")}
                 />
               </div>
               <div>
                 <div className="mb-2 block">
-                  <Label htmlFor="name" value="Target Vibes" />
+                  <Label htmlFor="name" value="Funda-Mentals Image" />
                 </div>
-                <TextInput
-                  id="name"
-                  type="text"
-                  placeholder="Enter Target Vibes"
-                  {...register("target_vibes")}
-                />
+                <FileInput id="file-upload" {...register("category_file")} />
               </div>
             </div>
           </Modal.Body>
@@ -60,7 +63,7 @@ const AddDes = ({ openAddDesModal, setOpenAddDesModal, cateGoryId }) => {
               Cancel
             </Button>
             <Button color="success" type="submit">
-              Add Category Description
+              Add Funda-Mentals
             </Button>
           </Modal.Footer>
         </form>

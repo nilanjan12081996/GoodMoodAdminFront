@@ -30,10 +30,11 @@ const ManageCategory = () => {
   }, []);
 
   const transformedRowData = useMemo(() => {
-    return cateGory?.result?.map((batch) => ({
+    return cateGory?.res?.map((batch) => ({
       id: batch.id,
-      name: batch.category,
+      name: batch.category_name,
       status: batch?.status,
+      category_avatar: batch?.category_avatar,
     }));
   }, [cateGory]);
 
@@ -77,6 +78,19 @@ const ManageCategory = () => {
         },
       },
       {
+        field: "category_avatar",
+        headerName: "Avatar",
+        cellRenderer: (params) => {
+          return (
+            <img
+              src={params.value}
+              alt="avatar"
+              className="w-12 h-12 rounded-full object-cover"
+            />
+          );
+        },
+      },
+      {
         headerName: "Action",
         field: "details",
         cellRenderer: (params) => (
@@ -100,30 +114,6 @@ const ManageCategory = () => {
           </div>
         ),
       },
-      {
-        headerName: "Description",
-        field: "description",
-        cellRenderer: (params) => (
-          <Button
-            onClick={() => handleAddDetails(params?.data?.id)}
-            className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
-          >
-            Add Description
-          </Button>
-        ),
-      },
-      {
-        headerName: "Category Description",
-        field: "category_description",
-        cellRenderer: (params) => (
-          <Button
-            onClick={() => handleShowDetails(params?.data?.id)}
-            className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
-          >
-            Show Description
-          </Button>
-        ),
-      },
     ];
 
     return columns;
@@ -133,9 +123,8 @@ const ManageCategory = () => {
     setOpenCategoryModal(true);
     setCategoryId(id);
   };
-  const handleAddDetails = (id) => {
+  const handleAddDetails = () => {
     setOpenAddDesModal(true);
-    setCategoryId(id);
   };
   const handleShowDetails = (id) => {
     navigate("/manage-category-des", {
@@ -153,7 +142,13 @@ const ManageCategory = () => {
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Mange Category</h2>
+            <h2 className="text-2xl font-semibold">Manage Funda-Mentals</h2>
+            <Button
+              onClick={() => handleAddDetails(true)}
+              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+            >
+              Add Funda-Mentals
+            </Button>
           </div>
           <div
             className="ag-theme-alpine"
@@ -165,6 +160,7 @@ const ManageCategory = () => {
               pagination={true}
               paginationPageSize={10}
               domLayout="autoHeight"
+              getRowHeight={() => 50}
             />
           </div>
         </div>
@@ -180,7 +176,6 @@ const ManageCategory = () => {
         <AddDes
           openAddDesModal={openAddDesModal}
           setOpenAddDesModal={setOpenAddDesModal}
-          cateGoryId={cateGoryId}
         />
       )}
       {openCateDeleteModal && (

@@ -23,7 +23,7 @@ import TransactionSlice from '../Reducer/TransactionSlice';
 import PlanSlice from '../Reducer/PlanSlice';
 import WalletSlice from '../Reducer/WalletSlice';
 import ZoneSlice from '../Reducer/ZoneSlice'
-import TagSlice from '../Reducer/TagSlice';
+import MoodMeterSlice from '../Reducer/MoodMeterSlice';
 import TopicSlice from '../Reducer/TopicSlice';
 import ModuleSlice from '../Reducer/ModuleSlice';
 import PlanKeySlice from '../Reducer/PlanKeySlice';
@@ -59,7 +59,7 @@ const store = configureStore({
     dash: DashBoardSlice,
     transactions: WalletSlice,
     zone: ZoneSlice,
-    tagsData: TagSlice,
+    moodData: MoodMeterSlice,
     topicsData: TopicSlice,
     modulesData: ModuleSlice,
     plankey: PlanKeySlice,

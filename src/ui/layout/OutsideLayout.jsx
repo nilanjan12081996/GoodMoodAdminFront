@@ -33,7 +33,7 @@ const OutsideLayout = () => {
   //   navigate("/pageNotFound");
   // }
 
-  const token = sessionStorage.getItem("chess_admin_token");
+  const token = sessionStorage.getItem("good_mood_admin_token");
   const parseToken = token ? JSON.parse(token)?.token : null;
   const nevigate = useNavigate();
   useEffect(() => {
