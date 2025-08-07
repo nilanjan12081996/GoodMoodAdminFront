@@ -100,6 +100,22 @@ export const updateMoodMeter = createAsyncThunk(
     }
 )
 
+export const deleteMoodMeter = createAsyncThunk(
+    'deleteMoodMeter',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/admin/mood-meter/delete`, user_input);
+            if (response?.data?.status_code === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 const initialState = {
     loading: false,
     allMoodMeter: [],
@@ -107,7 +123,8 @@ const initialState = {
     addMoodMeterData: "",
     singleMoodMeter: [],
     uploadAvatarData: {},
-    updateMoodMeterData: {}
+    updateMoodMeterData: {},
+    deleteData: {}
 }
 const MoodMeterSlice = createSlice(
     {
@@ -173,6 +190,18 @@ const MoodMeterSlice = createSlice(
                     state.error = false
                 })
                 .addCase(updateMoodMeter.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(deleteMoodMeter.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(deleteMoodMeter.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.deleteData = payload
+                    state.error = false
+                })
+                .addCase(deleteMoodMeter.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
