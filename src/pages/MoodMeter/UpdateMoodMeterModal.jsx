@@ -69,7 +69,7 @@ const UpdateMoodMeterModal = ({
         show={openUpdateTagModal}
         onClose={() => setOpenUpdateTagModal(false)}
       >
-        <Modal.Header>Update Funda-Mentals</Modal.Header>
+        <Modal.Header>Update Mood Meter</Modal.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Body>
             <div className="space-y-4">

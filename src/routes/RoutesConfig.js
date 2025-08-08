@@ -29,6 +29,7 @@ import ManageCategory from '../pages/ManageCategory/ManageCategory.jsx';
 import ManageCateDes from '../pages/ManageCategoryDes/ManageCateDes.jsx';
 
 import ManageMoodMeter from '../pages/MoodMeter/ManageMoodMeter.jsx';
+import ManageMoodMaster from '../pages/ManageMoodMaster/ManageMoodMaster.jsx';
 
 
 const allRoutes = [
@@ -122,6 +123,17 @@ const allRoutes = [
       {
         index: true,
         element: <ManageMoodMeter />,
+      },
+    ],
+  },
+
+  {
+    path: '/manage-mood-masters',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageMoodMaster />,
       },
     ],
   },

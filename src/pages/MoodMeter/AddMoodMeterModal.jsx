@@ -30,7 +30,7 @@ const AddMoodMeterModal = ({ openAddTagModal, setOpenTagModal }) => {
   return (
     <>
       <Modal show={openAddTagModal} onClose={() => setOpenTagModal(false)}>
-        <Modal.Header>Add New Tags</Modal.Header>
+        <Modal.Header>Add New Mood Meter</Modal.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Body>
             <div className="space-y-4">

@@ -32,6 +32,8 @@ import CourseSlice from '../Reducer/CourseSlice';
 import CategorySlice from '../Reducer/CategorySlice'
 import RoleSlice from '../Reducer/RoleSlice';
 import UserSlice from '../Reducer/UserSlice'
+import MoodMasterSlice from '../Reducer/MoodMasterSlice'
+import QuestionSlice from '../Reducer/QuestionSlice'
 
 const store = configureStore({
   reducer: {
@@ -60,6 +62,7 @@ const store = configureStore({
     transactions: WalletSlice,
     zone: ZoneSlice,
     moodData: MoodMeterSlice,
+    moodMastersData: MoodMasterSlice,
     topicsData: TopicSlice,
     modulesData: ModuleSlice,
     plankey: PlanKeySlice,
@@ -68,6 +71,7 @@ const store = configureStore({
     cate: CategorySlice,
     role: RoleSlice,
     user: UserSlice,
+    questions: QuestionSlice
   },
   devTools: import.meta.env.DEV,
 });

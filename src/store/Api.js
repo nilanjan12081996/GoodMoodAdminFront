@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 let domain = window.location.origin
-const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add', '/admin/mood-meter/update-image'];
+const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add', '/admin/mood-meter/update-image', '/mood-master/create', '/mood-master/image-update'];
 api.interceptors.request.use((req) => {
   let userTokenData;
   try {
@@ -14,7 +14,10 @@ api.interceptors.request.use((req) => {
   let token = userTokenData && userTokenData.token ? userTokenData.token : null;
   // console.log("Req: ", req.url);
   req.headers['Content-Type'] = 'application/json';
-  if (formDataURL.includes(req.url)) {
+  // if (formDataURL.includes(req.url)) {
+  //   req.headers['Content-Type'] = 'multipart/form-data';
+  // }
+  if (formDataURL.some(url => req.url.startsWith(url))) {
     req.headers['Content-Type'] = 'multipart/form-data';
   }
   if (token) {
