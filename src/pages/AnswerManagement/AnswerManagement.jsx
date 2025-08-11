@@ -15,49 +15,52 @@ import {
   getQuestion,
   getQuestionDetails,
 } from "../../Reducer/QuestionSlice";
-import AddQuestion from "./AddQuestion";
-import UpdateQuestionModal from "./UpdateQuestionModal";
-import DeleteModalQue from "./DeleteModalQue";
+// import AddQuestion from "./AddQuestion";
+// import UpdateQuestionModal from "./UpdateQuestionModal";
+// import DeleteModalQue from "./DeleteModalQue";
+import {
+  changeStatusAnswer,
+  getAnswer,
+  getAnswerDetails,
+} from "../../Reducer/AnswerSlice";
+import AddAns from "./AddAns";
+import UpdateAnswerModal from "./UpdateAnswerModal";
 
-const ManageQuestion = () => {
-  const { questionList, singleQuestion } = useSelector(
-    (state) => state?.questions
-  );
+const AnswerManagement = () => {
+  const { answerList, singleAnswer } = useSelector((state) => state?.answers);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [openCategoryModal, setOpenCategoryModal] = useState(false);
-  const [openAddQueModal, setOpenAddQueModal] = useState(false);
-  const [cateGoryId, setCategoryId] = useState();
-  const [openCateDeleteModal, setOpenCateDeleteModal] = useState(false);
-  const [openUpdateModal, setOpenUpdateModal] = useState(false);
-  const [questionId, setQuestionId] = useState();
+
+  const [openAddAnsModal, setOpenAddAnsModal] = useState(false);
+  const [openUpdateAnsModal, setOpenUpdateAnsModal] = useState(false);
+  const [ansId, setAnsId] = useState();
   const [openQueDeleteModal, setOpenQueDeleteModal] = useState(false);
 
   useEffect(() => {
-    dispatch(getQuestion());
+    dispatch(getAnswer());
   }, []);
-  console.log("questionList", questionList);
+  console.log("answerList", answerList);
 
   const transformedRowData = useMemo(() => {
-    return questionList?.data?.map((batch) => ({
+    return answerList?.data?.map((batch) => ({
       id: batch?.id,
-      question: batch?.question,
-      question_description: batch?.question_description,
+      answer: batch?.answer,
+      answer_point: batch?.answer_point,
       status: batch?.status,
     }));
-  }, [questionList]);
+  }, [answerList]);
 
   const columnDefs = useMemo(() => {
     const columns = [
       {
-        field: "question",
-        headerName: "Question",
+        field: "answer",
+        headerName: "Answer",
         sortable: true,
         filter: true,
       },
       {
-        field: "question_description",
-        headerName: "Question Description",
+        field: "answer_point",
+        headerName: "Answer Point",
         sortable: true,
         filter: true,
       },
@@ -70,12 +73,12 @@ const ManageQuestion = () => {
           const handleStatusChange = () => {
             const newStatus = isChecked ? 0 : 1;
             dispatch(
-              changeStatusQuestion({
-                question_id: params.data.id,
+              changeStatusAnswer({
+                answer_id: params.data.id,
                 status: newStatus,
               })
             ).then(() => {
-              dispatch(getQuestion()); // refresh data
+              dispatch(getAnswer()); // refresh data
             });
           };
 
@@ -100,7 +103,7 @@ const ManageQuestion = () => {
           <div className="flex gap-2">
             <div>
               <Button
-                onClick={() => handleUpdateQuestion(params?.data?.id)}
+                onClick={() => handleUpdateAnswer(params?.data?.id)}
                 className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
               >
                 Update
@@ -122,13 +125,13 @@ const ManageQuestion = () => {
     return columns;
   }, []);
 
-  const handleUpdateQuestion = (id) => {
-    setOpenUpdateModal(true);
-    setQuestionId(id);
-    dispatch(getQuestionDetails({ user_input: id }));
+  const handleUpdateAnswer = (id) => {
+    setOpenUpdateAnsModal(true);
+    setAnsId(id);
+    dispatch(getAnswerDetails({ user_input: id }));
   };
-  const handleAddQuestion = () => {
-    setOpenAddQueModal(true);
+  const handleAddAnswer = () => {
+    setOpenAddAnsModal(true);
   };
   const handleShowDetails = (id) => {
     navigate("/manage-category-des", {
@@ -137,7 +140,7 @@ const ManageQuestion = () => {
   };
   const handleDeleteQue = (id) => {
     setOpenQueDeleteModal(true);
-    setQuestionId(id);
+    setAnsId(id);
   };
 
   return (
@@ -146,12 +149,12 @@ const ManageQuestion = () => {
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Manage Question</h2>
+            <h2 className="text-2xl font-semibold">Manage Answer</h2>
             <Button
-              onClick={() => handleAddQuestion(true)}
+              onClick={() => handleAddAnswer(true)}
               className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
             >
-              Add Question
+              Add Answer
             </Button>
           </div>
           <div
@@ -169,29 +172,29 @@ const ManageQuestion = () => {
           </div>
         </div>
       </div>
-      {openAddQueModal && (
-        <AddQuestion
-          openAddQueModal={openAddQueModal}
-          setOpenAddQueModal={setOpenAddQueModal}
+      {openAddAnsModal && (
+        <AddAns
+          openAddAnsModal={openAddAnsModal}
+          setOpenAddAnsModal={setOpenAddAnsModal}
         />
       )}
-      {openUpdateModal && singleQuestion && (
-        <UpdateQuestionModal
-          openUpdateModal={openUpdateModal}
-          setOpenUpdateModal={setOpenUpdateModal}
-          singleQuestion={singleQuestion}
-          questionId={questionId}
+      {openUpdateAnsModal && singleAnswer && (
+        <UpdateAnswerModal
+          openUpdateAnsModal={openUpdateAnsModal}
+          setOpenUpdateAnsModal={setOpenUpdateAnsModal}
+          singleAnswer={singleAnswer}
+          ansId={ansId}
         />
       )}
-      {openQueDeleteModal && (
+      {/* {openQueDeleteModal && (
         <DeleteModalQue
           openQueDeleteModal={openQueDeleteModal}
           setOpenQueDeleteModal={setOpenQueDeleteModal}
           questionId={questionId}
         />
-      )}
+      )} */}
     </div>
   );
 };
 
-export default ManageQuestion;
+export default AnswerManagement;

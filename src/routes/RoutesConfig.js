@@ -31,6 +31,7 @@ import ManageCateDes from '../pages/ManageCategoryDes/ManageCateDes.jsx';
 import ManageMoodMeter from '../pages/MoodMeter/ManageMoodMeter.jsx';
 import ManageMoodMaster from '../pages/ManageMoodMaster/ManageMoodMaster.jsx';
 import ManageQuestion from '../pages/ManageQuestion/ManageQuestion.jsx';
+import AnswerManagement from '../pages/AnswerManagement/AnswerManagement.jsx';
 
 
 const allRoutes = [
@@ -145,6 +146,17 @@ const allRoutes = [
       {
         index: true,
         element: <ManageQuestion />,
+      },
+    ],
+  },
+
+  {
+    path: '/manage-answer',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AnswerManagement />,
       },
     ],
   },

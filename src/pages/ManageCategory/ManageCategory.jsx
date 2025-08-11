@@ -103,14 +103,14 @@ const ManageCategory = () => {
                 Update
               </Button>
             </div>
-            <div>
+            {/* <div>
               <button
                 type="button"
                 onClick={() => handleDeleteCate(params?.data?.id)}
               >
                 <MdDelete size={20} color="red" />
               </button>
-            </div>
+            </div> */}
           </div>
         ),
       },

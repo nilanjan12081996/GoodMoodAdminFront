@@ -2,11 +2,11 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../store/Api";
 
 
-export const getQuestion = createAsyncThunk(
-    'getQuestion',
+export const getAnswer = createAsyncThunk(
+    'getAnswer',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get(`/admin-question-manage/list`);
+            const response = await api.get(`/admin-answer-manage/list`);
             if (response?.data?.status_code === 200) {
                 return response?.data;
             } else {
@@ -17,11 +17,11 @@ export const getQuestion = createAsyncThunk(
         }
     }
 )
-export const addQuestions = createAsyncThunk(
-    'addQuestions',
+export const addAnswer = createAsyncThunk(
+    'addAnswer',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin-question-manage/add`, user_input);
+            const response = await api.post(`/admin-answer-manage/add`, user_input);
             if (response?.data?.status_code === 201) {
                 return response?.data;
             } else {
@@ -32,13 +32,12 @@ export const addQuestions = createAsyncThunk(
         }
     }
 )
-
-export const changeStatusQuestion = createAsyncThunk(
-    'changeStatusQuestion',
+export const changeStatusAnswer = createAsyncThunk(
+    'changeStatusAnswer',
     async (user_input, { rejectWithValue }) => {
         try {
 
-            const response = await api.patch(`/admin-question-manage/activation`, user_input);
+            const response = await api.patch(`/admin-answer-manage/activation`, user_input);
 
             if (response?.data?.status_code === 200) {
                 return response.data;
@@ -51,13 +50,12 @@ export const changeStatusQuestion = createAsyncThunk(
     }
 );
 
-
-export const getQuestionDetails = createAsyncThunk(
-    'getMoodMasterSingle',
+export const getAnswerDetails = createAsyncThunk(
+    'getAnswerDetails',
     async ({ user_input }, { rejectWithValue }) => {
         try {
             const id = user_input;
-            const response = await api.get(`/admin-question-manage/details/${id}`);
+            const response = await api.get(`/admin-answer-manage/details/${id}`);
             if (response?.data?.status_code === 200) {
                 return response?.data;
             } else {
@@ -68,12 +66,11 @@ export const getQuestionDetails = createAsyncThunk(
         }
     }
 )
-
-export const updateQuestionDetails = createAsyncThunk(
-    'updateQuestionDetails',
+export const updateAnswerDetails = createAsyncThunk(
+    'updateAnswerDetails',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.put(`/admin-question-manage/edit`, user_input);
+            const response = await api.put(`/admin-answer-manage/edit`, user_input);
             if (response?.data?.status_code === 200) {
                 return response?.data;
             } else {
@@ -84,13 +81,12 @@ export const updateQuestionDetails = createAsyncThunk(
         }
     }
 )
-
-export const deleteQuestion = createAsyncThunk(
-    'deleteQuestion',
+export const deleteAnswer = createAsyncThunk(
+    'deleteAnswer',
     async (user_input, { rejectWithValue }) => {
 
         try {
-            const response = await api.delete(`/admin-question-manage/remove`, { data: user_input });
+            const response = await api.delete(`/admin-answer-manage/remove`, { data: user_input });
             if (response?.data?.status_code === 200) {
                 return response?.data;
             } else {
@@ -104,80 +100,80 @@ export const deleteQuestion = createAsyncThunk(
 
 const initialState = {
     loading: false,
-    questionList: [],
+    answerList: [],
     error: false,
-    addQuestionListData: [],
-    singleQuestion: {},
-    updateQuestionData: {},
-    deleteQueData: {}
+    addAnswerListData: [],
+    singleAnswer: {},
+    updateAnswerData: {},
+    deleteAnswerData: {}
 }
-const QuestionSlice = createSlice(
+const AnswerSlice = createSlice(
     {
-        name: 'que',
+        name: 'ans',
         initialState,
         reducers: {},
         extraReducers: (builder) => {
-            builder.addCase(getQuestion.pending, (state) => {
+            builder.addCase(getAnswer.pending, (state) => {
                 state.loading = true
             })
-                .addCase(getQuestion.fulfilled, (state, { payload }) => {
+                .addCase(getAnswer.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.questionList = payload
+                    state.answerList = payload
                     state.error = false
                 })
-                .addCase(getQuestion.rejected, (state, { payload }) => {
+                .addCase(getAnswer.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
-                .addCase(addQuestions.pending, (state) => {
+                .addCase(addAnswer.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(addQuestions.fulfilled, (state, { payload }) => {
+                .addCase(addAnswer.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.addQuestionListData = payload
+                    state.addAnswerListData = payload
                     state.error = false
                 })
-                .addCase(addQuestions.rejected, (state, { payload }) => {
+                .addCase(addAnswer.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
-                .addCase(getQuestionDetails.pending, (state) => {
+                .addCase(getAnswerDetails.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(getQuestionDetails.fulfilled, (state, { payload }) => {
+                .addCase(getAnswerDetails.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.singleQuestion = payload
+                    state.singleAnswer = payload
                     state.error = false
                 })
-                .addCase(getQuestionDetails.rejected, (state, { payload }) => {
+                .addCase(getAnswerDetails.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
-                .addCase(updateQuestionDetails.pending, (state) => {
+                .addCase(updateAnswerDetails.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(updateQuestionDetails.fulfilled, (state, { payload }) => {
+                .addCase(updateAnswerDetails.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.updateQuestionData = payload
+                    state.updateAnswerData = payload
                     state.error = false
                 })
-                .addCase(updateQuestionDetails.rejected, (state, { payload }) => {
+                .addCase(updateAnswerDetails.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
-                .addCase(deleteQuestion.pending, (state) => {
+                .addCase(deleteAnswer.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(deleteQuestion.fulfilled, (state, { payload }) => {
+                .addCase(deleteAnswer.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.deleteQueData = payload
+                    state.deleteAnswerData = payload
                     state.error = false
                 })
-                .addCase(deleteQuestion.rejected, (state, { payload }) => {
+                .addCase(deleteAnswer.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
         }
     }
 )
-export default QuestionSlice.reducer;
+export default AnswerSlice.reducer;

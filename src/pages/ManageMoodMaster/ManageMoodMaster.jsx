@@ -119,11 +119,11 @@ const ManageMoodMaster = () => {
                 Update
               </button>
 
-              <button
+              {/* <button
               // onClick={() => handleDeleteZone(params?.data?.id)}
               >
                 <MdDelete size={20} color="red" />
-              </button>
+              </button> */}
             </div>
           );
         },
