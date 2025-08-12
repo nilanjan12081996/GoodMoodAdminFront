@@ -18,11 +18,14 @@ import {
 import AddQuestion from "./AddQuestion";
 import UpdateQuestionModal from "./UpdateQuestionModal";
 import DeleteModalQue from "./DeleteModalQue";
+import MappingModal from "./MappingModal";
+import { getAnswer } from "../../Reducer/AnswerSlice";
 
 const ManageQuestion = () => {
   const { questionList, singleQuestion } = useSelector(
     (state) => state?.questions
   );
+  const { answerList } = useSelector((state) => state?.answers);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [openCategoryModal, setOpenCategoryModal] = useState(false);
@@ -32,6 +35,7 @@ const ManageQuestion = () => {
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [questionId, setQuestionId] = useState();
   const [openQueDeleteModal, setOpenQueDeleteModal] = useState(false);
+  const [openMappingModal, setOpenMappingModal] = useState(false);
 
   useEffect(() => {
     dispatch(getQuestion());
@@ -117,6 +121,21 @@ const ManageQuestion = () => {
           </div>
         ),
       },
+
+      {
+        headerName: "Mapped Answer",
+        field: "details",
+        cellRenderer: (params) => (
+          <div>
+            <Button
+              onClick={() => handleMappedWithAnsModal(params?.data?.id)}
+              className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
+            >
+              Mapped With Answer
+            </Button>
+          </div>
+        ),
+      },
     ];
 
     return columns;
@@ -139,7 +158,11 @@ const ManageQuestion = () => {
     setOpenQueDeleteModal(true);
     setQuestionId(id);
   };
-
+  const handleMappedWithAnsModal = (id) => {
+    dispatch(getAnswer());
+    setOpenMappingModal(true);
+    setQuestionId(id);
+  };
   return (
     <div>
       <ToastContainer />
@@ -188,6 +211,14 @@ const ManageQuestion = () => {
           openQueDeleteModal={openQueDeleteModal}
           setOpenQueDeleteModal={setOpenQueDeleteModal}
           questionId={questionId}
+        />
+      )}
+      {openMappingModal && answerList && (
+        <MappingModal
+          openMappingModal={openMappingModal}
+          setOpenMappingModal={setOpenMappingModal}
+          questionId={questionId}
+          answerList={answerList}
         />
       )}
     </div>

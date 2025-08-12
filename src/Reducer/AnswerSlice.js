@@ -98,6 +98,23 @@ export const deleteAnswer = createAsyncThunk(
     }
 )
 
+export const questionAnswerMap = createAsyncThunk(
+    'questionAnswerMap',
+    async (user_input, { rejectWithValue }) => {
+
+        try {
+            const response = await api.post(`/admin-answer-manage/question-answer-map`, user_input);
+            if (response?.data?.status_code === 201) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 const initialState = {
     loading: false,
     answerList: [],
@@ -105,7 +122,8 @@ const initialState = {
     addAnswerListData: [],
     singleAnswer: {},
     updateAnswerData: {},
-    deleteAnswerData: {}
+    deleteAnswerData: {},
+    mappeedData: {}
 }
 const AnswerSlice = createSlice(
     {
@@ -170,6 +188,18 @@ const AnswerSlice = createSlice(
                     state.error = false
                 })
                 .addCase(deleteAnswer.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(questionAnswerMap.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(questionAnswerMap.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.mappeedData = payload
+                    state.error = false
+                })
+                .addCase(questionAnswerMap.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
