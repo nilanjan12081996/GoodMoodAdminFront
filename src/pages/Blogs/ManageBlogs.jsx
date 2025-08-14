@@ -13,17 +13,18 @@ import { Button } from "flowbite-react";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 // import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 // import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
-import { getBlog, publishUnPublished } from "../../Reducer/BlogSlice";
+import { getBlog, getBlogDetails, publishUnPublished } from "../../Reducer/BlogSlice";
 import AddBlogModal from "./AddBlogModal";
+import UpdateBlogModal from "./UpdateBlogModal";
 
 const ManageBlogs = () => {
-  const { blogList } = useSelector(
+  const { blogList,singleBlog } = useSelector(
     (state) => state?.blog
   );
   const dispatch = useDispatch();
   const [openBlogModal, setOpenBlogModal] = useState(false);
-  const [mood_masterId, setMoodMasterId] = useState();
-  const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
+  const [blogId, setBlogId] = useState();
+  const [openUpdateBlogModal, setOpenUpdateBlogModal] =
     useState(false);
 
   useEffect(() => {
@@ -151,7 +152,7 @@ const ManageBlogs = () => {
           return (
             <div className="flex gap-2">
               <button
-                onClick={() => handleUpdateMoodMaster(params?.data?.id)}
+                onClick={() => handleBlogUpdate(params?.data?.id)}
                 className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
                 Update
@@ -170,12 +171,12 @@ const ManageBlogs = () => {
     []
   );
 
-  // const handleUpdateMoodMaster = (id) => {
-  //   console.log(id, "id");
-  //   setOpenUpdateMoodMasterModal(true);
-  //   setMoodMasterId(id);
-  //   dispatch(getMoodMasterSingle({ user_input: id }));
-  // };
+  const handleBlogUpdate = (id) => {
+    console.log(id, "id");
+    setOpenUpdateBlogModal(true);
+    setBlogId(id);
+    dispatch(getBlogDetails({ user_input: id }));
+  };
 
   return (
     <>
@@ -212,14 +213,14 @@ const ManageBlogs = () => {
               setOpenBlogModal={setOpenBlogModal}
             />
           )}
-          {/* {singleMoodMaster && openUpdateMoodMasterModal && (
-            <UpdateMoodMasterModal
-              openUpdateMoodMasterModal={openUpdateMoodMasterModal}
-              setOpenUpdateMoodMasterModal={setOpenUpdateMoodMasterModal}
-              mood_masterId={mood_masterId}
-              singleMoodMaster={singleMoodMaster}
+          {singleBlog && openUpdateBlogModal && (
+            <UpdateBlogModal
+              openUpdateBlogModal={openUpdateBlogModal}
+              setOpenUpdateBlogModal={setOpenUpdateBlogModal}
+              blogId={blogId}
+              singleBlog={singleBlog}
             />
-          )} */}
+          )}
         </div>
       </>
     </>

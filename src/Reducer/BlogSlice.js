@@ -50,12 +50,12 @@ export const publishUnPublished = createAsyncThunk(
     }
 );
 
-export const getAnswerDetails = createAsyncThunk(
+export const getBlogDetails = createAsyncThunk(
     'getAnswerDetails',
     async ({ user_input }, { rejectWithValue }) => {
         try {
             const id = user_input;
-            const response = await api.get(`/admin-answer-manage/details/${id}`);
+            const response = await api.get(`/admin-blog-manage/details/${id}`);
             if (response?.data?.status_code === 200) {
                 return response?.data;
             } else {
@@ -120,7 +120,7 @@ const initialState = {
     blogList: [],
     error: false,
     addBlogListData: [],
-    singleAnswer: {},
+    singleBlog: {},
     updateAnswerData: {},
     deleteAnswerData: {},
     mappeedData: {}
@@ -155,15 +155,15 @@ const BlogSlice = createSlice(
                     state.loading = false
                     state.error = payload
                 })
-                .addCase(getAnswerDetails.pending, (state) => {
+                .addCase(getBlogDetails.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(getAnswerDetails.fulfilled, (state, { payload }) => {
+                .addCase(getBlogDetails.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.singleAnswer = payload
+                    state.singleBlog = payload
                     state.error = false
                 })
-                .addCase(getAnswerDetails.rejected, (state, { payload }) => {
+                .addCase(getBlogDetails.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })

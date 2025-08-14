@@ -33,6 +33,7 @@ import ManageMoodMaster from '../pages/ManageMoodMaster/ManageMoodMaster.jsx';
 import ManageQuestion from '../pages/ManageQuestion/ManageQuestion.jsx';
 import AnswerManagement from '../pages/AnswerManagement/AnswerManagement.jsx';
 import ManageBlogs from '../pages/Blogs/ManageBlogs.jsx';
+import ManageEquilizer from '../pages/Equilizer/ManageEquilizer.jsx';
 
 
 const allRoutes = [
@@ -168,6 +169,17 @@ const allRoutes = [
       {
         index: true,
         element: <AnswerManagement />,
+      },
+    ],
+  },
+
+    {
+    path: '/manage-mood-equilizer',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageEquilizer />,
       },
     ],
   },

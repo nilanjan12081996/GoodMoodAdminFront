@@ -36,6 +36,7 @@ import MoodMasterSlice from '../Reducer/MoodMasterSlice'
 import QuestionSlice from '../Reducer/QuestionSlice'
 import AnswerSlice from '../Reducer/AnswerSlice'
 import BlogSlice from '../Reducer/BlogSlice'
+import EquilizerSlice from '../Reducer/EquilizerSlice'
 
 const store = configureStore({
   reducer: {
@@ -75,7 +76,8 @@ const store = configureStore({
     user: UserSlice,
     questions: QuestionSlice,
     answers: AnswerSlice,
-    blog:BlogSlice
+    blog:BlogSlice,
+    equilize:EquilizerSlice,
   },
   devTools: import.meta.env.DEV,
 });
