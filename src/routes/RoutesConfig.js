@@ -32,6 +32,7 @@ import ManageMoodMeter from '../pages/MoodMeter/ManageMoodMeter.jsx';
 import ManageMoodMaster from '../pages/ManageMoodMaster/ManageMoodMaster.jsx';
 import ManageQuestion from '../pages/ManageQuestion/ManageQuestion.jsx';
 import AnswerManagement from '../pages/AnswerManagement/AnswerManagement.jsx';
+import ManageBlogs from '../pages/Blogs/ManageBlogs.jsx';
 
 
 const allRoutes = [
@@ -119,7 +120,7 @@ const allRoutes = [
   },
 
   {
-    path: '//manage-mood-meter',
+    path: '/manage-mood-meter',
     element: <InsideLayout />,
     children: [
       {
@@ -136,6 +137,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManageMoodMaster />,
+      },
+    ],
+  },
+    {
+    path: '/manage-blog',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageBlogs />,
       },
     ],
   },

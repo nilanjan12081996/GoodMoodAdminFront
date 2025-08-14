@@ -35,6 +35,7 @@ import UserSlice from '../Reducer/UserSlice'
 import MoodMasterSlice from '../Reducer/MoodMasterSlice'
 import QuestionSlice from '../Reducer/QuestionSlice'
 import AnswerSlice from '../Reducer/AnswerSlice'
+import BlogSlice from '../Reducer/BlogSlice'
 
 const store = configureStore({
   reducer: {
@@ -73,7 +74,8 @@ const store = configureStore({
     role: RoleSlice,
     user: UserSlice,
     questions: QuestionSlice,
-    answers: AnswerSlice
+    answers: AnswerSlice,
+    blog:BlogSlice
   },
   devTools: import.meta.env.DEV,
 });

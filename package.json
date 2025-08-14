@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@betrue/react-elementor": "^1.2.5",
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@ckeditor/ckeditor5-react": "^11.0.0",
     "@fullcalendar/common": "^5.11.5",
     "@fullcalendar/daygrid": "^6.1.18",
     "@fullcalendar/google-calendar": "^6.1.18",
