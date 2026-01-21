@@ -13,11 +13,14 @@ import { Button } from "flowbite-react";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
+import { useParams } from "react-router-dom";
+import { getAwarness } from "../../Reducer/MoodMeterSlice";
 
 const ManageMoodMaster = () => {
   const { moodsList, singleMoodMaster } = useSelector(
     (state) => state?.moodMastersData
   );
+    const { allMoodMeter } = useSelector((state) => state?.moodData);
   const dispatch = useDispatch();
     const id=useParams()
     console.log("id",id);
@@ -28,44 +31,69 @@ const ManageMoodMaster = () => {
     useState(false);
 
   useEffect(() => {
-    dispatch(getMoodMaster());
+     dispatch(getAwarness({
+          id:id?.id
+        }));
   }, []);
   console.log("moodsList", moodsList);
 
   const rowData = useMemo(() => {
     return (
-      moodsList?.data?.map((tags) => ({
-        id: tags?.id,
-        mood_master_name: tags?.mood_master_name,
-        mood_master_description: tags?.mood_master_description,
-        mood_master_color_code: tags?.mood_master_color_code,
-        mood_master_icon:
-          "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
+      allMoodMeter?.data?.map((tags) => ({
+         id: tags?.id,
+        mood_meter_name: tags?.awarenessName,
+        mood_meter_avatar: tags?.image,
+        description:tags?.description,
+        colorCode:tags?.colorCode,
         status: tags.status,
       })) || []
     );
-  }, [moodsList?.data]);
+  }, [allMoodMeter?.data]);
 
   const columnDefs = useMemo(
     () => [
       {
-        field: "mood_master_name",
+        field: "mood_meter_name",
         headerName: "Mood Master Name",
         sortable: true,
         filter: true,
       },
       {
-        field: "mood_master_description",
+        field: "description",
         headerName: "Mood Master Description",
         sortable: true,
         filter: true,
       },
+      // {
+      //   field: "colorCode",
+      //   headerName: "Mood Master Color Code",
+      //   sortable: true,
+      //   filter: true,
+      // },
+
       {
-        field: "mood_master_color_code",
+        field: "colorCode",
         headerName: "Mood Master Color Code",
         sortable: true,
         filter: true,
+        cellRenderer: (params) => {
+          const color = params.value;
+
+          return (
+            <div className="flex items-center gap-2">
+              {/* Color circle */}
+              <span
+                className="w-5 h-5 rounded-full border border-gray-300"
+                style={{ backgroundColor: color }}
+              ></span>
+
+              {/* Color code text */}
+              <span className="text-sm font-medium">{color}</span>
+            </div>
+          );
+        },
       },
+
 
       {
         field: "status",
@@ -151,7 +179,7 @@ const ManageMoodMaster = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Mood Master</h2>
               <Button
-                onClick={() => setOpenMoodMasterModal(true)}
+                onClick={() => setOpenTagModal(true)}
                 className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
                 Add Mood Master

@@ -164,7 +164,7 @@ const allRoutes = [
     ],
   },
   {
-    path: '/manage-question',
+    path: '/QuestionAnswer/:id',
     element: <InsideLayout />,
     children: [
       {

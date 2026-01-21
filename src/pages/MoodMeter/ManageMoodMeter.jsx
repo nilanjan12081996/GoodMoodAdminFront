@@ -58,11 +58,33 @@ const ManageMoodMeter = () => {
         sortable: true,
         filter: true,
       },
-        {
+      //   {
+      //   field: "colorCode",
+      //   headerName: "Color Code",
+      //   sortable: true,
+      //   filter: true,
+      // },
+       {
         field: "colorCode",
-        headerName: "Color Code",
+        headerName: "Mood Master Color Code",
         sortable: true,
         filter: true,
+        cellRenderer: (params) => {
+          const color = params.value;
+
+          return (
+            <div className="flex items-center gap-2">
+              {/* Color circle */}
+              <span
+                className="w-5 h-5 rounded-full border border-gray-300"
+                style={{ backgroundColor: color }}
+              ></span>
+
+              {/* Color code text */}
+              <span className="text-sm font-medium">{color}</span>
+            </div>
+          );
+        },
       },
       
       {

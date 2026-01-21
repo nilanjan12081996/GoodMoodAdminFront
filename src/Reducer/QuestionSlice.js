@@ -6,8 +6,8 @@ export const getQuestion = createAsyncThunk(
     'getQuestion',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get(`/admin-question-manage/list`);
-            if (response?.data?.status_code === 200) {
+            const response = await api.get(`goodmood/question/answer/list`);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
@@ -21,8 +21,8 @@ export const addQuestions = createAsyncThunk(
     'addQuestions',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin-question-manage/add`, user_input);
-            if (response?.data?.status_code === 201) {
+            const response = await api.post(`goodmood/question/answer/add-edit`, user_input);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);

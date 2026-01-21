@@ -1,5 +1,5 @@
 import { Button, FileInput, Label, Modal, TextInput } from "flowbite-react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import {
   addCateGory,
@@ -9,18 +9,24 @@ import {
 import { toast } from "react-toastify";
 import { addQuestions, getQuestion } from "../../Reducer/QuestionSlice";
 
-const AddQuestion = ({ openAddQueModal, setOpenAddQueModal }) => {
+const AddQuestion = ({ openAddQueModal, setOpenAddQueModal,id }) => {
   const dispatch = useDispatch();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+const { register, control, handleSubmit,watch, reset,formState: { errors } } = useForm({
+    defaultValues: {
+      question: "",
+      answer: [{ answer: "", point: 0 }] // Start with one empty answer
+    }
+  });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "answer"
+  });
+  const watchAnswers = watch("answer");
   const onSubmit = (data) => {
     console.log("cate_Data: ", data);
 
     dispatch(addQuestions(data)).then((res) => {
-      if (res?.payload?.status_code === 201) {
+      if (res?.payload?.statusCode === 200) {
         dispatch(getQuestion());
         setOpenAddQueModal(false);
 
@@ -30,49 +36,83 @@ const AddQuestion = ({ openAddQueModal, setOpenAddQueModal }) => {
   };
   return (
     <>
-      <Modal show={openAddQueModal} onClose={() => setOpenAddQueModal(false)}>
-        <Modal.Header>Add Questions</Modal.Header>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Modal.Body>
+     <Modal show={openAddQueModal} onClose={() => setOpenAddQueModal(false)}>
+      <Modal.Header>Add Questions</Modal.Header>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Modal.Body>
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="question" value="Question" />
+              <TextInput
+                id="question"
+                {...register("question", { required: "Question is required" })}
+                className="mt-2"
+              />
+            </div>
+
             <div className="space-y-4">
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="name" value="Question" />
-                </div>
-                <TextInput
-                  id="name"
-                  type="text"
-                  placeholder="Enter Question"
-                  {...register("question")}
-                />
+              <div className="flex items-center justify-between">
+                <Label value="Answers (Max 4)" />
+                {fields.length < 4 && (
+                  <Button 
+                    size="xs" 
+                    color="gray" 
+                    onClick={() => append({ answer: "", point: 0 })}
+                  >
+                    + Add Choice
+                  </Button>
+                )}
               </div>
 
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="name" value="Question Description" />
+              {fields.map((item, index) => (
+                <div key={item.id} className="space-y-2 border p-3 rounded-lg">
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <Label value={`Answer ${index + 1}`} />
+                      <TextInput
+                        {...register(`answer.${index}.answer`, { required: "Text required" })}
+                      />
+                    </div>
+                    
+                    <div className="w-28">
+                      <Label value="Point (0-10)" />
+                      <TextInput
+                        type="number"
+                        {...register(`answer.${index}.point`, {
+                          required: true,
+                          valueAsNumber: true,
+                          min: { value: 0, message: "Min 0" },
+                          max: { value: 10, message: "Max 10" },
+                          validate: (value) => {
+                            // Check if this point value exists in other answer fields
+                            const duplicates = watchAnswers.filter(a => a.point === value);
+                            return duplicates.length <= 1 || "Points must be unique";
+                          }
+                        })}
+                      />
+                    </div>
+
+                    {fields.length > 1 && (
+                      <Button color="failure" onClick={() => remove(index)}>Delete</Button>
+                    )}
+                  </div>
+                  
+                  {/* Error Messaging */}
+                  {errors.answer?.[index]?.point && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.answer[index].point.message}
+                    </p>
+                  )}
                 </div>
-                <TextInput
-                  id="name"
-                  type="text"
-                  placeholder="Enter Question Description"
-                  {...register("question_description")}
-                />
-              </div>
+              ))}
             </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              className="cnl_btn"
-              onClick={() => setOpenAddQueModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button color="success" type="submit">
-              Add Question
-            </Button>
-          </Modal.Footer>
-        </form>
-      </Modal>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="success" type="submit">Add Question</Button>
+        </Modal.Footer>
+      </form>
+    </Modal>
     </>
   );
 };

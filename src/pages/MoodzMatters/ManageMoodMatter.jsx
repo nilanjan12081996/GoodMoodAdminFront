@@ -11,9 +11,10 @@ import {
 } from "../../Reducer/MoodMeterSlice";
 
 import { ToastContainer } from "react-toastify";
-import AddMoodMeterModal from "./AddMoodMeterModal";
+
 import UpdateMoodMeterModal from "./UpdateMoodMeterModal";
 import { useParams } from "react-router-dom";
+import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 
 const ManageMoodMatter = () => {
   const dispatch = useDispatch();

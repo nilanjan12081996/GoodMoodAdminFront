@@ -6,7 +6,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import { MdDelete } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
@@ -25,6 +25,7 @@ const ManageQuestion = () => {
   const { questionList, singleQuestion } = useSelector(
     (state) => state?.questions
   );
+  const id=useParams()
   const { answerList } = useSelector((state) => state?.answers);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ const ManageQuestion = () => {
   const [questionId, setQuestionId] = useState();
   const [openQueDeleteModal, setOpenQueDeleteModal] = useState(false);
   const [openMappingModal, setOpenMappingModal] = useState(false);
-
+  const[answer,setAnswer]=useState()
   useEffect(() => {
     dispatch(getQuestion());
   }, []);
@@ -46,7 +47,7 @@ const ManageQuestion = () => {
     return questionList?.data?.map((batch) => ({
       id: batch?.id,
       question: batch?.question,
-      question_description: batch?.question_description,
+      answer: batch?.answer,
       status: batch?.status,
     }));
   }, [questionList]);
@@ -59,12 +60,7 @@ const ManageQuestion = () => {
         sortable: true,
         filter: true,
       },
-      {
-        field: "question_description",
-        headerName: "Question Description",
-        sortable: true,
-        filter: true,
-      },
+   
       {
         field: "status",
         headerName: "Status",
@@ -123,15 +119,16 @@ const ManageQuestion = () => {
       },
 
       {
-        headerName: "Mapped Answer",
+        headerName: "View",
+      
         field: "details",
         cellRenderer: (params) => (
           <div>
             <Button
-              onClick={() => handleMappedWithAnsModal(params?.data?.id)}
+              onClick={() => handleMappedWithAnsModal(params?.data?.answer)}
               className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
             >
-              Mapped With Answer
+              View
             </Button>
           </div>
         ),
@@ -158,10 +155,10 @@ const ManageQuestion = () => {
     setOpenQueDeleteModal(true);
     setQuestionId(id);
   };
-  const handleMappedWithAnsModal = (id) => {
-    dispatch(getAnswer());
+  const handleMappedWithAnsModal = (data) => {
+   // dispatch(getAnswer());
     setOpenMappingModal(true);
-    setQuestionId(id);
+    setAnswer(data);
   };
   return (
     <div>
@@ -196,6 +193,7 @@ const ManageQuestion = () => {
         <AddQuestion
           openAddQueModal={openAddQueModal}
           setOpenAddQueModal={setOpenAddQueModal}
+          id={id}
         />
       )}
       {openUpdateModal && singleQuestion && (
@@ -217,8 +215,9 @@ const ManageQuestion = () => {
         <MappingModal
           openMappingModal={openMappingModal}
           setOpenMappingModal={setOpenMappingModal}
-          questionId={questionId}
-          answerList={answerList}
+          //questionId={questionId}
+         // answerList={answerList}
+         answerArray={answer}
         />
       )}
     </div>
