@@ -34,6 +34,7 @@ import ManageQuestion from '../pages/ManageQuestion/ManageQuestion.jsx';
 import AnswerManagement from '../pages/AnswerManagement/AnswerManagement.jsx';
 import ManageBlogs from '../pages/Blogs/ManageBlogs.jsx';
 import ManageEquilizer from '../pages/Equilizer/ManageEquilizer.jsx';
+import ManageMoodMatter from '../pages/MoodzMatters/ManageMoodMatter.jsx';
 
 
 const allRoutes = [
@@ -121,7 +122,7 @@ const allRoutes = [
   },
 
   {
-    path: '/manage-mood-meter',
+    path: '/MoodMeters/:id',
     element: <InsideLayout />,
     children: [
       {
@@ -131,8 +132,19 @@ const allRoutes = [
     ],
   },
 
+    {
+    path: '/MoodzMatter/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageMoodMatter />,
+      },
+    ],
+  },
+
   {
-    path: '/manage-mood-masters',
+    path: '/MoodMasters/:id',
     element: <InsideLayout />,
     children: [
       {

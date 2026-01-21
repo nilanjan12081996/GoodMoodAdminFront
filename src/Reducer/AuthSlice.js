@@ -34,25 +34,7 @@ export const registerUser = createAsyncThunk(
 
 //for OTP
 
-export const verifyOtp = createAsyncThunk(
-    'user/verify-otp',
-    async (userInput, { rejectWithValue }) => {
-        try {
-            const response = await api.post('otpapi', userInput);
-            if (response?.data?.status_code === 200) {
-                return response.data;
-            } else {
-                if (response?.data?.errors) {
-                    return rejectWithValue(response.data.errors);
-                } else {
-                    return rejectWithValue('Failed to verify OTP');
-                }
-            }
-        } catch (err) {
-            return rejectWithValue(err);
-        }
-    }
-);
+
 
 
 // For Login
@@ -63,8 +45,26 @@ export const login = createAsyncThunk(
     async (userInput, { rejectWithValue }) => {
 
         try {
-            const response = await api.post('/admin-auth/login', userInput);
-            if (response?.data?.status_code === 200) {
+            const response = await api.post('goodmood/superadmin/login', userInput);
+            if (response?.data?.statusCode === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (err) {
+            // let errors = errorHandler(err);
+            return rejectWithValue(err);
+        }
+    }
+)
+
+export const verifyOtp = createAsyncThunk(
+    'auth/verifyOtp',
+    async (userInput, { rejectWithValue }) => {
+
+        try {
+            const response = await api.post('goodmood/superadmin/verify-otp', userInput);
+            if (response?.data?.statusCode === 200) {
                 return response.data;
             } else {
                 return rejectWithValue(response.data);
@@ -212,10 +212,17 @@ const AuthSlice = createSlice(
                     state.loading = true;
                 })
                 .addCase(verifyOtp.fulfilled, (state, { payload }) => {
-                    const { message } = payload;
+                    console.log("payload",payload);
+                    
+                    const { token } = payload;
                     state.loading = false;
                     state.currentUser.otp_verified = 1;
-                    state.message = message;
+                
+                       sessionStorage.setItem(
+                        'good_mood_admin_token',
+                        JSON.stringify({ token: token })
+                    )
+
                 })
                 .addCase(verifyOtp.rejected, (state, response) => {
                     state.loading = false;
@@ -238,10 +245,10 @@ const AuthSlice = createSlice(
                     state.message = payload?.message;
                     state.loadingLogin = false;
 
-                    sessionStorage.setItem(
-                        'good_mood_admin_token',
-                        JSON.stringify({ token: payload?.token })
-                    )
+                    // sessionStorage.setItem(
+                    //     'good_mood_admin_token',
+                    //     JSON.stringify({ token: payload?.token })
+                    // )
                     // localStorage.setItem('user_role_id', payload?.role_id)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
 

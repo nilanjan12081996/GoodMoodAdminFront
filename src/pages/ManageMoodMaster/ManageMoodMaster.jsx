@@ -19,6 +19,9 @@ const ManageMoodMaster = () => {
     (state) => state?.moodMastersData
   );
   const dispatch = useDispatch();
+    const id=useParams()
+    console.log("id",id);
+   const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
   const [mood_masterId, setMoodMasterId] = useState();
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
@@ -168,10 +171,11 @@ const ManageMoodMaster = () => {
               />
             </div>
           </div>
-          {openMoodMasterModal && (
-            <AddMoodMasterMdoal
-              openMoodMasterModal={openMoodMasterModal}
-              setOpenMoodMasterModal={setOpenMoodMasterModal}
+          {openAddTagModal && (
+            <AddMoodMeterModal
+              openAddTagModal={openAddTagModal}
+              setOpenTagModal={setOpenTagModal}
+              id={id}
             />
           )}
           {singleMoodMaster && openUpdateMoodMasterModal && (

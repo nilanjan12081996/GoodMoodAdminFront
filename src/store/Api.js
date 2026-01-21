@@ -32,7 +32,7 @@ api.interceptors.request.use((req) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && [401, 403].includes(error.response.status)) {
+    if (error.response && [401].includes(error.response.status)) {
       sessionStorage.removeItem('good_mood_admin_token');
     }
     return Promise.reject(error);

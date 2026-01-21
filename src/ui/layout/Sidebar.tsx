@@ -13,7 +13,9 @@ import { SiLevelsdotfyi } from "react-icons/si";
 import { RiSoundModuleFill } from 'react-icons/ri';
 import { GiFireZone } from "react-icons/gi";
 import { CiShoppingTag } from 'react-icons/ci';
-
+import { useDispatch } from 'react-redux';
+import {dynamicSidebar}from '../../Reducer/SidebarSlice';
+import { useSelector } from 'react-redux';
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
@@ -30,6 +32,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
+  const{sidebarData}=useSelector((state)=>state?.sidebars)
+  const dispatch=useDispatch()
+
+
 
   // close on click outside
   useEffect(() => {
@@ -78,6 +84,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const currentUserRole = userRoles()
   console.log("userRole", currentUserRole);
+  useEffect(()=>{
+    dispatch(dynamicSidebar())
+  },[])
+console.log("sidebarData",sidebarData);
+
+const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+const toggleMenu = (id: number) => {
+  setOpenMenuId(prev => (prev === id ? null : id));
+};
 
   return (
     <aside
@@ -116,74 +132,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* <!-- Menu Group --> */}
           <div>
 
-            <ul className="mb-6 flex flex-col gap-1.5">
+            {/* <ul className="mb-6 flex flex-col gap-1.5">
 
-              {/* <!-- Menu Item Calendar --> */}
-              {/* <li>
+              {
+                sidebarData?.data?.map((side)=>{
+                  return(
+                    <>
+                    <li>
                 <NavLink
-                  to="/transaction"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('transaction') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <TfiMenuAlt className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <TfiMenuAlt className='text-xl' />
-                      User List
-                    </>
-                  }
-                </NavLink>
-              </li> */}
-
-              {/* <li>
-                <NavLink
-                  to="/manage-zone"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('coaches') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <GiFireZone className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <GiFireZone className='text-xl' />
-                      Manage Zone
-                    </>
-                  }
-                </NavLink>
-              </li> */}
-              {/* Child menu for Coach Sessions */}
-
-
-              {/* <li>
-                <NavLink
-                  to="/manage-parents"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('parents') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <MdFamilyRestroom className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <MdFamilyRestroom className='text-xl' />
-                      Manage User
-                    </>
-                  }
-                </NavLink>
-              </li> */}
-
-              <li>
-                <NavLink
-                  to="/manage-category"
+                  to=""
                   className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-category') &&
                     'bg-graydark dark:bg-meta-4'
                     }`}
@@ -195,300 +152,73 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     :
                     <>
                       <MdCategory className='text-xl' />
-                      Manage Funda-Mentals
+                      {side?.sidebarName}
                     </>
                   }
                 </NavLink>
               </li>
-             
-              <li>
-                <NavLink
-                  to="/manage-mood-meter"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-meter') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <CiShoppingTag className='text-xl' />
                     </>
-                    :
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                      Manage Mood Meter
-                    </>
-                  }
-                </NavLink>
-              </li>
-
-
-              <li>
-                <NavLink
-                  to="/manage-mood-masters"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-masters') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                      Manage Mood Masters
-                    </>
-                  }
-                </NavLink>
-              </li>
-
-               <li>
-                <NavLink
-                  to="/manage-question"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-question') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                      Manage Question
-                    </>
-                  }
-                </NavLink>
-              </li>
-               <li>
-                <NavLink
-                  to="/manage-answer"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-answer') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                      Manage Answer
-                    </>
-                  }
-                </NavLink>
-              </li>
-
-               <li>
-                <NavLink
-                  to="/manage-blog"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-blog') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                      Manage Blog
-                    </>
-                  }
-                </NavLink>
-              </li>
-
-
-                  <li>
-                <NavLink
-                  to="/manage-mood-equilizer"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-blog') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <CiShoppingTag className='text-xl' />
-                      Manage Mood Equilizer
-                    </>
-                  }
-                </NavLink>
-              </li>
-                
-              {/* {
-                currentUserRole==='SA'&&(
-                  <>
-              <li>
-                <NavLink
-                  to="/manage-roles"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('roles') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <MdAdminPanelSettings className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <MdAdminPanelSettings className='text-xl' />
-                      Manage Roles
-                    </>
-                  }
-                </NavLink>
-              </li>
-                 </>
-                )
+                  )
+                })
               }
 
-              {
-                currentUserRole === 'SA' && (
-                  <>
-                    <li>
-                      <NavLink
-                        to="/manage-plans"
-                        className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('roles') &&
-                          'bg-graydark dark:bg-meta-4'
-                          }`}
+            </ul> */}
+            <ul className="mb-6 flex flex-col gap-1.5">
+            {sidebarData?.data?.map((side) => {
+              const isOpen = openMenuId === side.id;
+              const hasSubmenu = side.subsidebar?.length > 0;
+
+              return (
+                <li key={side.id}>
+                  {/* Parent menu */}
+                  <button
+                    type="button"
+                    onClick={() => hasSubmenu && toggleMenu(side.id)}
+                    className={`group relative flex w-full items-center gap-2 rounded-sm px-4 py-2
+                      ${sidebarOpen ? 'justify-center' : 'justify-between'}
+                      font-normal text-sm text-gray-600 duration-300 ease-in-out
+                      hover:bg-gray-100 mb-1`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <MdCategory className="text-xl" />
+                      {!sidebarOpen && <span>{side.sidebarName}</span>}
+                    </div>
+
+                    {/* Dropdown arrow */}
+                    {!sidebarOpen && hasSubmenu && (
+                      <span
+                        className={`transition-transform duration-200 ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
                       >
-                        {sidebarOpen ?
-                          <>
-                            <MdSubscriptions className='text-xl' />
-                          </>
-                          :
-                          <>
-                            <MdSubscriptions className='text-xl' />
-                            Manage Plans
-                          </>
-                        }
-                      </NavLink>
-                    </li>
+                        ▼
+                      </span>
+                    )}
+                  </button>
 
-                  </>
-                )
-              }
-
-
-              {
-                currentUserRole === 'SA' && (
-                  <>
-                    <li>
-                      <NavLink
-                        to="/manage-level"
-                        className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('roles') &&
-                          'bg-graydark dark:bg-meta-4'
-                          }`}
-                      >
-                        {sidebarOpen ?
-                          <>
-                            <SiLevelsdotfyi className='text-xl' />
-                          </>
-                          :
-                          <>
-                            <SiLevelsdotfyi className='text-xl' />
-                            Manage Level
-                          </>
-                        }
-                      </NavLink>
-                    </li>
-
-                    <li>
-                      <NavLink
-                        to="/manage-topic"
-                        className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('roles') &&
-                          'bg-graydark dark:bg-meta-4'
-                          }`}
-                      >
-                        {sidebarOpen ?
-                          <>
-                            <MdTopic className='text-xl' />
-                          </>
-                          :
-                          <>
-                            <MdTopic className='text-xl' />
-                            Manage Topic
-                          </>
-                        }
-                      </NavLink>
-                    </li>
-
-                    <li>
-                      <NavLink
-                        to="/manage-module"
-                        className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('roles') &&
-                          'bg-graydark dark:bg-meta-4'
-                          }`}
-                      >
-                        {sidebarOpen ?
-                          <>
-                            <RiSoundModuleFill className='text-xl' />
-                          </>
-                          :
-                          <>
-                            <RiSoundModuleFill className='text-xl' />
-                            Manage Module
-                          </>
-                        }
-                      </NavLink>
-                    </li>
-
-                    <li>
-                      <NavLink
-                        to="/payment-method"
-                        className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('roles') &&
-                          'bg-graydark dark:bg-meta-4'
-                          }`}
-                      >
-                        {sidebarOpen ?
-                          <>
-                            <MdPayment className='text-xl' />
-                          </>
-                          :
-                          <>
-                            <MdPayment className='text-xl' />
-                            Payment Method
-                          </>
-                        }
-                      </NavLink>
-                    </li>
-
-                  </>
-                )
-              } */}
-
-
-              {/* <li>
-                <NavLink
-                  to="/plan"
-                  className={`group relative flex items-center gap-2 rounded-sm py-2 px-4 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('plan') && 'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <PiClipboardTextBold className='text-2xl' />
-                    </>
-                    :
-                    <>
-                      <PiClipboardTextBold className='text-2xl' />
-                      Plans
-                    </>
-                  }
-                </NavLink>
-              </li>  */}
-              {/* <!-- Menu Item Offer Request --> */}
-
-
-
-
-
-            </ul>
+                  {/* Submenu */}
+                  {!sidebarOpen && hasSubmenu && isOpen && (
+                    <ul className="ml-8 mt-1 flex flex-col gap-1">
+                      {side.subsidebar.map((sub) => (
+                        <li key={sub.id}>
+                          <NavLink
+                            to={`/${sub.subSidebarShortName}/${sub.id}`}
+                            className={({ isActive }) =>
+                              `block rounded px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 ${
+                                isActive ? 'bg-gray-200 font-medium' : ''
+                              }`
+                            }
+                          >
+                            {sub.subSidebarName}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
           </div>
 
         </nav>

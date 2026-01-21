@@ -37,10 +37,12 @@ import QuestionSlice from '../Reducer/QuestionSlice'
 import AnswerSlice from '../Reducer/AnswerSlice'
 import BlogSlice from '../Reducer/BlogSlice'
 import EquilizerSlice from '../Reducer/EquilizerSlice'
+import SidebarSlice from '../Reducer/SidebarSlice'
 
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
+    sidebars:SidebarSlice,
     transaction: TransactionSlice,
     plan: PlanSlice,
     product: ProductSlice,

@@ -2,12 +2,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../store/Api";
 
 
-export const getMoodMeter = createAsyncThunk(
-    'getMoodMeter',
-    async (user_input, { rejectWithValue }) => {
+export const getAwarness = createAsyncThunk(
+    'getAwarness',
+    async ({id}, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin/mood-meter/get-mood-meter`, user_input);
-            if (response?.data?.status_code === 200) {
+            const response = await api.get(`goodmood/awarness/list/by/subbar?id=${id}`);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
@@ -38,10 +38,10 @@ export const addMoodMeter = createAsyncThunk(
     'addMoodMeter',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin/mood-meter/add`, user_input);
+            const response = await api.post(`goodmood/awarness/save`, user_input);
 
 
-            if (response?.data?.status_code === 201) {
+            if (response?.data?.statusCode === 201) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
@@ -133,15 +133,15 @@ const MoodMeterSlice = createSlice(
         reducers: {},
         extraReducers: (builder) => {
             builder
-                .addCase(getMoodMeter.pending, (state) => {
+                .addCase(getAwarness.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(getMoodMeter.fulfilled, (state, { payload }) => {
+                .addCase(getAwarness.fulfilled, (state, { payload }) => {
                     state.loading = false
                     state.allMoodMeter = payload
                     state.error = false
                 })
-                .addCase(getMoodMeter.rejected, (state, { payload }) => {
+                .addCase(getAwarness.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })

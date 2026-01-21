@@ -15,7 +15,7 @@ import AddMoodMeterModal from "./AddMoodMeterModal";
 import UpdateMoodMeterModal from "./UpdateMoodMeterModal";
 import { useParams } from "react-router-dom";
 
-const ManageMoodMeter = () => {
+const ManageMoodMatter = () => {
   const dispatch = useDispatch();
   const id=useParams()
   console.log("id",id);
@@ -58,12 +58,12 @@ const ManageMoodMeter = () => {
         sortable: true,
         filter: true,
       },
-        {
-        field: "colorCode",
-        headerName: "Color Code",
-        sortable: true,
-        filter: true,
-      },
+      //   {
+      //   field: "colorCode",
+      //   headerName: "Color Code",
+      //   sortable: true,
+      //   filter: true,
+      // },
       
       {
         field: "status",
@@ -148,12 +148,12 @@ const ManageMoodMeter = () => {
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Mood Meter</h2>
+            <h2 className="text-2xl font-semibold">Moodz Matter</h2>
             <Button
               onClick={() => setOpenTagModal(true)}
               className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
             >
-              Add Mood Meter
+              Add Moodz Matter
             </Button>
           </div>
           <div
@@ -188,4 +188,4 @@ const ManageMoodMeter = () => {
     </>
   );
 };
-export default ManageMoodMeter;
+export default ManageMoodMatter;
