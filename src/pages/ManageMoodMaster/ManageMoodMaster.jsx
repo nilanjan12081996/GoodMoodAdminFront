@@ -175,7 +175,7 @@ const ManageMoodMaster = () => {
                </label>
              );
            },
-               }
+      }
       ,
       {
         width: 400,

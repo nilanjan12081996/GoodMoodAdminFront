@@ -50,12 +50,12 @@ export const addBlog = createAsyncThunk(
 )
 export const publishUnPublished = createAsyncThunk(
     'publishUnPublished',
-    async (user_input, { rejectWithValue }) => {
+    async ({id}, { rejectWithValue }) => {
         try {
 
-            const response = await api.patch(`/admin-blog-manage/publish`, user_input);
+            const response = await api.patch(`goodmood/post/publish/${id}`);
 
-            if (response?.data?.status_code === 200) {
+            if (response?.data?.statusCode === 200) {
                 return response.data;
             } else {
                 return rejectWithValue(response.data);
@@ -68,11 +68,11 @@ export const publishUnPublished = createAsyncThunk(
 
 export const getBlogDetails = createAsyncThunk(
     'getAnswerDetails',
-    async ({ user_input }, { rejectWithValue }) => {
+    async ({ id }, { rejectWithValue }) => {
         try {
-            const id = user_input;
-            const response = await api.get(`/admin-blog-manage/details/${id}`);
-            if (response?.data?.status_code === 200) {
+            
+            const response = await api.get(`goodmood/post/list?id=${id}`);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);

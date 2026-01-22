@@ -13,15 +13,17 @@ import { Button } from "flowbite-react";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 // import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 // import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
-import { getBlog, getBlogDetails, publishUnPublished } from "../../Reducer/BlogSlice";
+import { getBlog, getBlogDetails, publishUnPublished, uploadImage } from "../../Reducer/BlogSlice";
 import AddBlogModal from "./AddBlogModal";
 import UpdateBlogModal from "./UpdateBlogModal";
+import { useNavigate } from "react-router-dom";
 
 const ManageBlogs = () => {
   const { blogList,singleBlog } = useSelector(
     (state) => state?.blog
   );
   const dispatch = useDispatch();
+  const navigate=useNavigate()
   const [openBlogModal, setOpenBlogModal] = useState(false);
   const [blogId, setBlogId] = useState();
   const [openUpdateBlogModal, setOpenUpdateBlogModal] =
@@ -38,7 +40,8 @@ const ManageBlogs = () => {
         id: tags?.id,
         title: tags?.title,
         content: tags?.content,
-        image_url:tags?.image_url,
+        image_url:tags?.image,
+        status:tags?.status===0?"Publish":"Published",
         is_published: tags.is_published,
       })) || []
     );
@@ -66,84 +69,57 @@ const ManageBlogs = () => {
   },
 },
 
-      // {
-      //   field: "is_published",
-      //   headerName: "Status",
-      //   cellRenderer: (params) => {
-      //     const isChecked = params.value;
-
-      //     const handleStatusChange = () => {
-      //       const newStatus = isChecked ? 0 : 1;
-      //       dispatch(
-      //         changeStatus({ id: params.data.id, status: newStatus })
-      //       ).then(() => {
-      //         dispatch(getMoodMaster()); // refresh data after success
-      //       });
-      //     };
-
-      //     return (
-      //       <label className="inline-flex items-center cursor-pointer">
-      //         <input
-      //           type="checkbox"
-      //           checked={isChecked}
-      //           onChange={() => handleStatusChange(params.data.id, isChecked)}
-      //           className="sr-only peer"
-      //         />
-      //         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 relative"></div>
-      //       </label>
-      //     );
-      //   },
-      // },
-
-
-{
-  field: "is_published",
-  headerName: "Status",
-  cellRenderer: (params) => {
-    const isChecked = params.value === 1; // true if published
-    const isDisabled = params.value === 1; // disable toggle if published
-
-    const handleStatusChange = () => {
-      const newStatus = isChecked ? 0 : 1;
-      dispatch(publishUnPublished({ blogId: params.data.id, status: newStatus }))
-        .then(() => {
-          dispatch(getBlog()); // refresh data after success
-        });
-    };
-
-    return (
-      <label className="inline-flex items-center cursor-pointer">
-        <input
-          type="checkbox"
-          checked={isChecked}
-          disabled={isDisabled}
-          onChange={() => handleStatusChange()}
-          className="sr-only peer"
-        />
-        <div
-          className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 
-          peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-          after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
-          peer-checked:bg-green-500 relative ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-        ></div>
-      </label>
-    );
-  },
-},
-
-      {
-        field: "image_url",
-        headerName: "Image",
-        cellRenderer: (params) => {
-          return (
-            <img
-              src={params.value}
-              alt="avatar"
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          );
-        },
-      },
+      
+   {
+              field: "image_url",
+              headerName: "Avatar",
+              cellRenderer: (params) => {
+              const handleFileChange = (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+            
+                  // Create preview URL
+                  const previewUrl = URL.createObjectURL(file);
+            
+                  // Update AG Grid cell value
+                  params.node.setDataValue("image_url", previewUrl);
+                    const formData=new FormData()
+                  
+                    formData.append("file",file)
+                  dispatch(
+                uploadImage({
+                  id: params.data.id,
+                  user_input: formData,
+                })
+                  )
+              
+                };
+            
+                return (
+                  <label className="relative w-12 h-12 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition">
+                    
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+            
+                    {/* Show image if exists */}
+                    {params.value ? (
+                      <img
+                        src={params.value}
+                        alt="avatar"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-400">Upload</span>
+                    )}
+                  </label>
+                );
+              },
+         },
       {
         width: 400,
         headerName: "Actions",
@@ -155,7 +131,7 @@ const ManageBlogs = () => {
                 onClick={() => handleBlogUpdate(params?.data?.id)}
                 className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                Update
+                View Blog
               </button>
 
               {/* <button
@@ -167,15 +143,24 @@ const ManageBlogs = () => {
           );
         },
       },
+
+      {
+        field: "status",
+        headerName: "Status",
+         sortable: true,
+        filter: true,
+        
+      },
     ],
     []
   );
 
   const handleBlogUpdate = (id) => {
     console.log(id, "id");
-    setOpenUpdateBlogModal(true);
-    setBlogId(id);
-    dispatch(getBlogDetails({ user_input: id }));
+   // setOpenUpdateBlogModal(true);
+   navigate("/blog-details",{state:{id:id}})
+    // setBlogId(id);
+    // dispatch(getBlogDetails({ user_input: id }));
   };
 
   return (
