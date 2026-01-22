@@ -1,5 +1,5 @@
 import { AgGridReact } from "ag-grid-react";
-import { Button } from "flowbite-react";
+import { Button, FileInput } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -123,11 +123,15 @@ const ManageMoodMeter = () => {
         headerName: "Avatar",
         cellRenderer: (params) => {
           return (
+            <>
+            
+            <FileInput/>
             <img
               src={params.value}
               alt="avatar"
               className="w-12 h-12 rounded-full object-cover"
             />
+            </>
           );
         },
       },
