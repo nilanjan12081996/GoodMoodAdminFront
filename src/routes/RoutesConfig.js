@@ -154,7 +154,7 @@ const allRoutes = [
     ],
   },
     {
-    path: '/manage-blog',
+    path: '/PsychiatricInsights/:id',
     element: <InsideLayout />,
     children: [
       {

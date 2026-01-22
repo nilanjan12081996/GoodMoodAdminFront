@@ -50,6 +50,23 @@ export const getSingleMoodMeter = createAsyncThunk(
     }
 )
 
+
+export const uploladImage = createAsyncThunk(
+    'uploladImage',
+    async ({id,user_input}, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`goodmood/awarness/image-upload/${id}`, user_input);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 export const addMoodMeter = createAsyncThunk(
     'addMoodMeter',
     async (user_input, { rejectWithValue }) => {

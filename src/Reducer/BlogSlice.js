@@ -6,8 +6,24 @@ export const getBlog = createAsyncThunk(
     'getBlog',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get(`/admin-blog-manage/list`);
-            if (response?.data?.status_code === 200) {
+            const response = await api.get(`goodmood/post/list`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const uploadImage = createAsyncThunk(
+    'uploadImage',
+    async ({id,user_input}, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`goodmood/post/image/${id}`,user_input);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
@@ -21,8 +37,8 @@ export const addBlog = createAsyncThunk(
     'addBlog',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin-blog-manage/add`, user_input);
-            if (response?.data?.status_code === 201) {
+            const response = await api.post(`goodmood/post/save`, user_input);
+            if (response?.data?.statusCode === 201) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);

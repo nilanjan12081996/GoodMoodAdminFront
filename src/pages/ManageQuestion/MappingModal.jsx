@@ -90,6 +90,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEdit, onDelete }) => {
   
   // Define columns based on your array structure
+  console.log("answerArray",answerArray);
+  
   const columnDefs = useMemo(() => [
     { 
       field: "answer", 
@@ -118,12 +120,12 @@ const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEd
           >
             Edit
           </button>
-          <button
+          {/* <button
             onClick={() => onDelete(params.data.id)}
             className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 transition"
           >
             Delete
-          </button>
+          </button> */}
         </div>
       )
     }
@@ -139,12 +141,13 @@ const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEd
       <Modal.Body>
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-            Showing {answerArray.length} mapped options. You can manage points and descriptions here.
+           <p className="text-sm font-bold">{answerArray?.question}</p> 
+          <p className="text-xs mt-3">Showing {answerArray.answer.length} mapped options. You can manage points and descriptions here.</p>  
           </p>
           
           <div className="ag-theme-alpine" style={{ height: 350, width: '100%' }}>
             <AgGridReact
-              rowData={answerArray} 
+              rowData={answerArray?.answer} 
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
               animateRows={true}

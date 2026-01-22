@@ -14,7 +14,7 @@ import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
 import { useParams } from "react-router-dom";
-import { getAwarness, getSingleAwarness } from "../../Reducer/MoodMeterSlice";
+import { getAwarness, getSingleAwarness, uploladImage } from "../../Reducer/MoodMeterSlice";
 import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal";
 
 const ManageMoodMaster = () => {
@@ -127,18 +127,56 @@ const ManageMoodMaster = () => {
         },
       },
       {
-        field: "mood_master_icon",
-        headerName: "Emoji",
-        cellRenderer: (params) => {
-          return (
-            <img
-              src={params.value}
-              alt="avatar"
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          );
-        },
-      },
+           field: "mood_meter_avatar",
+           headerName: "Avatar",
+           cellRenderer: (params) => {
+           const handleFileChange = (e) => {
+               const file = e.target.files[0];
+               if (!file) return;
+         
+               // Create preview URL
+               const previewUrl = URL.createObjectURL(file);
+         
+               // Update AG Grid cell value
+               params.node.setDataValue("mood_meter_avatar", previewUrl);
+                 const formData=new FormData()
+               
+                 formData.append("file",file)
+               dispatch(
+             uploladImage({
+               id: params.data.id,
+               user_input: formData,
+             })
+               )
+           
+             };
+         
+             return (
+               <label className="relative w-12 h-12 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition">
+                 
+                 {/* Hidden file input */}
+                 <input
+                   type="file"
+                   accept="image/*"
+                   onChange={handleFileChange}
+                   className="hidden"
+                 />
+         
+                 {/* Show image if exists */}
+                 {params.value ? (
+                   <img
+                     src={params.value}
+                     alt="avatar"
+                     className="w-full h-full object-cover rounded-full"
+                   />
+                 ) : (
+                   <span className="text-xs text-gray-400">Upload</span>
+                 )}
+               </label>
+             );
+           },
+               }
+      ,
       {
         width: 400,
         headerName: "Actions",

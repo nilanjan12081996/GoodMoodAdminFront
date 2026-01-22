@@ -8,6 +8,8 @@ import {
   getActiveDeactiveMoodMeter,
   getAwarness,
   getSingleAwarness,
+  uploadMoodAvatar,
+  uploladImage,
  
 } from "../../Reducer/MoodMeterSlice";
 
@@ -20,7 +22,7 @@ const ManageMoodMeter = () => {
   const dispatch = useDispatch();
   const id=useParams()
   console.log("id",id);
-  
+  let baseUrl="http://localhost:8080"
   const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
   const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
@@ -80,12 +82,16 @@ const ManageMoodMeter = () => {
 
       // Update AG Grid cell value
       params.node.setDataValue("mood_meter_avatar", previewUrl);
-
-      // OPTIONAL: upload to backend
-      // dispatch(uploadMoodMeterAvatar({ 
-      //   mood_meter_id: params.data.id, 
-      //   avatar: file 
-      // }));
+        const formData=new FormData()
+      
+        formData.append("file",file)
+      dispatch(
+    uploladImage({
+      id: params.data.id,
+      user_input: formData,
+    })
+      )
+  
     };
 
     return (

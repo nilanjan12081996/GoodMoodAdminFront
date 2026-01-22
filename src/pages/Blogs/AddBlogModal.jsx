@@ -91,7 +91,7 @@
 import { Button, FileInput, Label, Modal, TextInput } from "flowbite-react"
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { addBlog, getBlog } from "../../Reducer/BlogSlice";
+import { addBlog, getBlog, uploadImage } from "../../Reducer/BlogSlice";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { toast } from "react-toastify";
@@ -109,16 +109,34 @@ const AddBlogModal = ({
     reset
   } = useForm();
 
+  const htmlToPlainText = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
+
   const onSubmit = (data) => {
+    const image=data?.image?.[0];
     const formData = new FormData()
-    formData.append("title", data?.title)
-    formData.append("content", data?.content)
-    formData.append("image", data?.image?.[0])
-    
-    dispatch(addBlog(formData)).then((res) => {
+  //   formData.append("title", data?.title)
+  //   formData.append("content", data?.content)
+    formData.append("file", image)
+  const plainTextContent = htmlToPlainText(data?.content);
+    const payload={
+      title:data?.title,
+      content:data?.content,
+      summary:plainTextContent.slice(0,300)
+    }
+    dispatch(addBlog(payload)).then((res) => {
         console.log("Res",res);
         
-      if (res?.payload?.status_code === 201) {
+      if (res?.payload?.statusCode === 201) {
+        if(image){
+          dispatch(uploadImage({
+            id:res?.payload?.data?.id,
+            user_input:formData
+          }))
+        }
         setOpenBlogModal(false)
        
         dispatch(getBlog());
@@ -154,7 +172,15 @@ const AddBlogModal = ({
                   type="text"
                   placeholder="Enter Title"
                   {...register("title", { 
-                    required: "Title is required" 
+                    required: "Title is required" ,
+                    minLength: {
+                    value: 3,
+                    message: "Title must be at least 3 characters",
+                  },
+                  maxLength: {
+                    value: 255,
+                    message: "Title must not exceed 255 characters",
+                  },
                   })}
                 />
                 {errors.title && (
@@ -213,9 +239,7 @@ const AddBlogModal = ({
                 <FileInput 
                   id="image" 
                   accept="image/*"
-                  {...register("image", {
-                    required: "Image is required"
-                  })} 
+                  {...register("image")} 
                 />
                 {errors.image && (
                   <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>

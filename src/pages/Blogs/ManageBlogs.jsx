@@ -96,7 +96,7 @@ const ManageBlogs = () => {
       // },
 
 
-      {
+{
   field: "is_published",
   headerName: "Status",
   cellRenderer: (params) => {

@@ -37,6 +37,7 @@ const ManageQuestion = () => {
   const [questionId, setQuestionId] = useState();
   const [openQueDeleteModal, setOpenQueDeleteModal] = useState(false);
   const [openMappingModal, setOpenMappingModal] = useState(false);
+  
   const[answer,setAnswer]=useState()
   useEffect(() => {
     dispatch(getQuestion());
@@ -125,10 +126,10 @@ const ManageQuestion = () => {
         cellRenderer: (params) => (
           <div>
             <Button
-              onClick={() => handleMappedWithAnsModal(params?.data?.answer)}
+              onClick={() => handleMappedWithAnsModal(params?.data)}
               className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
             >
-              View
+              View Answer
             </Button>
           </div>
         ),
@@ -217,6 +218,7 @@ const ManageQuestion = () => {
           setOpenMappingModal={setOpenMappingModal}
           //questionId={questionId}
          // answerList={answerList}
+        
          answerArray={answer}
         />
       )}
