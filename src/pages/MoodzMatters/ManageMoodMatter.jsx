@@ -7,25 +7,27 @@ import { useDispatch } from "react-redux";
 import {
   getActiveDeactiveMoodMeter,
   getAwarness,
+  getSingleAwarness,
  
 } from "../../Reducer/MoodMeterSlice";
 
 import { ToastContainer } from "react-toastify";
 
-import UpdateMoodMeterModal from "./UpdateMoodMeterModal";
 import { useParams } from "react-router-dom";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
+import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal";
 
 const ManageMoodMatter = () => {
   const dispatch = useDispatch();
   const id=useParams()
   console.log("id",id);
   
-  const { allMoodMeter } = useSelector((state) => state?.moodData);
+  const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
   const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
   const [moodmeterId, setMoodMeterId] = useState();
-  useEffect(() => {
+ 
+   useEffect(() => {
     dispatch(getAwarness({
       id:id?.id
     }));
@@ -138,6 +140,9 @@ const ManageMoodMatter = () => {
   );
 
   const handleUpdateTags = (id) => {
+      dispatch(getSingleAwarness({
+          id:id
+        }))
     console.log(id, "id");
     setOpenUpdateTagModal(true);
     setMoodMeterId(id);
@@ -178,13 +183,15 @@ const ManageMoodMatter = () => {
             id={id}
           />
         )}
-        {/* {openUpdateTagModal && (
+        {openUpdateTagModal && (
           <UpdateMoodMeterModal
             openUpdateTagModal={openUpdateTagModal}
             setOpenUpdateTagModal={setOpenUpdateTagModal}
             moodmeterId={moodmeterId}
+             id={id}
+             singleAwarness={singleAwarness}
           />
-        )} */}
+        )}
       </div>
     </>
   );

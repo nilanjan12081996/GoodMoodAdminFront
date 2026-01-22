@@ -93,13 +93,6 @@ const AddMoodMeterModal = ({ openAddTagModal, setOpenTagModal,id }) => {
                 )
               }
                 
-
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="name" value="Mood Meter Image" />
-                </div>
-                <FileInput id="file-upload" {...register("image")} />
-              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>

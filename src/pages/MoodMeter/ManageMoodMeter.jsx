@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import {
   getActiveDeactiveMoodMeter,
   getAwarness,
+  getSingleAwarness,
  
 } from "../../Reducer/MoodMeterSlice";
 
@@ -20,7 +21,7 @@ const ManageMoodMeter = () => {
   const id=useParams()
   console.log("id",id);
   
-  const { allMoodMeter } = useSelector((state) => state?.moodData);
+  const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
   const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
   const [moodmeterId, setMoodMeterId] = useState();
@@ -29,6 +30,7 @@ const ManageMoodMeter = () => {
       id:id?.id
     }));
   }, []);
+  
   console.log("allTags", allMoodMeter);
 
   const rowData = useMemo(() => {
@@ -64,6 +66,57 @@ const ManageMoodMeter = () => {
       //   sortable: true,
       //   filter: true,
       // },
+
+      {
+  field: "mood_meter_avatar",
+  headerName: "Avatar",
+  cellRenderer: (params) => {
+  const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+
+      // Update AG Grid cell value
+      params.node.setDataValue("mood_meter_avatar", previewUrl);
+
+      // OPTIONAL: upload to backend
+      // dispatch(uploadMoodMeterAvatar({ 
+      //   mood_meter_id: params.data.id, 
+      //   avatar: file 
+      // }));
+    };
+
+    return (
+      <label className="relative w-12 h-12 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition">
+        
+        {/* Hidden file input */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
+        {/* Show image if exists */}
+        {params.value ? (
+          <img
+            src={params.value}
+            alt="avatar"
+            className="w-full h-full object-cover rounded-full"
+          />
+        ) : (
+          <span className="text-xs text-gray-400">Upload</span>
+        )}
+      </label>
+    );
+  },
+      }
+,
+
+
+
        {
         field: "colorCode",
         headerName: "Mood Master Color Code",
@@ -118,23 +171,23 @@ const ManageMoodMeter = () => {
           );
         },
       },
-      {
-        field: "mood_meter_avatar",
-        headerName: "Avatar",
-        cellRenderer: (params) => {
-          return (
-            <>
+      // {
+      //   field: "mood_meter_avatar",
+      //   headerName: "Avatar",
+      //   cellRenderer: (params) => {
+      //     return (
+      //       <>
             
-            <FileInput/>
-            <img
-              src={params.value}
-              alt="avatar"
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            </>
-          );
-        },
-      },
+      //       <FileInput/>
+      //       <img
+      //         src={params.value}
+      //         alt="avatar"
+      //         className="w-12 h-12 rounded-full object-cover"
+      //       />
+      //       </>
+      //     );
+      //   },
+      // },
       {
         width: 400,
         headerName: "Actions",
@@ -163,6 +216,9 @@ const ManageMoodMeter = () => {
   );
 
   const handleUpdateTags = (id) => {
+    dispatch(getSingleAwarness({
+      id:id
+    }))
     console.log(id, "id");
     setOpenUpdateTagModal(true);
     setMoodMeterId(id);
@@ -203,13 +259,15 @@ const ManageMoodMeter = () => {
             id={id}
           />
         )}
-        {/* {openUpdateTagModal && (
+        {openUpdateTagModal && (
           <UpdateMoodMeterModal
             openUpdateTagModal={openUpdateTagModal}
             setOpenUpdateTagModal={setOpenUpdateTagModal}
             moodmeterId={moodmeterId}
+             id={id}
+             singleAwarness={singleAwarness}
           />
-        )} */}
+        )}
       </div>
     </>
   );

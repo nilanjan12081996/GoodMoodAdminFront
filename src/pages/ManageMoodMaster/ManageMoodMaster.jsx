@@ -14,13 +14,14 @@ import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
 import { useParams } from "react-router-dom";
-import { getAwarness } from "../../Reducer/MoodMeterSlice";
+import { getAwarness, getSingleAwarness } from "../../Reducer/MoodMeterSlice";
+import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal";
 
 const ManageMoodMaster = () => {
   const { moodsList, singleMoodMaster } = useSelector(
     (state) => state?.moodMastersData
   );
-    const { allMoodMeter } = useSelector((state) => state?.moodData);
+    const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
   const dispatch = useDispatch();
     const id=useParams()
     console.log("id",id);
@@ -29,6 +30,8 @@ const ManageMoodMaster = () => {
   const [mood_masterId, setMoodMasterId] = useState();
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
     useState(false);
+  const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
+    const [moodmeterId, setMoodMeterId] = useState();
 
   useEffect(() => {
      dispatch(getAwarness({
@@ -165,9 +168,12 @@ const ManageMoodMaster = () => {
 
   const handleUpdateMoodMaster = (id) => {
     console.log(id, "id");
-    setOpenUpdateMoodMasterModal(true);
-    setMoodMasterId(id);
-    dispatch(getMoodMasterSingle({ user_input: id }));
+    setOpenUpdateTagModal(true);
+    setMoodMeterId(id);
+    // dispatch(getMoodMasterSingle({ user_input: id }));
+    dispatch(getSingleAwarness({
+             id:id
+           }))
   };
 
   return (
@@ -206,14 +212,15 @@ const ManageMoodMaster = () => {
               id={id}
             />
           )}
-          {singleMoodMaster && openUpdateMoodMasterModal && (
-            <UpdateMoodMasterModal
-              openUpdateMoodMasterModal={openUpdateMoodMasterModal}
-              setOpenUpdateMoodMasterModal={setOpenUpdateMoodMasterModal}
-              mood_masterId={mood_masterId}
-              singleMoodMaster={singleMoodMaster}
-            />
-          )}
+           {openUpdateTagModal && (
+          <UpdateMoodMeterModal
+            openUpdateTagModal={openUpdateTagModal}
+            setOpenUpdateTagModal={setOpenUpdateTagModal}
+            moodmeterId={moodmeterId}
+             id={id}
+             singleAwarness={singleAwarness}
+          />
+        )}
         </div>
       </>
     </>

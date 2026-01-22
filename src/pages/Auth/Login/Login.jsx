@@ -103,7 +103,7 @@ const Login = () => {
         // success action
         //setOpenModal(true);
         // OR
-         navigate("/manage-category");
+         navigate("/MoodMeters/1");
       } else {
         setErrorMessage(
           res?.payload?.response?.data?.message || "Invalid OTP"

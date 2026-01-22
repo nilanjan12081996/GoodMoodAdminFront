@@ -18,6 +18,22 @@ export const getAwarness = createAsyncThunk(
     }
 )
 
+export const getSingleAwarness = createAsyncThunk(
+    'getSingleAwarness',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/awarness/single?id=${id}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 export const getSingleMoodMeter = createAsyncThunk(
     'getSingleMoodMeter',
     async (user_input, { rejectWithValue }) => {
@@ -88,8 +104,8 @@ export const updateMoodMeter = createAsyncThunk(
     'updateMoodMeter',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin/mood-meter/update`, user_input);
-            if (response?.data?.status_code === 200) {
+            const response = await api.patch(`goodmood/awarness/update`, user_input);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
@@ -124,7 +140,9 @@ const initialState = {
     singleMoodMeter: [],
     uploadAvatarData: {},
     updateMoodMeterData: {},
-    deleteData: {}
+    deleteData: {},
+    singleAwarness:{},
+
 }
 const MoodMeterSlice = createSlice(
     {
@@ -205,6 +223,19 @@ const MoodMeterSlice = createSlice(
                     state.loading = false
                     state.error = payload
                 })
+                     .addCase(getSingleAwarness.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(getSingleAwarness.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.singleAwarness = payload
+                    state.error = false
+                })
+                .addCase(getSingleAwarness.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                
         }
     }
 
