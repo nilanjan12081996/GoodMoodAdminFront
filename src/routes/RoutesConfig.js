@@ -36,6 +36,7 @@ import ManageBlogs from '../pages/Blogs/ManageBlogs.jsx';
 import ManageEquilizer from '../pages/Equilizer/ManageEquilizer.jsx';
 import ManageMoodMatter from '../pages/MoodzMatters/ManageMoodMatter.jsx';
 import BlogDetails from '../pages/Blogs/BlogDetails.jsx';
+import MappingModal from '../pages/ManageQuestion/MappingModal.jsx';
 
 
 const allRoutes = [
@@ -203,6 +204,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManageEquilizer />,
+      },
+    ],
+  },
+   {
+    path: '/options/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <MappingModal />,
       },
     ],
   },

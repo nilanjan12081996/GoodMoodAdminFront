@@ -81,16 +81,32 @@
 
 
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Modal, Button } from "flowbite-react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { changeAnswer, getSingleQuestion } from "../../Reducer/QuestionSlice";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
-const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEdit, setDeleteConfirmationModal,setOptionId,deleteConfirmModal }) => {
+const MappingModal = ( ) => {
+
+  const {  singleQuestion } = useSelector(
+    (state) => state?.questions
+  );
+   const [deleteConfirmModal,setDeleteConfirmationModal]=useState(false)
+     const[optionid,setOptionId]=useState()
+  const dispatch=useDispatch()
+    const id=useParams()
   
   // Define columns based on your array structure
-  console.log("answerArray",answerArray);
+  useEffect(()=>{
+dispatch(getSingleQuestion({ id: id?.id }))
+  },[])
+
   const handledeleteConfirm=(id)=>{
     setDeleteConfirmationModal(true)
     setOptionId(id)
@@ -112,17 +128,43 @@ const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEd
         'text-green-600 font-bold': 'data.point > 5',
       }
     },
+     {
+            field: "status",
+            headerName: "Status",
+            cellRenderer: (params) => {
+              const isChecked = params.value;
+    
+              const handleStatusChange = () => {
+                const newStatus = isChecked ? 0 : 1;
+                dispatch(
+                  changeAnswer({
+                    id: params.data.id,
+                    status: newStatus,
+                  })
+                ).then(() => {
+                 dispatch(getSingleQuestion({ id: id?.id })) // refresh data
+                });
+              };
+    
+              return (
+                <label className="inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => handleStatusChange(params.data.id, isChecked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 relative"></div>
+                </label>
+              );
+            },
+          },
     {
       headerName: "Actions",
       flex: 1.5,
       cellRenderer: (params) => (
         <div className="flex items-center gap-3 h-full">
-          {/* <button
-            onClick={() => onEdit(params.data)}
-            className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition"
-          >
-            Edit
-          </button> */}
+        
           <button
             onClick={() => handledeleteConfirm(params.data.id)}
             className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 transition"
@@ -132,25 +174,24 @@ const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEd
         </div>
       )
     }
-  ], [onEdit,deleteConfirmModal]);
+  ], [deleteConfirmModal]);
 
   const defaultColDef = useMemo(() => ({
     resizable: true,
   }), []);
 
   return (
-    <Modal show={openMappingModal} onClose={() => setOpenMappingModal(false)} size="2xl">
-      <Modal.Header>Answers</Modal.Header>
-      <Modal.Body>
+   
+    <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-           <p className="text-sm font-bold">{answerArray?.question}</p> 
-          <p className="text-xs mt-3">Showing {answerArray.answer.length} mapped options. You can manage points and descriptions here.</p>  
+           <p className="text-sm font-bold">{singleQuestion?.data?.[0]?.question}</p> 
+          <p className="text-xs mt-3">Showing {singleQuestion.data?.[0]?.answer.length} mapped options. You can manage points and descriptions here.</p>  
           </p>
           
           <div className="ag-theme-alpine" style={{ height: 350, width: '100%' }}>
             <AgGridReact
-              rowData={answerArray?.answer} 
+              rowData={singleQuestion?.data?.[0]?.answer} 
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
               animateRows={true}
@@ -159,13 +200,19 @@ const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEd
             />
           </div>
         </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button color="gray" onClick={() => setOpenMappingModal(false)}>
-          Close
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        {
+                deleteConfirmModal&&(
+                  <DeleteConfirmationModal
+                  deleteConfirmModal={deleteConfirmModal}
+                  setDeleteConfirmationModal={setDeleteConfirmationModal}
+                  optionid={optionid}
+                 
+                  id={id}
+                  />
+                )
+              }
+        </div>
+
   );
 };
 export default MappingModal;

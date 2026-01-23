@@ -39,7 +39,7 @@ const ManageQuestion = () => {
   const [questionId, setQuestionId] = useState();
   const [openQueDeleteModal, setOpenQueDeleteModal] = useState(false);
   const [openMappingModal, setOpenMappingModal] = useState(false);
-  const [deleteConfirmModal,setDeleteConfirmationModal]=useState(false)
+  // const [deleteConfirmModal,setDeleteConfirmationModal]=useState(false)
   const[optionid,setOptionId]=useState()
   
   const[answer,setAnswer]=useState()
@@ -76,7 +76,7 @@ const ManageQuestion = () => {
             const newStatus = isChecked ? 0 : 1;
             dispatch(
               changeStatusQuestion({
-                question_id: params.data.id,
+                id: params.data.id,
                 status: newStatus,
               })
             ).then(() => {
@@ -130,7 +130,7 @@ const ManageQuestion = () => {
         cellRenderer: (params) => (
           <div>
             <Button
-              onClick={() => handleMappedWithAnsModal(params?.data)}
+              onClick={() => handleMappedWithAnsModal(params?.data?.id)}
               className="border text-[#52b69a] border-[#52b69a] bg-white hover:bg-[#52b69a] hover:text-white text-sm px-4 py-1"
             >
               View Answer
@@ -160,10 +160,12 @@ const ManageQuestion = () => {
     setOpenQueDeleteModal(true);
     setQuestionId(id);
   };
-  const handleMappedWithAnsModal = (data) => {
+  const handleMappedWithAnsModal = (id) => {
    // dispatch(getAnswer());
-    setOpenMappingModal(true);
-    setAnswer(data);
+    //setOpenMappingModal(true);
+   // setAnswer(data);
+   navigate(`/options/${id}`)
+  // dispatch(getSingleQuestion({ id: id }));
   };
   return (
     <div>
@@ -218,31 +220,11 @@ const ManageQuestion = () => {
           questionId={questionId}
         />
       )}
-      {openMappingModal && answerList && (
-        <MappingModal
-          openMappingModal={openMappingModal}
-          setOpenMappingModal={setOpenMappingModal}
-          setDeleteConfirmationModal={setDeleteConfirmationModal}
-          //questionId={questionId}
-         // answerList={answerList}
-         setOptionId={setOptionId}
-         deleteConfirmModal={deleteConfirmModal}
-        
-         answerArray={answer}
-        />
-      )}
+  
+       
       
       
-      {
-        deleteConfirmModal&&(
-          <DeleteConfirmationModal
-          deleteConfirmModal={deleteConfirmModal}
-          setDeleteConfirmationModal={setDeleteConfirmationModal}
-          optionid={optionid}
-          setOpenMappingModal={setOpenMappingModal}
-          />
-        )
-      }
+      
     </div>
   );
 };

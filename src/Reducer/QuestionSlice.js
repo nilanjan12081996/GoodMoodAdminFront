@@ -70,12 +70,32 @@ export const deleteOption = createAsyncThunk(
 )
 export const changeStatusQuestion = createAsyncThunk(
     'changeStatusQuestion',
-    async (user_input, { rejectWithValue }) => {
+    async ({id}, { rejectWithValue }) => {
         try {
 
-            const response = await api.patch(`/admin-question-manage/activation`, user_input);
+            const response = await api.patch(`goodmood/question/answer/status-question/${id}`);
 
-            if (response?.data?.status_code === 200) {
+            if (response?.data?.statusCode === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+);
+
+
+
+export const changeAnswer = createAsyncThunk(
+    'changeAnswer',
+    async ({id}, { rejectWithValue }) => {
+        try {
+
+            const response = await api.put(`goodmood/question/answer/status-ans/${id}`);
+
+            if (response?.data?.statusCode === 200) {
                 return response.data;
             } else {
                 return rejectWithValue(response.data);

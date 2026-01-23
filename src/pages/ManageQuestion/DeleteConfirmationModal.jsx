@@ -1,9 +1,9 @@
 import { Button, Modal } from "flowbite-react"
 import { useDispatch } from "react-redux"
-import { deleteOption, getQuestion } from "../../Reducer/QuestionSlice"
+import { deleteOption, getQuestion, getSingleQuestion } from "../../Reducer/QuestionSlice"
 
 
-const DeleteConfirmationModal=({deleteConfirmModal,setDeleteConfirmationModal,optionid,setOpenMappingModal})=>{
+const DeleteConfirmationModal=({deleteConfirmModal,setDeleteConfirmationModal,optionid,setOpenMappingModal,id})=>{
     const dispatch=useDispatch()
     const handleYes=()=>{
         dispatch(deleteOption({
@@ -11,8 +11,8 @@ const DeleteConfirmationModal=({deleteConfirmModal,setDeleteConfirmationModal,op
         })).then((res)=>{
             if(res?.payload?.statusCode===200){
                 setDeleteConfirmationModal(false)
-                setOpenMappingModal(false)
-                dispatch(getQuestion())
+                // setOpenMappingModal(false)
+                dispatch(getSingleQuestion({id:id?.id}))
                 
             }
         })
