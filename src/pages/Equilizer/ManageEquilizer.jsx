@@ -6,27 +6,48 @@ import { ToastContainer } from "react-toastify"
 import { Button } from "flowbite-react"
 import { AgGridReact } from "ag-grid-react"
 import AddManageEquilizer from "./AddManageEquilizer"
+import { useParams } from "react-router-dom"
+import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal"
+import { getAwarness, getSingleAwarness, uploladImage } from "../../Reducer/MoodMeterSlice"
+import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal"
 
 const ManageEquilizer=()=>{
     const{equilizerList}=useSelector((state)=>state?.equilize)
+      const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
+       const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
     const dispatch=useDispatch()
     const[openAddEqModal,setOpenEqModal]=useState(false)
+    const [openAddTagModal, setOpenTagModal] = useState(false);
+      const [moodmeterId, setMoodMeterId] = useState();
+    const id=useParams()
     
-    useEffect(()=>{
-dispatch(getEquilizer())
-    },[])
+   useEffect(() => {
+      dispatch(getAwarness({
+        id:id?.id
+      }));
+    }, []);
+
+     const handleUpdateMoodMaster = (id) => {
+        dispatch(getSingleAwarness({
+          id:id
+        }))
+        console.log(id, "id");
+        setOpenUpdateTagModal(true);
+        setMoodMeterId(id);
+      };
 console.log("equilizerList",equilizerList);
 
       const rowData = useMemo(() => {
         return (
-          equilizerList?.res?.map((tags) => ({
+          allMoodMeter?.data?.map((tags) => ({
             id: tags?.id,
-            mood_equelizer_name: tags?.mood_equelizer_name,
-            mood_equelizer_avatar: tags?.mood_equelizer_avatar,
+            mood_equelizer_name: tags?.awarenessName,
+            mood_equelizer_avatar: tags?.image,
+            description:tags?.description,
             status: tags.status,
           })) || []
         );
-      }, [equilizerList?.res]);
+      }, [allMoodMeter?.data]);
 
       
         const columnDefs = useMemo(
@@ -34,6 +55,12 @@ console.log("equilizerList",equilizerList);
             {
               field: "mood_equelizer_name",
               headerName: "Mood Equelizer Name",
+              sortable: true,
+              filter: true,
+            },
+            {
+              field: "description",
+              headerName: "Mood Equilizer Description",
               sortable: true,
               filter: true,
             },
@@ -66,19 +93,56 @@ console.log("equilizerList",equilizerList);
                 );
               },
             },
-            {
-              field: "mood_equelizer_avatar",
-              headerName: "Image",
-              cellRenderer: (params) => {
-                return (
-                  <img
-                    src={params.value}
-                    alt="avatar"
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                );
-              },
-            },
+           {
+           field: "mood_equelizer_avatar",
+           headerName: "Avatar",
+           cellRenderer: (params) => {
+           const handleFileChange = (e) => {
+               const file = e.target.files[0];
+               if (!file) return;
+         
+               // Create preview URL
+               const previewUrl = URL.createObjectURL(file);
+         
+               // Update AG Grid cell value
+               params.node.setDataValue("mood_equelizer_avatar", previewUrl);
+                 const formData=new FormData()
+               
+                 formData.append("file",file)
+               dispatch(
+             uploladImage({
+               id: params.data.id,
+               user_input: formData,
+             })
+               )
+           
+             };
+         
+             return (
+               <label className="relative w-12 h-12 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition">
+                 
+                 {/* Hidden file input */}
+                 <input
+                   type="file"
+                   accept="image/*"
+                   onChange={handleFileChange}
+                   className="hidden"
+                 />
+         
+                 {/* Show image if exists */}
+                 {params.value ? (
+                   <img
+                     src={params.value}
+                     alt="avatar"
+                     className="w-full h-full object-cover rounded-full"
+                   />
+                 ) : (
+                   <span className="text-xs text-gray-400">Upload</span>
+                 )}
+               </label>
+             );
+           },
+               },
             {
               width: 400,
               headerName: "Actions",
@@ -114,7 +178,7 @@ console.log("equilizerList",equilizerList);
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-2xl font-semibold">Mood Equilizer</h2>
                       <Button
-                        onClick={() => setOpenEqModal(true)}
+                        onClick={() => setOpenTagModal(true)}
                         className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
                       >
                         Add Mood Equilizer
@@ -134,20 +198,23 @@ console.log("equilizerList",equilizerList);
                       />
                     </div>
                   </div>
-                  {openAddEqModal && (
-                    <AddManageEquilizer
-                      openAddEqModal={openAddEqModal}
-                      setOpenEqModal={setOpenEqModal}
+                   {openAddTagModal && (
+                    <AddMoodMeterModal
+                      openAddTagModal={openAddTagModal}
+                      setOpenTagModal={setOpenTagModal}
+                      id={id}
                     />
                   )}
-                  {/* {singleMoodMaster && openUpdateMoodMasterModal && (
-                    <UpdateMoodMasterModal
-                      openUpdateMoodMasterModal={openUpdateMoodMasterModal}
-                      setOpenUpdateMoodMasterModal={setOpenUpdateMoodMasterModal}
-                      mood_masterId={mood_masterId}
-                      singleMoodMaster={singleMoodMaster}
+                   {openUpdateTagModal && (
+                    <UpdateMoodMeterModal
+                      openUpdateTagModal={openUpdateTagModal}
+                      setOpenUpdateTagModal={setOpenUpdateTagModal}
+                      moodmeterId={moodmeterId}
+                      id={id}
+                      singleAwarness={singleAwarness}
                     />
-                  )} */}
+                  )}
+                 
                 </div>
         </>
     )

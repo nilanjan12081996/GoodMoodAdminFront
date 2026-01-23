@@ -197,7 +197,7 @@ const allRoutes = [
   },
 
     {
-    path: '/manage-mood-equilizer',
+    path: '/MoodEqualisers/:id',
     element: <InsideLayout />,
     children: [
       {

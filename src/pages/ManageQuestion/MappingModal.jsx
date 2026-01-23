@@ -87,11 +87,14 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEdit, onDelete }) => {
+const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEdit, setDeleteConfirmationModal,setOptionId,deleteConfirmModal }) => {
   
   // Define columns based on your array structure
   console.log("answerArray",answerArray);
-  
+  const handledeleteConfirm=(id)=>{
+    setDeleteConfirmationModal(true)
+    setOptionId(id)
+  }
   const columnDefs = useMemo(() => [
     { 
       field: "answer", 
@@ -114,22 +117,22 @@ const MappingModal = ({ openMappingModal, setOpenMappingModal, answerArray, onEd
       flex: 1.5,
       cellRenderer: (params) => (
         <div className="flex items-center gap-3 h-full">
-          <button
+          {/* <button
             onClick={() => onEdit(params.data)}
             className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition"
           >
             Edit
-          </button>
-          {/* <button
-            onClick={() => onDelete(params.data.id)}
+          </button> */}
+          <button
+            onClick={() => handledeleteConfirm(params.data.id)}
             className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 transition"
           >
             Delete
-          </button> */}
+          </button>
         </div>
       )
     }
-  ], [onEdit, onDelete]);
+  ], [onEdit,deleteConfirmModal]);
 
   const defaultColDef = useMemo(() => ({
     resizable: true,

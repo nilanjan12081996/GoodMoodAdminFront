@@ -36,7 +36,7 @@ const AddMoodMeterModal = ({ openAddTagModal, setOpenTagModal,id }) => {
   return (
     <>
       <Modal show={openAddTagModal} onClose={() => setOpenTagModal(false)}>
-        <Modal.Header>{id?.id==1?"Add New Mood Meter":id?.id==2?"Add New Moodz Matter":id?.id==3?"Add New Mood Master":""}</Modal.Header>
+        <Modal.Header>{id?.id==1?"Add New Mood Meter":id?.id==2?"Add New Moodz Matter":id?.id==3?"Add New Mood Master":id?.id==5?"Add New Mood Equilizer":""}</Modal.Header>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Body>
             <div className="space-y-4">
@@ -100,7 +100,7 @@ const AddMoodMeterModal = ({ openAddTagModal, setOpenTagModal,id }) => {
               Cancel
             </Button>
             <Button color="success" type="submit">
-             {id?.id==1?"Add New Mood Meter":id?.id==2?"Add New Moodz Matter":id?.id==3?"Add New Mood Master":""}
+             {id?.id==1?"Add New Mood Meter":id?.id==2?"Add New Moodz Matter":id?.id==3?"Add New Mood Master":id?.id==5?"Add New Mood Equilizer":""}
             </Button>
           </Modal.Footer>
         </form>

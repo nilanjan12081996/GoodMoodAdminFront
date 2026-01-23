@@ -17,6 +17,22 @@ export const getQuestion = createAsyncThunk(
         }
     }
 )
+
+export const getSingleQuestion = createAsyncThunk(
+    'getSingleQuestion',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/question/answer/list?id=${id}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
 export const addQuestions = createAsyncThunk(
     'addQuestions',
     async (user_input, { rejectWithValue }) => {
@@ -33,6 +49,25 @@ export const addQuestions = createAsyncThunk(
     }
 )
 
+
+
+
+
+export const deleteOption = createAsyncThunk(
+    'deleteOption',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.delete(`goodmood/question/answer/delete/${id}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
 export const changeStatusQuestion = createAsyncThunk(
     'changeStatusQuestion',
     async (user_input, { rejectWithValue }) => {
@@ -73,8 +108,8 @@ export const updateQuestionDetails = createAsyncThunk(
     'updateQuestionDetails',
     async (user_input, { rejectWithValue }) => {
         try {
-            const response = await api.put(`/admin-question-manage/edit`, user_input);
-            if (response?.data?.status_code === 200) {
+            const response = await api.post(`goodmood/question/answer/add-edit`, user_input);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
@@ -109,7 +144,8 @@ const initialState = {
     addQuestionListData: [],
     singleQuestion: {},
     updateQuestionData: {},
-    deleteQueData: {}
+    deleteQueData: {},
+    deleteOptionData:{}
 }
 const QuestionSlice = createSlice(
     {
@@ -141,15 +177,15 @@ const QuestionSlice = createSlice(
                     state.loading = false
                     state.error = payload
                 })
-                .addCase(getQuestionDetails.pending, (state) => {
+                .addCase(getSingleQuestion.pending, (state) => {
                     state.loading = true
                 })
-                .addCase(getQuestionDetails.fulfilled, (state, { payload }) => {
+                .addCase(getSingleQuestion.fulfilled, (state, { payload }) => {
                     state.loading = false
                     state.singleQuestion = payload
                     state.error = false
                 })
-                .addCase(getQuestionDetails.rejected, (state, { payload }) => {
+                .addCase(getSingleQuestion.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
@@ -174,6 +210,18 @@ const QuestionSlice = createSlice(
                     state.error = false
                 })
                 .addCase(deleteQuestion.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                  .addCase(deleteOption.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(deleteOption.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.deleteOptionData = payload
+                    state.error = false
+                })
+                .addCase(deleteOption.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })

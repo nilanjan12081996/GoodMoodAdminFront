@@ -57,7 +57,7 @@ const UpdateMoodMeterModal = ({
     <>
        <Modal  show={openUpdateTagModal}
         onClose={() => setOpenUpdateTagModal(false)}>
-              <Modal.Header>{id?.id==1?"Edit Mood Meter":id?.id==2?"Edit Moodz Matter":id?.id==3?"Edit Mood Master":""}</Modal.Header>
+              <Modal.Header>{id?.id==1?"Edit Mood Meter":id?.id==2?"Edit Moodz Matter":id?.id==3?"Edit Mood Master":id?.id==5?"Edit Mood Equilizer":""}</Modal.Header>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Modal.Body>
                   <div className="space-y-4">
@@ -122,7 +122,7 @@ const UpdateMoodMeterModal = ({
                     Cancel
                   </Button>
                   <Button color="success" type="submit">
-                   {id?.id==1?"Update Mood Meter":id?.id==2?"Update Moodz Matter":id?.id==3?"Update Mood Master":""}
+                   {id?.id==1?"Update Mood Meter":id?.id==2?"Update Moodz Matter":id?.id==3?"Update Mood Master":id?.id==5?"Update Mood Master":""}
                   </Button>
                 </Modal.Footer>
               </form>
