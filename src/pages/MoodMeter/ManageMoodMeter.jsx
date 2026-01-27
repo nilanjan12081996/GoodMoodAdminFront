@@ -17,8 +17,13 @@ import { ToastContainer } from "react-toastify";
 import AddMoodMeterModal from "./AddMoodMeterModal";
 import UpdateMoodMeterModal from "./UpdateMoodMeterModal";
 import { useParams } from "react-router-dom";
+import { getQuestion } from "../../Reducer/QuestionSlice";
+import MapperQuestion from "./MapperQuestion";
 
 const ManageMoodMeter = () => {
+   const { questionList, singleQuestion } = useSelector(
+      (state) => state?.questions
+    );
   const dispatch = useDispatch();
   const id=useParams()
   console.log("id",id);
@@ -31,9 +36,13 @@ const ManageMoodMeter = () => {
     dispatch(getAwarness({
       id:id?.id
     }));
+    
   }, []);
+  useEffect(()=>{
+   dispatch(getQuestion()) 
+  },[])
   
-  console.log("allTags", allMoodMeter);
+  console.log("allTags", questionList);
 
   const rowData = useMemo(() => {
     return (
@@ -62,12 +71,6 @@ const ManageMoodMeter = () => {
         sortable: true,
         filter: true,
       },
-      //   {
-      //   field: "colorCode",
-      //   headerName: "Color Code",
-      //   sortable: true,
-      //   filter: true,
-      // },
 
       {
   field: "mood_meter_avatar",
@@ -118,11 +121,7 @@ const ManageMoodMeter = () => {
       </label>
     );
   },
-      }
-,
-
-
-
+      },
        {
         field: "colorCode",
         headerName: "Mood Master Color Code",
@@ -177,25 +176,9 @@ const ManageMoodMeter = () => {
           );
         },
       },
-      // {
-      //   field: "mood_meter_avatar",
-      //   headerName: "Avatar",
-      //   cellRenderer: (params) => {
-      //     return (
-      //       <>
-            
-      //       <FileInput/>
-      //       <img
-      //         src={params.value}
-      //         alt="avatar"
-      //         className="w-12 h-12 rounded-full object-cover"
-      //       />
-      //       </>
-      //     );
-      //   },
-      // },
+    
       {
-        width: 400,
+        width: 260,
         headerName: "Actions",
         field: "actions",
         cellRenderer: (params) => {
@@ -207,16 +190,22 @@ const ManageMoodMeter = () => {
               >
                 Update
               </button>
-
-              {/* <button
-              // onClick={() => handleDeleteZone(params?.data?.id)}
-              >
-                <MdDelete size={20} color="red" />
-              </button> */}
             </div>
           );
         },
       },
+      {
+  headerName: "Mapped Questions",
+  width: 160,
+  cellRenderer: (params) => (
+    <MapperQuestion
+      rowData={params.data}
+     // questions={questionList} // 👈 from different API
+      
+     
+    />
+  ),
+},
     ],
     []
   );

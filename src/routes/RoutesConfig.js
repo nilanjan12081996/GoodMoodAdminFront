@@ -37,6 +37,7 @@ import ManageEquilizer from '../pages/Equilizer/ManageEquilizer.jsx';
 import ManageMoodMatter from '../pages/MoodzMatters/ManageMoodMatter.jsx';
 import BlogDetails from '../pages/Blogs/BlogDetails.jsx';
 import MappingModal from '../pages/ManageQuestion/MappingModal.jsx';
+import SidebarSetting from '../pages/SidebarSetting/SidebarSetting.jsx';
 
 
 const allRoutes = [
@@ -216,6 +217,16 @@ const allRoutes = [
         element: <MappingModal />,
       },
     ],
+  },
+  {
+    path:'/SidebarName/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<SidebarSetting/>
+      },
+    ]
   },
 
 

@@ -49,6 +49,23 @@ export const addQuestions = createAsyncThunk(
     }
 )
 
+export const questionMapped = createAsyncThunk(
+    'questionMapped',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`goodmood/awareness/question/mapped`, user_input);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+
 
 
 
@@ -165,7 +182,8 @@ const initialState = {
     singleQuestion: {},
     updateQuestionData: {},
     deleteQueData: {},
-    deleteOptionData:{}
+    deleteOptionData:{},
+    mappedQuestionData:{}
 }
 const QuestionSlice = createSlice(
     {
@@ -242,6 +260,18 @@ const QuestionSlice = createSlice(
                     state.error = false
                 })
                 .addCase(deleteOption.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                  .addCase(questionMapped.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(questionMapped.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.mappedQuestionData = payload
+                    state.error = false
+                })
+                .addCase(questionMapped.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })
