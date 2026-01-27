@@ -6,7 +6,7 @@ import { ToastContainer } from "react-toastify"
 import { Button } from "flowbite-react"
 import { AgGridReact } from "ag-grid-react"
 import AddManageEquilizer from "./AddManageEquilizer"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal"
 import { getAwarness, getSingleAwarness, uploladImage } from "../../Reducer/MoodMeterSlice"
 import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal"
@@ -16,6 +16,7 @@ const ManageEquilizer=()=>{
       const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
        const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
     const dispatch=useDispatch()
+    const navigate=useNavigate()
     const[openAddEqModal,setOpenEqModal]=useState(false)
     const [openAddTagModal, setOpenTagModal] = useState(false);
       const [moodmeterId, setMoodMeterId] = useState();
@@ -35,6 +36,12 @@ const ManageEquilizer=()=>{
         setOpenUpdateTagModal(true);
         setMoodMeterId(id);
       };
+      const handleUploadContent=(id)=>{
+        navigate("/upload-content",{state:{id:id}})
+      }
+        const handleViewContent=(id)=>{
+        navigate("/view-content",{state:{id:id}})
+      }
 console.log("equilizerList",equilizerList);
 
       const rowData = useMemo(() => {
@@ -142,9 +149,9 @@ console.log("equilizerList",equilizerList);
                </label>
              );
            },
-               },
+            },
             {
-              width: 400,
+              width: 200,
               headerName: "Actions",
               field: "actions",
               cellRenderer: (params) => {
@@ -166,6 +173,37 @@ console.log("equilizerList",equilizerList);
                 );
               },
             },
+            {
+               width: 400,
+              headerName:"Content",
+              field:"content",
+              cellRenderer:(params)=>{
+                return(
+                  <div className="flex gap-2">
+                    <div>
+                    <button
+                    type="button"
+                    onClick={()=>handleUploadContent(params?.data?.id)}
+                    className="bg-[#52b69a] hover:bg-black px-4 py-1
+                     text-white text-base font-semibold flex justify-center items-center rounded-md"
+                    >
+                      Upload Content
+                    </button>
+                    </div>
+                    <div>
+                       <button
+                    type="button"
+                    onClick={()=>handleViewContent(params?.data?.id)}
+                    className="bg-[#52b69a] hover:bg-black px-4 py-1
+                     text-white text-base font-semibold flex justify-center items-center rounded-md"
+                    >
+                      View Content
+                    </button>
+                    </div>
+                  </div>
+                )
+              }
+            }
           ],
           []
         );
