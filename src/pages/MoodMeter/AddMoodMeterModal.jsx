@@ -21,7 +21,8 @@ const AddMoodMeterModal = ({ openAddTagModal, setOpenTagModal,id }) => {
       awarenessName:data?.awarenessName,
       description:data?.description,
       subsidebarId:id?.id,
-      colorCode:data?.colorCode
+      colorCode:data?.colorCode,
+      status:1
     }
     dispatch(addMoodMeter(payload)).then((res) => {
       console.log("res", res);

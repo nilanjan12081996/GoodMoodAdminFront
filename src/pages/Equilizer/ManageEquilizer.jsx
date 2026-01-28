@@ -81,9 +81,11 @@ console.log("equilizerList",equilizerList);
                 const handleStatusChange = () => {
                   const newStatus = isChecked ? 0 : 1;
                   dispatch(
-                    changeStatusEquilizer({ mood_eq_id: params.data.id, status: newStatus })
+                    changeStatusEquilizer({ id: params.data.id, status: newStatus })
                   ).then(() => {
-                    dispatch(getEquilizer()); // refresh data after success
+                     dispatch(getAwarness({
+                      id:id?.id
+                    }));
                   });
                 };
       

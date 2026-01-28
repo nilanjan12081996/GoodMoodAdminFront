@@ -35,10 +35,10 @@ export const addEquilizer = createAsyncThunk(
 
 export const changeStatusEquilizer = createAsyncThunk(
     'changeStatusEquilizer',
-    async (user_input, { rejectWithValue }) => {
+    async ({id}, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin/mood-equelizer/change-status`, user_input);
-            if (response?.data?.status_code === 201) {
+            const response = await api.patch(`goodmood/equalizer/status?id=${id}`, );
+            if (response?.data?.statusCode === 201||response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);
