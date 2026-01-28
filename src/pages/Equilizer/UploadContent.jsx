@@ -14,6 +14,7 @@ const generateUUID = () =>
   });
 
 const UploadContent = () => {
+  const baseUrl="https://goodmoodnodeadminapi.goodmood.solutions"
   const location = useLocation();
   const id = location?.state?.id;
 
@@ -172,7 +173,7 @@ const UploadContent = () => {
             <video
               controls
               className="w-full rounded"
-              src={`http://localhost:8085${uploadedMedia.videoUrl}`}
+              src={`${baseUrl}${uploadedMedia.videoUrl}`}
             />
           )}
 
@@ -181,7 +182,7 @@ const UploadContent = () => {
             <audio
               controls
               className="w-full"
-              src={`http://localhost:8085${uploadedMedia.videoUrl}`}
+              src={`${baseUrl}${uploadedMedia.videoUrl}`}
             />
           )}
 
@@ -197,7 +198,7 @@ const UploadContent = () => {
           {/* Thumbnail */}
           {uploadedMedia.thumbnailUrl && (
             <img
-              src={`http://localhost:8085${uploadedMedia.thumbnailUrl}`}
+              src={`${baseUrl}${uploadedMedia.thumbnailUrl}`}
               alt="Thumbnail"
               className="w-full mt-3 rounded border"
             />
