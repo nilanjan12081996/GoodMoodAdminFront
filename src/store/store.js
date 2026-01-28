@@ -41,6 +41,7 @@ import SidebarSlice from '../Reducer/SidebarSlice'
 import SidebarSettingSlice from '../Reducer/SidebarSettingSlice'
 import ContentUploadSlice from '../Reducer/ContentUploadSlice'
 import SupportSlice from '../Reducer/SupportSlice'
+import SpecializationSlice from '../Reducer/SpecializationSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -84,7 +85,8 @@ const store = configureStore({
     equilize:EquilizerSlice,
     sidebarsetiings:SidebarSettingSlice,
     content:ContentUploadSlice,
-    support:SupportSlice
+    support:SupportSlice,
+    special:SpecializationSlice
   },
   devTools: import.meta.env.DEV,
 });

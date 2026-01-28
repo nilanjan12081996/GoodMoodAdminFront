@@ -43,6 +43,7 @@ import ViewContent from '../pages/Equilizer/ViewContent.jsx';
 import UpdateContent from '../pages/Equilizer/UpdateContent.jsx';
 import ManageSupportCategory from '../pages/Support/Category/ManageSupportCategory.jsx';
 import SupportDetails from '../pages/Support/Category/SupportDetails.jsx';
+import ManageSpecialization from '../pages/Support/Specialization/ManageSpecialization.jsx';
 
 
 const allRoutes = [
@@ -283,6 +284,17 @@ const allRoutes = [
       {
         index:true,
         element:<SupportDetails/>
+      },
+    ]
+  },
+
+      {
+    path:'/Specializations/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<ManageSpecialization/>
       },
     ]
   },
