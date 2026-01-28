@@ -41,6 +41,8 @@ import SidebarSetting from '../pages/SidebarSetting/SidebarSetting.jsx';
 import UploadContent from '../pages/Equilizer/UploadContent.jsx';
 import ViewContent from '../pages/Equilizer/ViewContent.jsx';
 import UpdateContent from '../pages/Equilizer/UpdateContent.jsx';
+import ManageSupportCategory from '../pages/Support/Category/ManageSupportCategory.jsx';
+import SupportDetails from '../pages/Support/Category/SupportDetails.jsx';
 
 
 const allRoutes = [
@@ -259,6 +261,28 @@ const allRoutes = [
       {
         index:true,
         element:<ViewContent/>
+      },
+    ]
+  },
+
+   {
+    path:'/SupportCategory/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<ManageSupportCategory/>
+      },
+    ]
+  },
+
+    {
+    path:'/support-details',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<SupportDetails/>
       },
     ]
   },
