@@ -65,6 +65,38 @@ export const questionMapped = createAsyncThunk(
     }
 )
 
+export const alreadyMappedQuestion = createAsyncThunk(
+    'alreadyMappedQuestion',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/awareness/question/awarness-question/${id}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const unMappedQuestion = createAsyncThunk(
+    'unMappedQuestion',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.delete(`goodmood/awareness/question/delete/${id}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 
 
 
@@ -183,11 +215,13 @@ const initialState = {
     updateQuestionData: {},
     deleteQueData: {},
     deleteOptionData:{},
-    mappedQuestionData:{}
+    mappedQuestionData:{},
+    alreadyMappedData:{},
+    deleteMappedData:{}
 }
 const QuestionSlice = createSlice(
     {
-        name: 'que',
+        name: 'questions',
         initialState,
         reducers: {},
         extraReducers: (builder) => {
@@ -272,6 +306,30 @@ const QuestionSlice = createSlice(
                     state.error = false
                 })
                 .addCase(questionMapped.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                   .addCase(alreadyMappedQuestion.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(alreadyMappedQuestion.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.alreadyMappedData = payload
+                    state.error = false
+                })
+                .addCase(alreadyMappedQuestion.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                      .addCase(unMappedQuestion.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(unMappedQuestion.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.deleteMappedData = payload
+                    state.error = false
+                })
+                .addCase(unMappedQuestion.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })

@@ -62,6 +62,10 @@ const ViewContent = () => {
     dispatch(contentList({ id }));
   }, [dispatch, id]);
 
+  const handleUpdateThumbnil=(cid)=>{
+    navigate("/update-content",{state:{id:cid,awid:id}})
+  }
+
   const columnDefs = useMemo(
     () => [
       {
@@ -70,12 +74,7 @@ const ViewContent = () => {
         cellRenderer: VideoCellRenderer,
         width: 220,
       },
-    //   {
-    //     headerName: "Type",
-    //     valueGetter: (params) =>
-    //       params.data.url.endsWith(".m3u8") ? "Video" : "Image",
-    //     width: 120,
-    //   },
+        
       {
         headerName: "Status",
         field: "status",
@@ -84,10 +83,24 @@ const ViewContent = () => {
           params.value === 1 ? "Active" : "Inactive",
       },
       {
-        headerName: "Created At",
-        field: "createdAt",
-        width: 200,
-      },
+        headerName:"Action",
+        field:"action",
+        width:150,
+        cellRenderer:(params)=>{
+          return(
+            <>
+            <button
+            type="button"
+            onClick={()=>handleUpdateThumbnil(params?.data?.id)}
+             className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+            >
+              Update
+            </button>
+            </>
+          )
+        }
+      }
+     
     ],
     []
   );

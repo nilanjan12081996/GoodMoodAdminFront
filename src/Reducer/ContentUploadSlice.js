@@ -32,11 +32,45 @@ export const contentList=createAsyncThunk(
         }
     }
 )
+
+export const contentListSingle=createAsyncThunk(
+    'contentListSingle',
+    async ({id,cid}, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/equalizer/list?awid=${id}&&id=${cid}`);
+            if (response?.data?.statusCode === 200 ||response?.data?.statusCode === 201) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const contentUpdate=createAsyncThunk(
+    'contentUpdate',
+    async ({id,file}, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`goodmood/equalizer/banner/update?id=${id}`,file);
+            if (response?.data?.statusCode === 200 ||response?.data?.statusCode === 201) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
 const initialState={
     loading:false,
     error:false,
     contentUploadData:"",
-    allContent:[]
+    allContent:[],
+    updateBanner:"",
+    singleContent:{}
 }
 const ContentUploadSlice=createSlice(
     {
@@ -66,6 +100,30 @@ const ContentUploadSlice=createSlice(
                 state.error=false
             })
             .addCase(contentList.rejected,(state,{payload})=>{
+                state.loading=false
+                state.error=payload
+            })
+            .addCase(contentListSingle.pending,(state)=>{
+                state.loading=true
+            })
+            .addCase(contentListSingle.fulfilled,(state,{payload})=>{
+                state.loading=false
+                state.singleContent=payload
+                state.error=false
+            })
+            .addCase(contentListSingle.rejected,(state,{payload})=>{
+                state.loading=false
+                state.error=payload
+            })
+              .addCase(contentUpdate.pending,(state)=>{
+                state.loading=true
+            })
+            .addCase(contentUpdate.fulfilled,(state,{payload})=>{
+                state.loading=false
+                state.updateBanner=payload
+                state.error=false
+            })
+            .addCase(contentUpdate.rejected,(state,{payload})=>{
                 state.loading=false
                 state.error=payload
             })

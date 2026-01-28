@@ -40,6 +40,7 @@ import MappingModal from '../pages/ManageQuestion/MappingModal.jsx';
 import SidebarSetting from '../pages/SidebarSetting/SidebarSetting.jsx';
 import UploadContent from '../pages/Equilizer/UploadContent.jsx';
 import ViewContent from '../pages/Equilizer/ViewContent.jsx';
+import UpdateContent from '../pages/Equilizer/UpdateContent.jsx';
 
 
 const allRoutes = [
@@ -238,6 +239,16 @@ const allRoutes = [
       {
         index:true,
         element:<UploadContent/>
+      },
+    ]
+  },
+   {
+    path:'/update-content',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<UpdateContent/>
       },
     ]
   },
