@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
-import { changeStatusEquilizer, getEquilizer } from "../../Reducer/EquilizerSlice"
+import { changeStatusEquilizer, getEquilizer, toggleStatus } from "../../Reducer/EquilizerSlice"
 import { ToastContainer } from "react-toastify"
 import { Button } from "flowbite-react"
 import { AgGridReact } from "ag-grid-react"
@@ -81,7 +81,7 @@ console.log("equilizerList",equilizerList);
                 const handleStatusChange = () => {
                   const newStatus = isChecked ? 0 : 1;
                   dispatch(
-                    changeStatusEquilizer({ id: params.data.id, status: newStatus })
+                    toggleStatus({ id: params.data.id, status: newStatus })
                   ).then(() => {
                      dispatch(getAwarness({
                       id:id?.id

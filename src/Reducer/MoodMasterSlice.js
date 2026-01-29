@@ -37,10 +37,10 @@ export const changeStatus = createAsyncThunk(
     'moodMaster/changeStatus',
     async ({ id }, { rejectWithValue }) => {
         try {
-            const encodedId = btoa(id);
-            const response = await api.get(`/mood-master/status?id=${encodedId}`);
+            
+            const response = await api.patch(`goodmood/awarness/status/${id}`);
 
-            if (response?.data?.status_code === 200) {
+            if (response?.data?.statusCode === 200) {
                 return response.data;
             } else {
                 return rejectWithValue(response.data);

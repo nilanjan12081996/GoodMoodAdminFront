@@ -6,6 +6,7 @@ import { contentList } from "../../Reducer/ContentUploadSlice";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { changeStatusEquilizer } from "../../Reducer/EquilizerSlice";
 
 const VideoCellRenderer = (params) => {
   const { data, context } = params;
@@ -76,12 +77,33 @@ const ViewContent = () => {
       },
         
       {
-        headerName: "Status",
-        field: "status",
-        width: 100,
-        cellRenderer: (params) =>
-          params.value === 1 ? "Active" : "Inactive",
-      },
+                   field: "status",
+                   headerName: "Status",
+                   cellRenderer: (params) => {
+                     const isChecked = params.value;
+           
+                     const handleStatusChange = () => {
+                       const newStatus = isChecked ? 0 : 1;
+                       dispatch(
+                         changeStatusEquilizer({ id: params.data.id, status: newStatus })
+                       ).then(() => {
+                         dispatch(contentList({ id }));
+                       });
+                     };
+           
+                     return (
+                       <label className="inline-flex items-center cursor-pointer">
+                         <input
+                           type="checkbox"
+                           checked={isChecked}
+                           onChange={() => handleStatusChange(params.data.id, isChecked)}
+                           className="sr-only peer"
+                         />
+                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 relative"></div>
+                       </label>
+                     );
+                   },
+                 },
       {
         headerName:"Action",
         field:"action",

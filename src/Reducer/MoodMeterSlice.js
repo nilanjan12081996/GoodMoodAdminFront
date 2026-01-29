@@ -87,10 +87,10 @@ export const addMoodMeter = createAsyncThunk(
 
 export const getActiveDeactiveMoodMeter = createAsyncThunk(
     'getActiveDeactiveMoodMeter',
-    async (user_input, { rejectWithValue }) => {
+    async ({id}, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/admin/mood-meter/change-status`, user_input);
-            if (response?.data?.status_code === 200) {
+            const response = await api.patch(`goodmood/awarness/status/${id}`);
+            if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
                 return rejectWithValue(response);

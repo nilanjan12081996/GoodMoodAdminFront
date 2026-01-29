@@ -109,7 +109,9 @@ const ManageMoodMaster = () => {
             dispatch(
               changeStatus({ id: params.data.id, status: newStatus })
             ).then(() => {
-              dispatch(getMoodMaster()); // refresh data after success
+              dispatch(getAwarness({
+          id:id?.id
+        })); // refresh data after success
             });
           };
 

@@ -48,6 +48,23 @@ export const changeStatusEquilizer = createAsyncThunk(
         }
     }
 )
+
+
+export const toggleStatus = createAsyncThunk(
+    'changeStatusEquilizer',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`goodmood/awarness/status/${id}`, );
+            if (response?.data?.statusCode === 201||response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
 const initialState={
     loading:false,
     equilizerList:[],

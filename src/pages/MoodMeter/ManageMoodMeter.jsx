@@ -155,11 +155,13 @@ const ManageMoodMeter = () => {
             const newStatus = isChecked ? 0 : 1;
             dispatch(
               getActiveDeactiveMoodMeter({
-                mood_meter_id: params.data.id,
+                id: params.data.id,
                 status: newStatus,
               })
             ).then(() => {
-              dispatch(getMoodMeter()); // refresh data
+                dispatch(getAwarness({
+                      id:id?.id
+                    }));
             });
           };
 
