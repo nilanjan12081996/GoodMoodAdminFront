@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
-import { getParentCategory } from "../../../Reducer/SupportSlice"
+import { changeStatus, getParentCategory } from "../../../Reducer/SupportSlice"
 import { useSelector } from "react-redux"
 import { AgGridReact } from "ag-grid-react"
 import { Button } from "flowbite-react"
@@ -109,12 +109,12 @@ navigate("/support-details",{state:{parentid:id}})
           const handleStatusChange = () => {
             const newStatus = isChecked ? 0 : 1;
             dispatch(
-              getActiveDeactiveMoodMeter({
-                mood_meter_id: params.data.id,
+              changeStatus({
+                id: params.data.id,
                 status: newStatus,
               })
             ).then(() => {
-              dispatch(getMoodMeter()); // refresh data
+                dispatch(getParentCategory({id:id?.id}))// refresh data
             });
           };
 
