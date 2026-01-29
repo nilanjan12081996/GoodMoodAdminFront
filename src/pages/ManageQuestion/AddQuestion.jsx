@@ -52,8 +52,8 @@ const { register, control, handleSubmit,watch, reset,formState: { errors } } = u
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label value="Answers (Max 4)" />
-                {fields.length < 4 && (
+                <Label value="Answers (Max 5)" />
+                {fields.length < 5 && (
                   <Button 
                     size="xs" 
                     color="gray" 

@@ -12,7 +12,7 @@ const DeleteConfirmationModal=({deleteConfirmModal,setDeleteConfirmationModal,op
             if(res?.payload?.statusCode===200){
                 setDeleteConfirmationModal(false)
                 // setOpenMappingModal(false)
-                dispatch(getSingleQuestion({id:id?.id}))
+                dispatch(getSingleQuestion({id:id?.id||id}))
                 
             }
         })

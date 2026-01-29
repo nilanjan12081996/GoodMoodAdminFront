@@ -171,6 +171,12 @@ dispatch(getSingleQuestion({ id: id?.id }))
           >
             Delete
           </button>
+           {/* <button
+            onClick={() => handledeleteConfirm(params.data.id)}
+            className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 transition"
+          >
+            Edit
+          </button> */}
         </div>
       )
     }
@@ -179,6 +185,9 @@ dispatch(getSingleQuestion({ id: id?.id }))
   const defaultColDef = useMemo(() => ({
     resizable: true,
   }), []);
+
+
+
 
   return (
    

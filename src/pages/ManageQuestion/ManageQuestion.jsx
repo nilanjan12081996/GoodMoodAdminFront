@@ -144,9 +144,10 @@ const ManageQuestion = () => {
   }, []);
 
   const handleUpdateQuestion = (id) => {
-    setOpenUpdateModal(true);
-    setQuestionId(id);
-    dispatch(getSingleQuestion({ id: id }));
+    // setOpenUpdateModal(true);
+    // setQuestionId(id);
+     dispatch(getSingleQuestion({ id: id }));
+    navigate("/edit-question",{state:{id:id}})
   };
   const handleAddQuestion = () => {
     setOpenAddQueModal(true);
@@ -203,16 +204,16 @@ const ManageQuestion = () => {
           id={id}
         />
       )}
-      {openUpdateModal && singleQuestion && (
+      {/* {openUpdateModal && singleQuestion && (
         <UpdateQuestionModal
           openUpdateModal={openUpdateModal}
           setOpenUpdateModal={setOpenUpdateModal}
           singleQuestion={singleQuestion}
           questionId={questionId}
           setOptionId={setOptionId}
-           setDeleteConfirmationModal={setDeleteConfirmationModal}
+          
         />
-      )}
+      )} */}
       {openQueDeleteModal && (
         <DeleteModalQue
           openQueDeleteModal={openQueDeleteModal}
