@@ -45,6 +45,7 @@ import ManageSupportCategory from '../pages/Support/Category/ManageSupportCatego
 import SupportDetails from '../pages/Support/Category/SupportDetails.jsx';
 import ManageSpecialization from '../pages/Support/Specialization/ManageSpecialization.jsx';
 import UpdateQuestionModal from '../pages/ManageQuestion/UpdateQuestionModal.jsx';
+import ManageDoctor from '../pages/Support/Doctor/ManageDoctor.jsx';
 
 
 const allRoutes = [
@@ -307,6 +308,16 @@ const allRoutes = [
       {
         index:true,
         element:<ManageSpecialization/>
+      },
+    ]
+  },
+     {
+    path:'/Doctors/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<ManageDoctor/>
       },
     ]
   },

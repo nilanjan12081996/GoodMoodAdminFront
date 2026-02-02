@@ -188,7 +188,7 @@ navigate("/support-details",{state:{parentid:id}})
                   />
                 )}
           
-              </div>
+          </div>
         </>
     )
 }
