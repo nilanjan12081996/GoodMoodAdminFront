@@ -51,11 +51,32 @@ export const toggleStatus=createAsyncThunk(
         }
     }
 )
+export const getTimeSlot=createAsyncThunk(
+    'getTimeSlot',
+    async (id, { rejectWithValue }) => {
+    try {
+      let url = "http://localhost:8085/api/goodmood/doctor-time-slot/slot-list";
+
+      // if id is provided, append query param
+      if (id) {
+        url += `?id=${id}`;
+      }
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || error.message
+      );
+    }
+  }
+)
 const initialState={
     loading:false,
     error:false,
     doctorsDetails:[],
-    approveData:""
+    approveData:"",
+    timeSlotData:""
 }
 const DoctorSlice=createSlice(
     {
@@ -85,6 +106,18 @@ const DoctorSlice=createSlice(
                 state.error=false
             })
             .addCase(approveDoctor.rejected,(state,{payload})=>{
+                state.loading=false
+                state.error=payload
+            })
+            .addCase(getTimeSlot.pending,(state)=>{
+                state.loading=true
+            })
+            .addCase(getTimeSlot.fulfilled,(state,{payload})=>{
+                state.loading=false
+                state.timeSlotData=payload
+                state.error=false
+            })
+            .addCase(getTimeSlot.rejected,(state,{payload})=>{
                 state.loading=false
                 state.error=payload
             })

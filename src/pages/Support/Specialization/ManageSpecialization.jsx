@@ -161,7 +161,7 @@ const ManageSpecialization=()=>{
                  <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
                         <div className="h-full lg:h-screen">
                           <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold">Support</h2>
+                            <h2 className="text-2xl font-semibold">Specialization</h2>
                             <Button
                                onClick={() => setOpenAddModal(true)}
                               className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"

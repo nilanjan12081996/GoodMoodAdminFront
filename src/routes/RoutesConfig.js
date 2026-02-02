@@ -46,6 +46,7 @@ import SupportDetails from '../pages/Support/Category/SupportDetails.jsx';
 import ManageSpecialization from '../pages/Support/Specialization/ManageSpecialization.jsx';
 import UpdateQuestionModal from '../pages/ManageQuestion/UpdateQuestionModal.jsx';
 import ManageDoctor from '../pages/Support/Doctor/ManageDoctor.jsx';
+import ManageTimeSlot from '../pages/Support/TimeSlotManage/ManageTimeSlot.jsx';
 
 
 const allRoutes = [
@@ -318,6 +319,17 @@ const allRoutes = [
       {
         index:true,
         element:<ManageDoctor/>
+      },
+    ]
+  },
+
+       {
+    path:'/SlotSpan/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<ManageTimeSlot/>
       },
     ]
   },
