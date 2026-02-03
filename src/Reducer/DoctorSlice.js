@@ -71,12 +71,56 @@ export const getTimeSlot=createAsyncThunk(
     }
   }
 )
+export const toggleStatusTimeSlot=createAsyncThunk(
+    'toggleStatusTimeSlot',
+     async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`goodmood/doctor-time-slot/status/${id}`, );
+            if (response?.data?.statusCode === 201||response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const updateTimeSlot = createAsyncThunk(
+  'updateTimeSlot',
+  async ({ id, slot_time, status }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(
+        `goodmood/doctor-time-slot/update-slot/${id}`,
+        {
+          slot_time,
+          status,
+        }
+      );
+
+      if (
+        response?.data?.statusCode === 200 ||
+        response?.data?.statusCode === 201
+      ) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const initialState={
     loading:false,
     error:false,
     doctorsDetails:[],
     approveData:"",
-    timeSlotData:""
+    timeSlotData:"",
+    updateSlotData:"",
+    singleTimeSlot:{}
 }
 const DoctorSlice=createSlice(
     {
@@ -114,10 +158,28 @@ const DoctorSlice=createSlice(
             })
             .addCase(getTimeSlot.fulfilled,(state,{payload})=>{
                 state.loading=false
-                state.timeSlotData=payload
+                if(Array.isArray(payload?.data)){
+                    state.timeSlotData=payload
+                }
+                else{
+                    state.singleTimeSlot=payload
+                }
+                
                 state.error=false
             })
             .addCase(getTimeSlot.rejected,(state,{payload})=>{
+                state.loading=false
+                state.error=payload
+            })
+               .addCase(updateTimeSlot.pending,(state)=>{
+                state.loading=true
+            })
+            .addCase(updateTimeSlot.fulfilled,(state,{payload})=>{
+                state.loading=false
+                state.updateSlotData=payload
+                state.error=false
+            })
+            .addCase(updateTimeSlot.rejected,(state,{payload})=>{
                 state.loading=false
                 state.error=payload
             })

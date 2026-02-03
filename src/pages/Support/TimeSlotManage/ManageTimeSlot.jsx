@@ -1,12 +1,15 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
-import { getTimeSlot } from "../../../Reducer/DoctorSlice"
+import { getTimeSlot, toggleStatusTimeSlot } from "../../../Reducer/DoctorSlice"
 import { AgGridReact } from "ag-grid-react"
+import UpdateSlot from "./UpdateSlot"
 
 const ManageTimeSlot=()=>{
      const {timeSlotData}=useSelector((state)=>state?.doctors)
      const dispatch=useDispatch()
+     const[openSlotModal,setOpenSlotModal]=useState(false)
+     const [slotId,setSlotId]=useState()
     useEffect(()=>{
         dispatch(getTimeSlot())
     },[])
@@ -40,7 +43,7 @@ const ManageTimeSlot=()=>{
                   const handleStatusChange = () => {
                     const newStatus = isChecked ? 0 : 1;
                     dispatch(
-                      toggleStatus({
+                      toggleStatusTimeSlot({
                         id: params.data.id,
                         status: newStatus,
                       })
@@ -68,13 +71,13 @@ const ManageTimeSlot=()=>{
         headerName: "Actions",
         field: "actions",
         cellRenderer: (params) => {
-          const isApproved = params.data.adminStatus === 1;
+          
       
           return (
             <div className="flex gap-2">
               <button
-                disabled={isApproved}
-          
+               
+              onClick={()=>handleUpdateTimeSlot(params.data.id)}
                 className="px-4 py-1 text-white text-base font-semibold rounded-md bg-[#52b69a] hover:bg-black"
                   
               >
@@ -88,6 +91,12 @@ const ManageTimeSlot=()=>{
             ],
             []
           );
+
+          const handleUpdateTimeSlot=(id)=>{
+            setOpenSlotModal(true)
+            setSlotId(id)
+            dispatch(getTimeSlot(id))
+          }
     return(
         <>
              <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
@@ -115,13 +124,13 @@ const ManageTimeSlot=()=>{
                                         />
                                       </div>
                                     </div>
-                                    {/* {openAddModal && (
-                                      <AddSupport
-                                        openAddModal={openAddModal}
-                                        setOpenAddModal={setOpenAddModal}
-                                        id={id}
+                                     {openSlotModal && (
+                                      <UpdateSlot
+                                        openSlotModal={openSlotModal}
+                                        setOpenSlotModal={setOpenSlotModal}
+                                        slotId={slotId}
                                       />
-                                    )} */}
+                                    )} 
                               
                     </div>
         </>
