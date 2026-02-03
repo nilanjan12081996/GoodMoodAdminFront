@@ -47,6 +47,7 @@ import ManageSpecialization from '../pages/Support/Specialization/ManageSpeciali
 import UpdateQuestionModal from '../pages/ManageQuestion/UpdateQuestionModal.jsx';
 import ManageDoctor from '../pages/Support/Doctor/ManageDoctor.jsx';
 import ManageTimeSlot from '../pages/Support/TimeSlotManage/ManageTimeSlot.jsx';
+import ManageDays from '../pages/Support/Days/ManageDays.jsx';
 
 
 const allRoutes = [
@@ -330,6 +331,17 @@ const allRoutes = [
       {
         index:true,
         element:<ManageTimeSlot/>
+      },
+    ]
+  },
+
+        {
+    path:'/Days/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<ManageDays/>
       },
     ]
   },

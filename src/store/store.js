@@ -43,6 +43,7 @@ import ContentUploadSlice from '../Reducer/ContentUploadSlice'
 import SupportSlice from '../Reducer/SupportSlice'
 import SpecializationSlice from '../Reducer/SpecializationSlice'
 import DoctorSlice from '../Reducer/DoctorSlice'
+import DaysSlice from '../Reducer/DaysSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -88,7 +89,8 @@ const store = configureStore({
     content:ContentUploadSlice,
     support:SupportSlice,
     special:SpecializationSlice,
-    doctors:DoctorSlice
+    doctors:DoctorSlice,
+    days:DaysSlice
   },
   devTools: import.meta.env.DEV,
 });
