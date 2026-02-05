@@ -44,6 +44,7 @@ import SupportSlice from '../Reducer/SupportSlice'
 import SpecializationSlice from '../Reducer/SpecializationSlice'
 import DoctorSlice from '../Reducer/DoctorSlice'
 import DaysSlice from '../Reducer/DaysSlice'
+import PlatformSlice from '../Reducer/PlatformSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -90,7 +91,8 @@ const store = configureStore({
     support:SupportSlice,
     special:SpecializationSlice,
     doctors:DoctorSlice,
-    days:DaysSlice
+    days:DaysSlice,
+    platform:PlatformSlice
   },
   devTools: import.meta.env.DEV,
 });

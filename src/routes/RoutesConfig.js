@@ -48,6 +48,7 @@ import UpdateQuestionModal from '../pages/ManageQuestion/UpdateQuestionModal.jsx
 import ManageDoctor from '../pages/Support/Doctor/ManageDoctor.jsx';
 import ManageTimeSlot from '../pages/Support/TimeSlotManage/ManageTimeSlot.jsx';
 import ManageDays from '../pages/Support/Days/ManageDays.jsx';
+import PlaformCharge from '../pages/PlatformCharge/PlaformCharge.jsx';
 
 
 const allRoutes = [
@@ -342,6 +343,17 @@ const allRoutes = [
       {
         index:true,
         element:<ManageDays/>
+      },
+    ]
+  },
+
+          {
+    path:'/supportPlatformCharges/:id',
+    element:<InsideLayout/>,
+    children:[
+      {
+        index:true,
+        element:<PlaformCharge/>
       },
     ]
   },
