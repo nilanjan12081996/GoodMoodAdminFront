@@ -4,7 +4,7 @@ import { useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 import { getParentCategory } from "../../Reducer/SupportSlice"
 import { AgGridReact } from "ag-grid-react"
-import { getPlatformCharges } from "../../Reducer/PlatformSlice"
+import { getCategoryWithoutParent, getPlatformCharges } from "../../Reducer/PlatformSlice"
 import AddUpdateCharges from "./AddUpdateCharges"
 import { ToastContainer } from "react-toastify"
 
@@ -13,25 +13,27 @@ const PlaformCharge=()=>{
     const[openAddModal,setOpenAddModal]=useState(false)
     const[isEdit,setisEdit]=useState(false)
     const[categoryId,setCategoryId]=useState()
-    const{parentcateList}=useSelector((state)=>state?.support)
+    // const{parentcateList}=useSelector((state)=>state?.support)
+    const{categoryWithoutParent}=useSelector((state)=>state?.platform)
     const id=useParams()
     const dispatch=useDispatch()
     const navigate=useNavigate()
     useEffect(()=>{
-        dispatch(getParentCategory({id:id?.id}))
+        // dispatch(getParentCategory({id:id?.id}))
+        dispatch(getCategoryWithoutParent())
     },[])
-    console.log("parentcateList",parentcateList);
+
       const rowData = useMemo(() => {
     return (
-      parentcateList?.data?.map((tags) => ({
+      categoryWithoutParent?.data?.map((tags) => ({
         id: tags?.id,
         name: tags?.name,
-        description: tags?.description,
-        image:parentcateList?.baseurl+tags?.image,
+       
+        image:categoryWithoutParent?.baseurl+tags?.image,
         status: tags.status,
       })) || []
     );
-  }, [parentcateList?.data]);
+  }, [categoryWithoutParent?.data]);
 
   const handleUpdateTags=(id)=>{
     setCategoryId(id)
@@ -55,12 +57,7 @@ const PlaformCharge=()=>{
         sortable: true,
         filter: true,
       },
-      {
-        field: "description",
-        headerName: "Description",
-        sortable: true,
-        filter: true,
-      },
+  
 
       {
   field: "image",
@@ -113,38 +110,7 @@ const PlaformCharge=()=>{
   },
       },
      
-      
-    //   {
-    //     field: "status",
-    //     headerName: "Status",
-    //     cellRenderer: (params) => {
-    //       const isChecked = params.value;
 
-    //       const handleStatusChange = () => {
-    //         const newStatus = isChecked ? 0 : 1;
-    //         dispatch(
-    //           changeStatus({
-    //             id: params.data.id,
-    //             status: newStatus,
-    //           })
-    //         ).then(() => {
-    //             dispatch(getParentCategory({id:id?.id}))// refresh data
-    //         });
-    //       };
-
-    //       return (
-    //         <label className="inline-flex items-center cursor-pointer">
-    //           <input
-    //             type="checkbox"
-    //             checked={isChecked}
-    //             onChange={() => handleStatusChange(params.data.id, isChecked)}
-    //             className="sr-only peer"
-    //           />
-    //           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 relative"></div>
-    //         </label>
-    //       );
-    //     },
-    //   },
     
       {
         width: 260,

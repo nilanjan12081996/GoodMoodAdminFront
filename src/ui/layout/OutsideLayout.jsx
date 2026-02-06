@@ -38,7 +38,7 @@ const OutsideLayout = () => {
   const nevigate = useNavigate();
   useEffect(() => {
     if (parseToken !== null || parseToken !== null) {
-      nevigate("/manage-coaches");
+      nevigate("/MoodMeters/1");
     }
   }, []);
 

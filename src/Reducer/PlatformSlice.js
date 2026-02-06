@@ -36,11 +36,32 @@ export const getPlatformCharges=createAsyncThunk(
         }
       }
 )
+
+export const getCategoryWithoutParent=createAsyncThunk(
+    'getCategoryWithoutParent',
+    async (_, { rejectWithValue }) => {
+        try {
+          const response = await api.get("goodmood/support/category/without-parent");
+           if (response?.data?.statusCode === 201||response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+       
+        } catch (error) {
+          return rejectWithValue(
+            error.response?.data || error.message
+          );
+        }
+      }
+)
+
 const initialState={
     loading:false,
     error:false,
     addUpdateData:"",
-    charges:[]
+    charges:[],
+    categoryWithoutParent:[]
 }
 const PlatformSlice=createSlice(
     {
@@ -70,6 +91,18 @@ const PlatformSlice=createSlice(
             state.error=false
            })
            .addCase(getPlatformCharges.rejected,(state,{payload})=>{
+            state.loading=false
+            state.error=payload
+           })
+              .addCase(getCategoryWithoutParent.pending,(state)=>{
+            state.loading=true
+            })
+           .addCase(getCategoryWithoutParent.fulfilled,(state,{payload})=>{
+            state.loading=false
+            state.categoryWithoutParent=payload
+            state.error=false
+           })
+           .addCase(getCategoryWithoutParent.rejected,(state,{payload})=>{
             state.loading=false
             state.error=payload
            })
