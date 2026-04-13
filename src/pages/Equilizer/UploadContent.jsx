@@ -14,7 +14,7 @@ const generateUUID = () =>
   });
 
 const UploadContent = () => {
-  const baseUrl="https://goodmoodnodeadminapi.goodmood.solutions"
+  const baseUrl="https://newadminapigoodmood.goodmood.solutions"
   const location = useLocation();
   const id = location?.state?.id;
 
