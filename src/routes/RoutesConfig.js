@@ -49,6 +49,7 @@ import ManageDoctor from '../pages/Support/Doctor/ManageDoctor.jsx';
 import ManageTimeSlot from '../pages/Support/TimeSlotManage/ManageTimeSlot.jsx';
 import ManageDays from '../pages/Support/Days/ManageDays.jsx';
 import PlaformCharge from '../pages/PlatformCharge/PlaformCharge.jsx';
+import TransactionUser from '../pages/UserTransactions/TransactionUser.jsx';
 
 
 const allRoutes = [
@@ -146,7 +147,7 @@ const allRoutes = [
     ],
   },
 
-    {
+  {
     path: '/MoodzMatter/:id',
     element: <InsideLayout />,
     children: [
@@ -167,7 +168,7 @@ const allRoutes = [
       },
     ],
   },
-    {
+  {
     path: '/PsychiatricInsights/:id',
     element: <InsideLayout />,
     children: [
@@ -177,7 +178,7 @@ const allRoutes = [
       },
     ],
   },
-     {
+  {
     path: '/blog-details',
     element: <InsideLayout />,
     children: [
@@ -209,7 +210,7 @@ const allRoutes = [
     ],
   },
 
-    {
+  {
     path: '/MoodEqualisers/:id',
     element: <InsideLayout />,
     children: [
@@ -219,7 +220,7 @@ const allRoutes = [
       },
     ],
   },
-   {
+  {
     path: '/options/:id',
     element: <InsideLayout />,
     children: [
@@ -230,7 +231,7 @@ const allRoutes = [
     ],
   },
 
-    {
+  {
     path: '/edit-question/',
     element: <InsideLayout />,
     children: [
@@ -241,119 +242,129 @@ const allRoutes = [
     ],
   },
   {
-    path:'/SidebarName/:id',
-    element:<InsideLayout/>,
-    children:[
+    path: '/SidebarName/:id',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<SidebarSetting/>
+        index: true,
+        element: <SidebarSetting />
       },
     ]
   },
 
-   {
-    path:'/upload-content',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/upload-content',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<UploadContent/>
+        index: true,
+        element: <UploadContent />
       },
     ]
   },
-   {
-    path:'/update-content',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/update-content',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<UpdateContent/>
+        index: true,
+        element: <UpdateContent />
       },
     ]
   },
-   {
-    path:'/view-content',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/view-content',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<ViewContent/>
-      },
-    ]
-  },
-
-   {
-    path:'/SupportCategory/:id',
-    element:<InsideLayout/>,
-    children:[
-      {
-        index:true,
-        element:<ManageSupportCategory/>
+        index: true,
+        element: <ViewContent />
       },
     ]
   },
 
-    {
-    path:'/support-details',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/SupportCategory/:id',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<SupportDetails/>
+        index: true,
+        element: <ManageSupportCategory />
       },
     ]
   },
 
+  {
+    path: '/support-details',
+    element: <InsideLayout />,
+    children: [
       {
-    path:'/Specializations/:id',
-    element:<InsideLayout/>,
-    children:[
-      {
-        index:true,
-        element:<ManageSpecialization/>
-      },
-    ]
-  },
-     {
-    path:'/Doctors/:id',
-    element:<InsideLayout/>,
-    children:[
-      {
-        index:true,
-        element:<ManageDoctor/>
+        index: true,
+        element: <SupportDetails />
       },
     ]
   },
 
-       {
-    path:'/SlotSpan/:id',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/Specializations/:id',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<ManageTimeSlot/>
+        index: true,
+        element: <ManageSpecialization />
+      },
+    ]
+  },
+  {
+    path: '/Doctors/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageDoctor />
       },
     ]
   },
 
-        {
-    path:'/Days/:id',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/SlotSpan/:id',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<ManageDays/>
+        index: true,
+        element: <ManageTimeSlot />
       },
     ]
   },
 
-          {
-    path:'/supportPlatformCharges/:id',
-    element:<InsideLayout/>,
-    children:[
+  {
+    path: '/Days/:id',
+    element: <InsideLayout />,
+    children: [
       {
-        index:true,
-        element:<PlaformCharge/>
+        index: true,
+        element: <ManageDays />
+      },
+    ]
+  },
+  {
+    path: '/transactions/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <TransactionUser />
+      },
+    ]
+  },
+
+  {
+    path: '/supportPlatformCharges/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <PlaformCharge />
       },
     ]
   },

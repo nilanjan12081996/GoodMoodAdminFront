@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from "react"
-import { useDispatch } from "react-redux"
-import { useSelector } from "react-redux"
-import { approveDoctor, getDoctor, toggleStatus } from "../../../Reducer/DoctorSlice"
+import { useDispatch, useSelector } from "react-redux"
+import { approveDoctor, getDoctor, getDoctorDetails, toggleStatus } from "../../../Reducer/DoctorSlice"
+import DoctorDetailModal from "./DoctorDetailModal"
+import { Eye } from 'lucide-react'
 import { AgGridReact } from "ag-grid-react"
 
 const ManageDoctor=()=>{
-    const {doctorsDetails}=useSelector((state)=>state?.doctors)
+    const {doctorsDetails, doctorDetail, loading}=useSelector((state)=>state?.doctors)
+    const [openDetailModal, setOpenDetailModal] = useState(false)
     const dispatch=useDispatch()
     useEffect(()=>{
         dispatch(getDoctor())
     },[])
-    console.log();
     
   const rowData = useMemo(() => {
     return (
@@ -92,8 +93,19 @@ const ManageDoctor=()=>{
   cellRenderer: (params) => {
     const isApproved = params.data.adminStatus === 1;
 
+    const handleViewDetails = (id) => {
+      dispatch(getDoctorDetails(id));
+      setOpenDetailModal(true);
+    };
+
     return (
       <div className="flex gap-2">
+        <button
+          onClick={() => handleViewDetails(params.data.id)}
+          className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center gap-1 transition-colors"
+        >
+          <Eye size={16} /> Details
+        </button>
         <button
           disabled={isApproved}
           onClick={() => {
@@ -163,6 +175,12 @@ const ManageDoctor=()=>{
                         )} */}
                   
         </div>
+        <DoctorDetailModal 
+          isOpen={openDetailModal} 
+          onClose={() => setOpenDetailModal(false)} 
+          data={doctorDetail}
+          loading={loading}
+        />
     
         </>
     )

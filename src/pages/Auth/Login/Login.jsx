@@ -21,6 +21,7 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState(" ");
   const [openModal, setOpenModal] = useState(false);
   const [id,setId]=useState()
+  const[otpValue,setOtpValue]=useState()
 
   const { loadingLogin } = useSelector((state) => state?.auth);
 
@@ -44,30 +45,7 @@ const Login = () => {
     }
   }, [setValue]);
 
-  // const onSubmit = (data) => {
-  //   console.log("data",data);
-    
-  //     if(data?.role==='superadmin'){
-  //       dispatch(login(data)).then((res) => {
-  //     console.log("Res: ", res);
-  //     if (res?.payload?.statusCode === 200) {
-  //       setId(res?.payload?.data?.id)
-  //     } else if (res?.payload?.response?.data?.status_code === 400) {
-  //       setErrorMessage(res?.payload?.response?.data?.message);
-  //     } else if (res?.payload?.status === 422) {
-  //       setErrorMessage(
-  //         res?.payload?.response?.data?.data?.[0]?.message
-  //           ? res?.payload?.response?.data?.data?.[0]?.message
-  //           : res?.payload?.response?.data?.message
-  //       );
-  //     }
-  //   });
-  //     }
-    
-    
-  // };
-  
-  
+ 
   const onSubmit = (data) => {
   console.log("form data:", data);
 
@@ -77,6 +55,7 @@ const Login = () => {
       dispatch(login(data)).then((res) => {
         if (res?.payload?.statusCode === 200) {
           setId(res?.payload?.data?.id); // show OTP screen
+          setOtpValue(res?.payload?.data?.otp)
         } else if (res?.payload?.response?.data?.status_code === 400) {
           setErrorMessage(res?.payload?.response?.data?.message);
         } else if (res?.payload?.status === 422) {
@@ -140,6 +119,8 @@ const Login = () => {
                       <Otp
                       register={register}
                       errors={errors}
+                      otpValue={otpValue}
+                      setValue={setValue}
                       />
                     ):(
                         <>

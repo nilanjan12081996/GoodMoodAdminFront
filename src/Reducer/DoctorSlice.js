@@ -5,7 +5,7 @@ export const getDoctor = createAsyncThunk(
   "doctor/getDoctor",
   async (id, { rejectWithValue }) => {
     try {
-      let url = "http://localhost:8085/api/goodmood/doctors/all-doctors";
+      let url = "/goodmood/doctors/all-doctors";
 
       // if id is provided, append query param
       if (id) {
@@ -113,15 +113,28 @@ export const updateTimeSlot = createAsyncThunk(
   }
 );
 
-const initialState={
-    loading:false,
-    error:false,
-    doctorsDetails:[],
-    approveData:"",
-    timeSlotData:"",
-    updateSlotData:"",
-    singleTimeSlot:{}
-}
+export const getDoctorDetails = createAsyncThunk(
+  "doctor/getDoctorDetails",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`goodmood/doctors/details/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+const initialState = {
+  loading: false,
+  error: false,
+  doctorsDetails: [],
+  approveData: "",
+  timeSlotData: "",
+  updateSlotData: "",
+  singleTimeSlot: {},
+  doctorDetail: null,
+};
 const DoctorSlice=createSlice(
     {
         'name':"doctors",
@@ -183,6 +196,19 @@ const DoctorSlice=createSlice(
                 state.loading=false
                 state.error=payload
             })
+            .addCase(getDoctorDetails.pending, (state) => {
+              state.loading = true;
+            })
+            .addCase(getDoctorDetails.fulfilled, (state, { payload }) => {
+              state.loading = false;
+              state.doctorDetail = payload?.data;
+              state.error = false;
+            })
+            .addCase(getDoctorDetails.rejected, (state, { payload }) => {
+              state.loading = false;
+              state.error = payload;
+              state.doctorDetail = null;
+            });
         }
     }
 )

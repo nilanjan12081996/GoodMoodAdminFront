@@ -1,9 +1,12 @@
 import { Label } from "flowbite-react"
+import { useEffect } from "react"
 import { useSelector } from "react-redux"
 
-const Otp=({register,errors})=>{
+const Otp=({register,errors,otpValue,setValue})=>{
     const{loading}=useSelector((state)=>state?.auth)
-    
+    useEffect(()=>{
+      setValue("otp",otpValue)
+    },[otpValue])
     return(
         <>
                                 <div className="mb-6">
