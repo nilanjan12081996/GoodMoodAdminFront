@@ -50,6 +50,7 @@ import ManageTimeSlot from '../pages/Support/TimeSlotManage/ManageTimeSlot.jsx';
 import ManageDays from '../pages/Support/Days/ManageDays.jsx';
 import PlaformCharge from '../pages/PlatformCharge/PlaformCharge.jsx';
 import TransactionUser from '../pages/UserTransactions/TransactionUser.jsx';
+import ManageUsers from '../pages/Rabc/ManageUsers.jsx';
 
 
 const allRoutes = [
@@ -348,12 +349,23 @@ const allRoutes = [
     ]
   },
   {
-    path: '/transactions/:id',
+    path: '/TransactionHistory/:id',
     element: <InsideLayout />,
     children: [
       {
         index: true,
         element: <TransactionUser />
+      },
+    ]
+  },
+
+  {
+    path: '/ManageUsers/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageUsers />
       },
     ]
   },

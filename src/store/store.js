@@ -45,6 +45,8 @@ import SpecializationSlice from '../Reducer/SpecializationSlice'
 import DoctorSlice from '../Reducer/DoctorSlice'
 import DaysSlice from '../Reducer/DaysSlice'
 import PlatformSlice from '../Reducer/PlatformSlice'
+import TransactionHistorySlice from '../Reducer/TransactionHistorySlice';
+import RbacSlice from '../Reducer/RbacSlice';
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -92,7 +94,9 @@ const store = configureStore({
     special:SpecializationSlice,
     doctors:DoctorSlice,
     days:DaysSlice,
-    platform:PlatformSlice
+    platform:PlatformSlice,
+    transactionHistory: TransactionHistorySlice,
+    rbac: RbacSlice
   },
   devTools: import.meta.env.DEV,
 });
