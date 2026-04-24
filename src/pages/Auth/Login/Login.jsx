@@ -4,7 +4,8 @@ import { FcGoogle } from "react-icons/fc";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { login, verifyOtp } from "../../../Reducer/AuthSlice";
+import { login, loginAdmin, verifyOtp } from "../../../Reducer/AuthSlice";
+import { getAdminPermissions } from "../../../Reducer/PermissionSlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
@@ -62,6 +63,36 @@ const Login = () => {
           setErrorMessage(
             res?.payload?.response?.data?.data?.[0]?.message ||
               res?.payload?.response?.data?.message
+          );
+        }
+      });
+    } else if (data?.role === "admin") {
+      const payload = {
+        username: data.usernameOrEmail,
+        password: data.password,
+      };
+      dispatch(loginAdmin(payload)).then((res) => {
+        if (res?.payload?.statusCode === 200) {
+        
+          dispatch(getAdminPermissions()).then((res) => {
+            const sidebars = res?.payload?.data;
+            if (sidebars && sidebars.length > 0) {
+              const firstSidebar = sidebars[0];
+              if (firstSidebar.subsidebar && firstSidebar.subsidebar.length > 0) {
+                const firstSub = firstSidebar.subsidebar[0];
+                navigate(`/${firstSub.subSidebarShortName}/${firstSub.id}`);
+              } else {
+                // If there's no sub-sidebar, you might want to handle it differently
+                // For now, redirect to a default or show an error
+                navigate("/MoodMeters/1");
+              }
+            } else {
+              navigate("/MoodMeters/1");
+            }
+          });
+        } else {
+          setErrorMessage(
+            res?.payload?.message || "Invalid username or password"
           );
         }
       });
@@ -168,6 +199,7 @@ const Login = () => {
                    
                    <Select {...register("role",{required:true})}>
                     <option value="superadmin">Super Admin</option>
+                    <option value="admin">Admin</option>
                    </Select>
                     {errors.role && (
                       <small className="text-red-500">

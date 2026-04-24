@@ -58,6 +58,25 @@ export const login = createAsyncThunk(
     }
 )
 
+
+export const loginAdmin = createAsyncThunk(
+    'auth/loginAdmin',
+    async (userInput, { rejectWithValue }) => {
+
+        try {
+            const response = await api.post('admin/login', userInput);
+            if (response?.data?.statusCode === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (err) {
+            // let errors = errorHandler(err);
+            return rejectWithValue(err);
+        }
+    }
+)
+
 export const verifyOtp = createAsyncThunk(
     'auth/verifyOtp',
     async (userInput, { rejectWithValue }) => {
@@ -180,6 +199,7 @@ const AuthSlice = createSlice(
                 localStorage.removeItem('user_role_id')
                 localStorage.removeItem('user_short_name')
                 localStorage.clear()
+                sessionStorage.clear()
 
             }
         },
@@ -212,16 +232,17 @@ const AuthSlice = createSlice(
                     state.loading = true;
                 })
                 .addCase(verifyOtp.fulfilled, (state, { payload }) => {
-                    console.log("payload",payload);
-                    
+                    console.log("payload", payload);
+
                     const { token } = payload;
                     state.loading = false;
                     state.currentUser.otp_verified = 1;
-                
-                       sessionStorage.setItem(
+
+                    sessionStorage.setItem(
                         'good_mood_admin_token',
                         JSON.stringify({ token: token })
                     )
+                    sessionStorage.setItem("role", payload?.user?.tokenType)
 
                 })
                 .addCase(verifyOtp.rejected, (state, response) => {
@@ -329,6 +350,35 @@ const AuthSlice = createSlice(
                     state.message =
                         payload !== undefined && payload.message
                             ? payload.message
+                            : 'Something went wrong. Try again later.';
+                })
+                .addCase(loginAdmin.pending, (state) => {
+                    state.loadingLogin = true;
+                    state.isLoggedIn = false;
+                    state.error = false;
+                })
+                .addCase(loginAdmin.fulfilled, (state, { payload }) => {
+                    state.isLoggedIn = true;
+                    state.message = payload?.message;
+                    state.loadingLogin = false;
+                    state.currentUser = payload?.user;
+                    sessionStorage.setItem(
+                        'good_mood_admin_token',
+                        JSON.stringify({ token: payload?.token })
+                    )
+                    if (payload?.user?.roleId) {
+                        sessionStorage.setItem('user_role_id', payload?.user?.roleId)
+                    }
+                    if (payload?.user?.roleName) {
+                        sessionStorage.setItem('role', payload?.user?.roleName)
+                    }
+                })
+                .addCase(loginAdmin.rejected, (state, response) => {
+                    state.error = true;
+                    state.loadingLogin = false;
+                    state.message =
+                        response.payload !== undefined && response.payload.message
+                            ? response.payload.message
                             : 'Something went wrong. Try again later.';
                 })
         }

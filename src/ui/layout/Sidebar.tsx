@@ -14,7 +14,8 @@ import { RiSoundModuleFill } from 'react-icons/ri';
 import { GiFireZone } from "react-icons/gi";
 import { CiShoppingTag } from 'react-icons/ci';
 import { useDispatch } from 'react-redux';
-import {dynamicSidebar}from '../../Reducer/SidebarSlice';
+import { dynamicSidebar } from '../../Reducer/SidebarSlice';
+import { getAdminPermissions } from '../../Reducer/PermissionSlice';
 import { useSelector } from 'react-redux';
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -32,8 +33,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
-  const{sidebarData}=useSelector((state)=>state?.sidebars)
-  const dispatch=useDispatch()
+  const { sidebarData } = useSelector((state: any) => state?.sidebars)
+  const { userPermissions } = useSelector((state: any) => state?.permissions)
+  const dispatch = useDispatch()
 
 
 
@@ -82,18 +84,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     setSidebarOpen(true);
   }, [])
 
-  const currentUserRole = userRoles()
+  const currentUserRole = sessionStorage.getItem("role")
   console.log("userRole", currentUserRole);
-  useEffect(()=>{
-    dispatch(dynamicSidebar())
-  },[])
-console.log("sidebarData",sidebarData);
+  useEffect(() => {
+    if (currentUserRole === "superadmin") {
+      dispatch(dynamicSidebar() as any)
+    } else {
+      dispatch(getAdminPermissions() as any)
+    }
+  }, [currentUserRole, dispatch])
+  
+  const displaySidebarData = currentUserRole === "superadmin" ? sidebarData?.data : userPermissions;
+  console.log("displaySidebarData", displaySidebarData);
 
-const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
-const toggleMenu = (id: number) => {
-  setOpenMenuId(prev => (prev === id ? null : id));
-};
+  const toggleMenu = (id: number) => {
+    setOpenMenuId(prev => (prev === id ? null : id));
+  };
 
   return (
     <aside
@@ -106,7 +114,7 @@ const toggleMenu = (id: number) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-4 py-5 lg:py-[23px]">
         <NavLink className="text-center w-full" to="/manage-zone">
-   
+
           {sidebarOpen ?
             <>
               <div className="text-center mb-8">
@@ -164,61 +172,59 @@ const toggleMenu = (id: number) => {
 
             </ul> */}
             <ul className="mb-6 flex flex-col gap-1.5">
-            {sidebarData?.data?.map((side) => {
-              const isOpen = openMenuId === side.id;
-              const hasSubmenu = side.subsidebar?.length > 0;
+              {displaySidebarData?.map((side: any) => {
+                const isOpen = openMenuId === side.id;
+                const hasSubmenu = side.subsidebar?.length > 0;
 
-              return (
-                <li key={side.id}>
-                  {/* Parent menu */}
-                  <button
-                    type="button"
-                    onClick={() => hasSubmenu && toggleMenu(side.id)}
-                    className={`group relative flex w-full items-center gap-2 rounded-sm px-4 py-2
+                return (
+                  <li key={side.id}>
+                    {/* Parent menu */}
+                    <button
+                      type="button"
+                      onClick={() => hasSubmenu && toggleMenu(side.id)}
+                      className={`group relative flex w-full items-center gap-2 rounded-sm px-4 py-2
                       ${sidebarOpen ? 'justify-center' : 'justify-between'}
                       font-normal text-sm text-gray-600 duration-300 ease-in-out
                       hover:bg-gray-100 mb-1`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <MdCategory className="text-xl" />
-                      {!sidebarOpen && <span>{side.sidebarName}</span>}
-                    </div>
+                    >
+                      <div className="flex items-center gap-2">
+                        <MdCategory className="text-xl" />
+                        {!sidebarOpen && <span>{side.sidebarName}</span>}
+                      </div>
 
-                    {/* Dropdown arrow */}
-                    {!sidebarOpen && hasSubmenu && (
-                      <span
-                        className={`transition-transform duration-200 ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      >
-                        ▼
-                      </span>
+                      {/* Dropdown arrow */}
+                      {!sidebarOpen && hasSubmenu && (
+                        <span
+                          className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+                            }`}
+                        >
+                          ▼
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Submenu */}
+                    {!sidebarOpen && hasSubmenu && isOpen && (
+                      <ul className="ml-8 mt-1 flex flex-col gap-1">
+                        {side.subsidebar.map((sub) => (
+                          <li key={sub.id}>
+                            <NavLink
+                              to={`/${sub.subSidebarShortName}/${sub.id}`}
+                              className={({ isActive }) =>
+                                `block rounded px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 ${isActive ? 'bg-gray-200 font-medium' : ''
+                                }`
+                              }
+                            >
+                              {sub.subSidebarName}
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
                     )}
-                  </button>
-
-                  {/* Submenu */}
-                  {!sidebarOpen && hasSubmenu && isOpen && (
-                    <ul className="ml-8 mt-1 flex flex-col gap-1">
-                      {side.subsidebar.map((sub) => (
-                        <li key={sub.id}>
-                          <NavLink
-                            to={`/${sub.subSidebarShortName}/${sub.id}`}
-                            className={({ isActive }) =>
-                              `block rounded px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 ${
-                                isActive ? 'bg-gray-200 font-medium' : ''
-                              }`
-                            }
-                          >
-                            {sub.subSidebarName}
-                          </NavLink>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
 
         </nav>

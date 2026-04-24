@@ -105,14 +105,14 @@ const ManageUsers = () => {
                     <Button
                         size="xs"
                         onClick={() => handleOpenUpdate(params.data.id)}
-                        className="bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-1"
+                        className="bg-[#52b69a] hover:bg-[#52b69a] text-white flex items-center gap-1"
                     >
                         <Edit3 size={14} /> Edit
                     </Button>
                     <Button
                         size="xs"
                         onClick={() => handleOpenPermissions(params.data.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+                        className="bg-[#52b69a] hover:bg-[#52b69a] text-white flex items-center gap-1"
                     >
                         <ShieldCheck size={14} /> Action
                     </Button>

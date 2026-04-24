@@ -65,6 +65,22 @@ export const getPermissionSidebarList = createAsyncThunk(
     }
 );
 
+export const getMasterSidebarList = createAsyncThunk(
+    'getMasterSidebarList',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/permissions/master-sidebar-list`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 export const saveAdminPermissions = createAsyncThunk(
     'saveAdminPermissions',
     async (permissionData, { rejectWithValue }) => {
@@ -136,6 +152,7 @@ const initialState = {
     rbacUserList: [],
     rbacRoleList: [],
     permissionSidebarList: [],
+    masterSidebarList: [],
     adminPermissions: [],
     selectedUser: null,
 };
@@ -203,7 +220,19 @@ const RbacSlice = createSlice({
             })
             .addCase(getPermissionSidebarList.rejected, (state, { payload }) => {
                 state.loading = false;
-                 state.error = true;
+                state.error = true;
+            })
+            // Master Sidebar List
+            .addCase(getMasterSidebarList.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getMasterSidebarList.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.masterSidebarList = payload.data;
+            })
+            .addCase(getMasterSidebarList.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = true;
             })
             // Save Permissions
             .addCase(saveAdminPermissions.pending, (state) => {

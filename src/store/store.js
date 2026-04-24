@@ -47,6 +47,7 @@ import DaysSlice from '../Reducer/DaysSlice'
 import PlatformSlice from '../Reducer/PlatformSlice'
 import TransactionHistorySlice from '../Reducer/TransactionHistorySlice';
 import RbacSlice from '../Reducer/RbacSlice';
+import PermissionSlice from '../Reducer/PermissionSlice';
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -96,7 +97,8 @@ const store = configureStore({
     days:DaysSlice,
     platform:PlatformSlice,
     transactionHistory: TransactionHistorySlice,
-    rbac: RbacSlice
+    rbac: RbacSlice,
+    permissions: PermissionSlice
   },
   devTools: import.meta.env.DEV,
 });

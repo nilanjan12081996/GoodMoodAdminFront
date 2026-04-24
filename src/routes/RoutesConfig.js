@@ -51,6 +51,7 @@ import ManageDays from '../pages/Support/Days/ManageDays.jsx';
 import PlaformCharge from '../pages/PlatformCharge/PlaformCharge.jsx';
 import TransactionUser from '../pages/UserTransactions/TransactionUser.jsx';
 import ManageUsers from '../pages/Rabc/ManageUsers.jsx';
+import ManageRoleAccess from '../pages/Rabc/ManageRoleAccess/ManageRoleAccess.jsx';
 
 
 const allRoutes = [
@@ -338,6 +339,16 @@ const allRoutes = [
     ]
   },
 
+  {
+    path: '/ManageRoleAccess/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageRoleAccess />
+      },
+    ]
+  },
   {
     path: '/Days/:id',
     element: <InsideLayout />,
