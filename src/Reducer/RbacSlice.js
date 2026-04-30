@@ -81,6 +81,38 @@ export const getMasterSidebarList = createAsyncThunk(
     }
 );
 
+export const saveRoleSidebar = createAsyncThunk(
+    'saveRoleSidebar',
+    async (saveData, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`goodmood/permissions/save-role-sidebar`, saveData);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const getRoleSidebarAccess = createAsyncThunk(
+    'getRoleSidebarAccess',
+    async (roleId, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/permissions/role-sidebar-access/${roleId}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 export const saveAdminPermissions = createAsyncThunk(
     'saveAdminPermissions',
     async (permissionData, { rejectWithValue }) => {
@@ -145,6 +177,22 @@ export const updateRbacUser = createAsyncThunk(
     }
 );
 
+export const createRbacRole = createAsyncThunk(
+    'createRbacRole',
+    async (roleData, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/goodmood/roles/create`, roleData);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const initialState = {
     loading: false,
     error: false,
@@ -154,7 +202,13 @@ const initialState = {
     permissionSidebarList: [],
     masterSidebarList: [],
     adminPermissions: [],
+    roleSidebarAccess: [],
+    saveSidebarLoading: false,
+    saveSidebarSuccess: false,
     selectedUser: null,
+    createRoleLoading: false,
+    createRoleSuccess: false,
+    roleError: null
 };
 
 const RbacSlice = createSlice({
@@ -163,6 +217,16 @@ const RbacSlice = createSlice({
     reducers: {
         clearRbacMessage: (state) => {
             state.message = "";
+            state.error = false;
+        },
+        resetCreateRoleState: (state) => {
+            state.createRoleLoading = false;
+            state.createRoleSuccess = false;
+            state.roleError = null;
+        },
+        resetSaveSidebarState: (state) => {
+            state.saveSidebarLoading = false;
+            state.saveSidebarSuccess = false;
             state.error = false;
         }
     },
@@ -234,7 +298,32 @@ const RbacSlice = createSlice({
                 state.loading = false;
                 state.error = true;
             })
-            // Save Permissions
+            // Save Role Sidebar
+            .addCase(saveRoleSidebar.pending, (state) => {
+                state.saveSidebarLoading = true;
+            })
+            .addCase(saveRoleSidebar.fulfilled, (state, { payload }) => {
+                state.saveSidebarLoading = false;
+                state.saveSidebarSuccess = true;
+                state.message = payload.message;
+            })
+            .addCase(saveRoleSidebar.rejected, (state, { payload }) => {
+                state.saveSidebarLoading = false;
+                state.error = true;
+                state.message = payload?.message || "Failed to save sidebar mapping";
+            })
+            // Get Role Sidebar Access
+            .addCase(getRoleSidebarAccess.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getRoleSidebarAccess.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.roleSidebarAccess = payload.data;
+            })
+            .addCase(getRoleSidebarAccess.rejected, (state) => {
+                state.loading = false;
+            })
+            // Save Admin Permissions
             .addCase(saveAdminPermissions.pending, (state) => {
                 state.loading = true;
             })
@@ -282,9 +371,23 @@ const RbacSlice = createSlice({
                 state.loading = false;
                 state.error = true;
                 state.message = payload?.message || "Failed to update user";
+            })
+            // Create Role
+            .addCase(createRbacRole.pending, (state) => {
+                state.createRoleLoading = true;
+            })
+            .addCase(createRbacRole.fulfilled, (state, { payload }) => {
+                state.createRoleLoading = false;
+                state.createRoleSuccess = true;
+                state.message = payload.message;
+            })
+            .addCase(createRbacRole.rejected, (state, { payload }) => {
+                state.createRoleLoading = false;
+                state.createRoleSuccess = false;
+                state.roleError = payload?.message || "Failed to create role";
             });
     }
 });
 
-export const { clearRbacMessage } = RbacSlice.actions;
+export const { clearRbacMessage, resetCreateRoleState, resetSaveSidebarState } = RbacSlice.actions;
 export default RbacSlice.reducer;

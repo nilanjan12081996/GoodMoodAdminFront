@@ -1,39 +1,61 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../store/Api";
+
 export const getRoles = createAsyncThunk(
     'getRoles',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get('/admin/role/get-role-list');
-            if (response?.data?.status_code === 200) {
+            const response = await api.get('/api/goodmood/roles/list');
+            if (response?.data?.statusCode === 200) {
                 return response.data;
             } else {
-                if (response?.data?.errors) {
-                    return rejectWithValue(response.data.errors);
-                } else {
-                    return rejectWithValue('Something went wrong.');
-                }
+                return rejectWithValue(response?.data?.message || 'Something went wrong.');
             }
         } catch (err) {
-            return rejectWithValue(err);
+            return rejectWithValue(err.response?.data?.message || 'Something went wrong.');
         }
     }
 )
+
+export const createRole = createAsyncThunk(
+    'createRole',
+    async (roleData, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/goodmood/roles/create', roleData);
+            if (response?.data?.statusCode === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response?.data?.message || 'Something went wrong.');
+            }
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || 'Something went wrong.');
+        }
+    }
+)
+
 const initialState = {
     loading: false,
-    roleData: [],
-    error: false
+    roleData: null,
+    error: false,
+    createLoading: false,
+    createSuccess: false
 }
-const RoleSlice = createSlice(
-    {
-        name: "roles",
-        initialState,
-        reducers: {},
-        extraReducers: (builder) => {
-            builder
-                .addCase(getRoles.pending, (state) => {
-                    state.loading = true
-                })
+
+const RoleSlice = createSlice({
+    name: "roles",
+    initialState,
+    reducers: {
+        resetCreateState: (state) => {
+            state.createLoading = false;
+            state.createSuccess = false;
+            state.error = false;
+        }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getRoles.pending, (state) => {
+                state.loading = true
+            })
             .addCase(getRoles.fulfilled, (state, { payload }) => {
                 state.loading = false
                 state.roleData = payload
@@ -43,7 +65,21 @@ const RoleSlice = createSlice(
                 state.loading = false
                 state.error = payload
             })
-        }
+            .addCase(createRole.pending, (state) => {
+                state.createLoading = true
+            })
+            .addCase(createRole.fulfilled, (state) => {
+                state.createLoading = false
+                state.createSuccess = true
+                state.error = false
+            })
+            .addCase(createRole.rejected, (state, { payload }) => {
+                state.createLoading = false
+                state.createSuccess = false
+                state.error = payload
+            })
     }
-)
-export default RoleSlice.reducer
+})
+
+export const { resetCreateState } = RoleSlice.actions;
+export default RoleSlice.reducer;
