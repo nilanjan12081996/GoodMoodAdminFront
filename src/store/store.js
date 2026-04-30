@@ -48,6 +48,8 @@ import PlatformSlice from '../Reducer/PlatformSlice'
 import TransactionHistorySlice from '../Reducer/TransactionHistorySlice';
 import RbacSlice from '../Reducer/RbacSlice';
 import PermissionSlice from '../Reducer/PermissionSlice';
+import DoctorTransactionSlice from '../Reducer/DoctorTransactionSlice';
+import PrescriptionSlice from '../Reducer/PrescriptionSlice';
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -98,8 +100,12 @@ const store = configureStore({
     platform:PlatformSlice,
     transactionHistory: TransactionHistorySlice,
     rbac: RbacSlice,
-    permissions: PermissionSlice
+    permissions: PermissionSlice,
+    doctorTransaction: DoctorTransactionSlice,
+    prescription: PrescriptionSlice
   },
+
+
   devTools: import.meta.env.DEV,
 });
 

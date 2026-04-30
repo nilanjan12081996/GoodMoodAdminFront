@@ -52,6 +52,9 @@ import PlaformCharge from '../pages/PlatformCharge/PlaformCharge.jsx';
 import TransactionUser from '../pages/UserTransactions/TransactionUser.jsx';
 import ManageUsers from '../pages/Rabc/ManageUsers.jsx';
 import ManageRoleAccess from '../pages/Rabc/ManageRoleAccess/ManageRoleAccess.jsx';
+import DoctorTransaction from '../pages/UserTransactions/DoctorTransaction.jsx';
+import ManagePrescription from '../pages/Prescription/ManagePrescription.jsx';
+
 
 
 const allRoutes = [
@@ -369,6 +372,17 @@ const allRoutes = [
       },
     ]
   },
+  {
+    path: '/DoctorTransaction/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <DoctorTransaction />
+      },
+    ]
+  },
+
 
   {
     path: '/ManageUsers/:id',
@@ -441,6 +455,17 @@ const allRoutes = [
       {
         index: true,
         element: <ManageCategory />,
+      },
+    ],
+  },
+
+  {
+    path: '/Prescription/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManagePrescription />,
       },
     ],
   },
