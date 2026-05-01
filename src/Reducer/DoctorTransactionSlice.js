@@ -3,9 +3,17 @@ import api from "../store/Api";
 
 export const getAllDoctorTransactionTotals = createAsyncThunk(
     'getAllDoctorTransactionTotals',
-    async (_, { rejectWithValue }) => {
+    async (filters = {}, { rejectWithValue }) => {
         try {
-            const response = await api.get(`goodmood/doctor-transaction/total/all`);
+            const { startDate, endDate, month, year } = filters;
+            let queryParams = [];
+            if (startDate) queryParams.push(`startDate=${startDate}`);
+            if (endDate) queryParams.push(`endDate=${endDate}`);
+            if (month) queryParams.push(`month=${month}`);
+            if (year) queryParams.push(`year=${year}`);
+            
+            const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+            const response = await api.get(`goodmood/doctor-transaction/total/all${queryString}`);
             if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
@@ -19,9 +27,17 @@ export const getAllDoctorTransactionTotals = createAsyncThunk(
 
 export const getDoctorTransactionTotal = createAsyncThunk(
     'getDoctorTransactionTotal',
-    async (doctorId, { rejectWithValue }) => {
+    async ({ doctorId, filters = {} }, { rejectWithValue }) => {
         try {
-            const response = await api.get(`goodmood/doctor-transaction/total/${doctorId}`);
+            const { startDate, endDate, month, year } = filters;
+            let queryParams = [];
+            if (startDate) queryParams.push(`startDate=${startDate}`);
+            if (endDate) queryParams.push(`endDate=${endDate}`);
+            if (month) queryParams.push(`month=${month}`);
+            if (year) queryParams.push(`year=${year}`);
+            
+            const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+            const response = await api.get(`goodmood/doctor-transaction/total/${doctorId}${queryString}`);
             if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
