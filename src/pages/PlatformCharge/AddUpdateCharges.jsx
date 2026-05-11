@@ -49,12 +49,12 @@ const AddUpdateCharges=({
                     <div className="space-y-4">
                       <div>
                         <div className="mb-2 block">
-                          <Label htmlFor="name" value="Charge" />
+                          <Label htmlFor="name" value="Charge Percentage" />
                         </div>
                         <TextInput
                           id="name"
                           type="text"
-                          placeholder="Enter Charge"
+                          placeholder="Enter Charge Percentage"
                           {...register("charge",{required:true})}
                         />
                         {

@@ -20,9 +20,9 @@ export const getBlog = createAsyncThunk(
 
 export const uploadImage = createAsyncThunk(
     'uploadImage',
-    async ({id,user_input}, { rejectWithValue }) => {
+    async ({ id, user_input }, { rejectWithValue }) => {
         try {
-            const response = await api.patch(`goodmood/post/image/${id}`,user_input);
+            const response = await api.patch(`goodmood/post/image/${id}`, user_input);
             if (response?.data?.statusCode === 200) {
                 return response?.data;
             } else {
@@ -50,7 +50,7 @@ export const addBlog = createAsyncThunk(
 )
 export const publishUnPublished = createAsyncThunk(
     'publishUnPublished',
-    async ({id}, { rejectWithValue }) => {
+    async ({ id }, { rejectWithValue }) => {
         try {
 
             const response = await api.patch(`goodmood/post/publish/${id}`);
@@ -67,10 +67,10 @@ export const publishUnPublished = createAsyncThunk(
 );
 
 export const getBlogDetails = createAsyncThunk(
-    'getAnswerDetails',
+    'getBlogDetails',
     async ({ id }, { rejectWithValue }) => {
         try {
-            
+
             const response = await api.get(`goodmood/post/list?id=${id}`);
             if (response?.data?.statusCode === 200) {
                 return response?.data;
@@ -82,6 +82,38 @@ export const getBlogDetails = createAsyncThunk(
         }
     }
 )
+export const editBlog = createAsyncThunk(
+    'editBlog',
+    async ({ id }, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`goodmood/post/edit/${id}`);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const updateBlog = createAsyncThunk(
+    'updateBlog',
+    async (user_input, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`goodmood/post/update`, user_input);
+            if (response?.data?.statusCode === 200) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
 export const updateAnswerDetails = createAsyncThunk(
     'updateAnswerDetails',
     async (user_input, { rejectWithValue }) => {
@@ -137,6 +169,7 @@ const initialState = {
     error: false,
     addBlogListData: [],
     singleBlog: {},
+    updateBlogData: {},
     updateAnswerData: {},
     deleteAnswerData: {},
     mappeedData: {}
@@ -180,6 +213,30 @@ const BlogSlice = createSlice(
                     state.error = false
                 })
                 .addCase(getBlogDetails.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(editBlog.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(editBlog.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.singleBlog = payload
+                    state.error = false
+                })
+                .addCase(editBlog.rejected, (state, { payload }) => {
+                    state.loading = false
+                    state.error = payload
+                })
+                .addCase(updateBlog.pending, (state) => {
+                    state.loading = true
+                })
+                .addCase(updateBlog.fulfilled, (state, { payload }) => {
+                    state.loading = false
+                    state.updateBlogData = payload
+                    state.error = false
+                })
+                .addCase(updateBlog.rejected, (state, { payload }) => {
                     state.loading = false
                     state.error = payload
                 })

@@ -14,12 +14,13 @@ import {
 
 import { ToastContainer } from "react-toastify";
 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal";
 
 const ManageMoodMatter = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const id=useParams()
   console.log("id",id);
   
@@ -164,6 +165,18 @@ const ManageMoodMatter = () => {
                 className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
                 Update
+              </button>
+              <button
+                onClick={() => navigate("/awareness-blogs", { 
+                  state: { 
+                    awarenessId: params?.data?.id, 
+                    awarenessName: params?.data?.mood_meter_name,
+                    subsidebarId: id?.id 
+                  } 
+                })}
+                className="bg-blue-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+              >
+                Add Content
               </button>
 
               {/* <button

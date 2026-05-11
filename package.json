@@ -20,6 +20,7 @@
     "@fullcalendar/react": "^6.1.18",
     "@fullcalendar/timegrid": "^6.1.18",
     "@reduxjs/toolkit": "^2.2.6",
+    "@stomp/stompjs": "^7.3.0",
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.6.0",
     "ag-grid-community": "^32.3.7",
@@ -72,7 +73,8 @@
     "react-serialize": "^0.2.1",
     "react-tabs": "^6.0.2",
     "react-toastify": "^10.0.5",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

@@ -50,6 +50,7 @@ import RbacSlice from '../Reducer/RbacSlice';
 import PermissionSlice from '../Reducer/PermissionSlice';
 import DoctorTransactionSlice from '../Reducer/DoctorTransactionSlice';
 import PrescriptionSlice from '../Reducer/PrescriptionSlice';
+import AwarenessBlogSlice from '../Reducer/AwarenessBlogSlice';
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -102,7 +103,8 @@ const store = configureStore({
     rbac: RbacSlice,
     permissions: PermissionSlice,
     doctorTransaction: DoctorTransactionSlice,
-    prescription: PrescriptionSlice
+    prescription: PrescriptionSlice,
+    awarenessBlog: AwarenessBlogSlice
   },
 
 

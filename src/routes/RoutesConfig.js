@@ -54,8 +54,9 @@ import ManageUsers from '../pages/Rabc/ManageUsers.jsx';
 import ManageRoleAccess from '../pages/Rabc/ManageRoleAccess/ManageRoleAccess.jsx';
 import DoctorTransaction from '../pages/UserTransactions/DoctorTransaction.jsx';
 import ManagePrescription from '../pages/Prescription/ManagePrescription.jsx';
-
-
+import ManageAwarenessBlogs from '../pages/AwarenessBlog/ManageAwarenessBlogs.jsx';
+import AwarenessBlogDetails from '../pages/AwarenessBlog/AwarenessBlogDetails.jsx';
+import DoctorRegistrationNotification from '../pages/Notifications/DoctorRegistrationNotification.jsx';
 
 const allRoutes = [
   {
@@ -546,6 +547,39 @@ const allRoutes = [
       {
         index: true,
         element: <PaymentMethodList />,
+      },
+    ],
+  },
+
+
+  {
+    path: '/awareness-blogs',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageAwarenessBlogs />,
+      },
+    ],
+  },
+
+
+  {
+    path: '/awareness-blog-details',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AwarenessBlogDetails />,
+      },
+    ],
+  },  {
+    path: '/DoctorRegistrationNotification/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <DoctorRegistrationNotification />,
       },
     ],
   },

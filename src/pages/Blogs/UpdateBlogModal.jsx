@@ -1,7 +1,7 @@
 import { Button, FileInput, Label, Modal, TextInput } from "flowbite-react"
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { addBlog, getBlog } from "../../Reducer/BlogSlice";
+import { updateBlog, getBlog } from "../../Reducer/BlogSlice";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { toast } from "react-toastify";
@@ -30,21 +30,27 @@ setValue("content",singleBlog?.data?.content)
   },[singleBlog])
 
   const onSubmit = (data) => {
-    const formData = new FormData()
-    formData.append("title", data?.title)
-    formData.append("content", data?.content)
-    formData.append("image", data?.image?.[0])
+    const payload = {
+        id: blogId,
+        title: data?.title,
+        content: data?.content
+    }
     
-    dispatch(addBlog(formData)).then((res) => {
-        console.log("Res",res);
+    dispatch(updateBlog(payload)).then((res) => {
+      if (res?.payload?.statusCode === 200) {
+        // If a new image is selected, upload it
+        if (data?.image?.[0]) {
+          const formData = new FormData();
+          formData.append("file", data.image[0]);
+          dispatch(uploadImage({ id: blogId, user_input: formData }));
+        }
         
-      if (res?.payload?.status_code === 201) {
-        setOpenBlogModal(false)
-       
+        setOpenUpdateBlogModal(false)
+        toast.success("Blog updated successfully")
         dispatch(getBlog());
       }
-      else if(res?.payload?.response?.data?.status_code===400){
-        toast.error(res?.payload?.response?.data?.message)
+      else {
+        toast.error(res?.payload?.response?.data?.message || "Something went wrong")
       }
     })
   }
@@ -126,21 +132,16 @@ setValue("content",singleBlog?.data?.content)
                 )}
               </div>
               
-              <div>
+              {/* <div>
                 <div className="mb-2 block">
-                  <Label htmlFor="image" value="Blog Image" />
+                  <Label htmlFor="image" value="Blog Image (Optional)" />
                 </div>
                 <FileInput 
                   id="image" 
                   accept="image/*"
-                  {...register("image", {
-                    required: "Image is required"
-                  })} 
+                  {...register("image")} 
                 />
-                {errors.image && (
-                  <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
-                )}
-              </div>
+              </div> */}
             </div>
           </Modal.Body>
           <Modal.Footer>

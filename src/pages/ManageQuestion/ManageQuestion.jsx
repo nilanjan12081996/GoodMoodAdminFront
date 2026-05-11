@@ -60,6 +60,12 @@ const ManageQuestion = () => {
   const columnDefs = useMemo(() => {
     const columns = [
       {
+        headerName: "S.No",
+        valueGetter: (params) => params.node.rowIndex + 1,
+        sortable: true,
+        filter: true,
+      },
+      {
         field: "question",
         headerName: "Question",
         sortable: true,

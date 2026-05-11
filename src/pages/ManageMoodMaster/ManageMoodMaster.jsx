@@ -13,7 +13,7 @@ import { Button } from "flowbite-react";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getAwarness, getSingleAwarness, uploladImage } from "../../Reducer/MoodMeterSlice";
 import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal";
 
@@ -23,6 +23,7 @@ const ManageMoodMaster = () => {
   );
     const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
   const dispatch = useDispatch();
+   const navigate = useNavigate();
     const id=useParams()
     console.log("id",id);
    const [openAddTagModal, setOpenTagModal] = useState(false);
@@ -192,12 +193,18 @@ const ManageMoodMaster = () => {
               >
                 Update
               </button>
-
-              {/* <button
-              // onClick={() => handleDeleteZone(params?.data?.id)}
+                <button
+                onClick={() => navigate("/awareness-blogs", { 
+                  state: { 
+                    awarenessId: params?.data?.id, 
+                    awarenessName: params?.data?.mood_meter_name,
+                    subsidebarId: id?.id 
+                  } 
+                })}
+                className="bg-blue-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                <MdDelete size={20} color="red" />
-              </button> */}
+                Add Content
+              </button>
             </div>
           );
         },

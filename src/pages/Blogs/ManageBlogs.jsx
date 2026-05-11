@@ -13,7 +13,7 @@ import { Button } from "flowbite-react";
 import AddMoodMeterModal from "../MoodMeter/AddMoodMeterModal";
 // import AddMoodMasterMdoal from "./AddMoodMasterMdoal";
 // import UpdateMoodMasterModal from "./UpdateMoodMasterModal";
-import { getBlog, getBlogDetails, publishUnPublished, uploadImage } from "../../Reducer/BlogSlice";
+import { getBlog, editBlog, publishUnPublished, uploadImage } from "../../Reducer/BlogSlice";
 import AddBlogModal from "./AddBlogModal";
 import UpdateBlogModal from "./UpdateBlogModal";
 import { useNavigate } from "react-router-dom";
@@ -131,14 +131,14 @@ const ManageBlogs = () => {
                 onClick={() => handleBlogUpdate(params?.data?.id)}
                 className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                View Blog
+                View
               </button>
-
-              {/* <button
-              // onClick={() => handleDeleteZone(params?.data?.id)}
+              <button
+                onClick={() => handleEditBlog(params?.data?.id)}
+                className="bg-blue-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                <MdDelete size={20} color="red" />
-              </button> */}
+                Edit
+              </button>
             </div>
           );
         },
@@ -156,11 +156,13 @@ const ManageBlogs = () => {
   );
 
   const handleBlogUpdate = (id) => {
-    console.log(id, "id");
-   // setOpenUpdateBlogModal(true);
-   navigate("/blog-details",{state:{id:id}})
-    // setBlogId(id);
-    // dispatch(getBlogDetails({ user_input: id }));
+    navigate("/blog-details",{state:{id:id}})
+  };
+
+  const handleEditBlog = (id) => {
+    setBlogId(id);
+    dispatch(editBlog({ id }));
+    setOpenUpdateBlogModal(true);
   };
 
   return (
