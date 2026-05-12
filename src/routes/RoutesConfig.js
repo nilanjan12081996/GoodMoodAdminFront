@@ -57,6 +57,10 @@ import ManagePrescription from '../pages/Prescription/ManagePrescription.jsx';
 import ManageAwarenessBlogs from '../pages/AwarenessBlog/ManageAwarenessBlogs.jsx';
 import AwarenessBlogDetails from '../pages/AwarenessBlog/AwarenessBlogDetails.jsx';
 import DoctorRegistrationNotification from '../pages/Notifications/DoctorRegistrationNotification.jsx';
+import UserRegistrationNotification from '../pages/Notifications/UserRegistrationNotification.jsx';
+import AppointmentNotification from '../pages/Notifications/AppointmentNotification.jsx';
+
+
 
 const allRoutes = [
   {
@@ -582,7 +586,27 @@ const allRoutes = [
         element: <DoctorRegistrationNotification />,
       },
     ],
+  },  {
+    path: '/UserRegistrationNotification/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <UserRegistrationNotification />,
+      },
+    ],
   },
+  {
+    path: '/AppointmentNotification/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AppointmentNotification />,
+      },
+    ],
+  },
+
 
 
   {

@@ -51,6 +51,8 @@ import PermissionSlice from '../Reducer/PermissionSlice';
 import DoctorTransactionSlice from '../Reducer/DoctorTransactionSlice';
 import PrescriptionSlice from '../Reducer/PrescriptionSlice';
 import AwarenessBlogSlice from '../Reducer/AwarenessBlogSlice';
+import NotificationSlice from '../Reducer/NotificationSlice';
+
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -104,7 +106,9 @@ const store = configureStore({
     permissions: PermissionSlice,
     doctorTransaction: DoctorTransactionSlice,
     prescription: PrescriptionSlice,
-    awarenessBlog: AwarenessBlogSlice
+    awarenessBlog: AwarenessBlogSlice,
+    notifications: NotificationSlice
+
   },
 
 

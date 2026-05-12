@@ -6,6 +6,8 @@ import Sidebar from "../layout/Sidebar";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { getSubdomain } from "../../Reducer/AuthSlice";
+import { fetchUnreadCounts } from "../../Reducer/NotificationSlice";
+
 const InsideLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // const location = useLocation();
@@ -45,6 +47,17 @@ const InsideLayout = () => {
       nevigate("/");
     }
   }, []);
+
+  useEffect(() => {
+    if (parseToken) {
+      dispatch(fetchUnreadCounts());
+      const interval = setInterval(() => {
+        dispatch(fetchUnreadCounts());
+      }, 15000); // Poll every 15 seconds
+      return () => clearInterval(interval);
+    }
+  }, [dispatch, parseToken]);
+
 
   return (
     <>

@@ -103,6 +103,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     setOpenMenuId(prev => (prev === id ? null : id));
   };
 
+  const { unreadCounts } = useSelector((state: any) => state.notifications);
+
+  const getNotificationCount = (name: string) => {
+    const normalizedName = name.trim();
+    if (normalizedName === "Appointment") return unreadCounts.APPOINTMENT;
+    if (normalizedName === "User Registration") return unreadCounts.USER_REGISTRATION;
+    if (normalizedName === "Doctor Registration") return unreadCounts.DOCTOR_REGISTRATION;
+    if (normalizedName === "Payment") return unreadCounts.PAYMENT;
+    return 0;
+  };
+
+
   return (
     <aside
       ref={sidebar}
@@ -215,7 +227,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 }`
                               }
                             >
-                              {sub.subSidebarName}
+                              <div className="flex justify-between items-center w-full">
+                                <span>{sub.subSidebarName}</span>
+                                {getNotificationCount(sub.subSidebarName) > 0 && (
+                                  <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px]">
+                                    {getNotificationCount(sub.subSidebarName)}
+                                  </span>
+                                )}
+                              </div>
+
                             </NavLink>
                           </li>
                         ))}
