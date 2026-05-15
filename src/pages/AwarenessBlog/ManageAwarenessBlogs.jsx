@@ -17,7 +17,7 @@ const ManageAwarenessBlogs = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    const { awarenessId, awarenessName, subsidebarId } = location.state || {};
+    const { awarenessId, awarenessName, subsidebarId, subsidebarName } = location.state || {};
 
     const { awarenessBlogList, singleAwarenessBlog, loading } = useSelector((state) => state.awarenessBlog);
     
@@ -95,7 +95,7 @@ const ManageAwarenessBlogs = () => {
                         {params.value ? (
                             <img
                                 src={params.value}
-                                alt="blog"
+                                alt="content"
                                 className="w-full h-full object-cover rounded-full"
                             />
                         ) : (
@@ -157,12 +157,12 @@ const ManageAwarenessBlogs = () => {
             <ToastContainer />
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Awareness Blogs</h2>
-                    <p className="text-sm text-gray-500">Managing blogs for: <span className="font-semibold">{awarenessName}</span></p>
+                    <h2 className="text-2xl font-bold text-gray-800">{subsidebarName} -&gt; {awarenessName}</h2>
+                    <p className="text-sm text-gray-500">Managing content for: <span className="font-semibold">{awarenessName}</span></p>
                 </div>
                 <div className="flex gap-2">
                     <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
-                    <Button color="success" onClick={() => setOpenAddModal(true)}>Add New Blog</Button>
+                    <Button color="success" onClick={() => setOpenAddModal(true)}>Add New Content</Button>
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 import { AgGridReact } from "ag-grid-react";
 import { Button } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -9,6 +10,7 @@ import AddTagsModal from "./AddTagsModal";
 import { ToastContainer } from "react-toastify";
 
 const ManageTag = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { allTags } = useSelector((state) => state?.tagsData);
   const [openAddTagModal, setOpenTagModal] = useState(false);
@@ -107,12 +109,15 @@ const ManageTag = () => {
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Tag Details</h2>
-            <Button
-              onClick={() => setOpenTagModal(true)}
-              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-            >
-              Add Tag
-            </Button>
+            <div className="flex gap-2">
+              <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+              <Button
+                onClick={() => setOpenTagModal(true)}
+                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+              >
+                Add Tag
+              </Button>
+            </div>
           </div>
           <div
             className="ag-theme-alpine"

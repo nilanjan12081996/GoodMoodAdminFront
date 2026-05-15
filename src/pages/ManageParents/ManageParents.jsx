@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Button } from "flowbite-react";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer } from "react-toastify";
 import "ag-grid-community/styles/ag-grid.css";
@@ -7,6 +9,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { getUsers, userActiveDeactive } from "../../Reducer/UserSlice"; // Adjust path
 
 const ManageParents = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { userData } = useSelector((state) => state?.user);
   const [rowData, setRowData] = useState([]);
@@ -88,6 +91,7 @@ const ManageParents = () => {
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">User Details</h2>
+            <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
           </div>
           <div
             className="ag-theme-alpine"

@@ -2,12 +2,14 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { getWallet, walletFriz } from "../../Reducer/WalletSlice";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "flowbite-react";
 
 const Wallet = () => {
   const { wallet } = useSelector((state) => state?.transactions);
   const id = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     dispatch(getWallet({ id: id?.id }));
   }, []);
@@ -30,6 +32,7 @@ const Wallet = () => {
               <h2 className="text-[#262626] text-2xl font-semibold lg:pb-2">
                 Wallet
               </h2>
+              <Button color="gray" onClick={() => navigate(-1)} className="mb-2">Back</Button>
               <p className="text-[#8d8686] text-base">
                 Wallet and payment information
               </p>

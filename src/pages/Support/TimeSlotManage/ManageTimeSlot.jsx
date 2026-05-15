@@ -3,9 +3,12 @@ import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
 import { getTimeSlot, toggleStatusTimeSlot } from "../../../Reducer/DoctorSlice"
 import { AgGridReact } from "ag-grid-react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "flowbite-react"
 import UpdateSlot from "./UpdateSlot"
 
 const ManageTimeSlot=()=>{
+     const navigate = useNavigate()
      const {timeSlotData}=useSelector((state)=>state?.doctors)
      const dispatch=useDispatch()
      const[openSlotModal,setOpenSlotModal]=useState(false)
@@ -102,13 +105,8 @@ const ManageTimeSlot=()=>{
              <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
                                     <div className="h-full lg:h-screen">
                                       <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-2xl font-semibold">Doctor Time Slot</h2>
-                                        {/* <Button
-                                           onClick={() => setOpenAddModal(true)}
-                                          className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                                        >
-                                          Add Support
-                                        </Button> */}
+                                        <h2 className="text-2xl font-semibold">Expert Time Slot</h2>
+                                        <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
                                       </div>
                                       <div
                                         className="ag-theme-alpine"

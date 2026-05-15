@@ -18,15 +18,26 @@ import { getAwarness, getSingleAwarness, uploladImage } from "../../Reducer/Mood
 import UpdateMoodMeterModal from "../MoodMeter/UpdateMoodMeterModal";
 
 const ManageMoodMaster = () => {
-  const { moodsList, singleMoodMaster } = useSelector(
-    (state) => state?.moodMastersData
-  );
+    const id = useParams();
+    const { moodsList, singleMoodMaster } = useSelector(
+      (state) => state?.moodMastersData
+    );
     const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
-  const dispatch = useDispatch();
-   const navigate = useNavigate();
-    const id=useParams()
+    const { sidebarData } = useSelector((state) => state?.sidebars);
+
+    const subsidebarName = useMemo(() => {
+      if (!sidebarData?.data) return "Mood Master";
+      for (const side of sidebarData.data) {
+        const found = side.subsidebar?.find(sub => sub.id === parseInt(id?.id));
+        if (found) return found.subSidebarName;
+      }
+      return "Mood Master";
+    }, [sidebarData, id?.id]);
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     console.log("id",id);
-   const [openAddTagModal, setOpenTagModal] = useState(false);
+    const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
   const [mood_masterId, setMoodMasterId] = useState();
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
@@ -198,7 +209,8 @@ const ManageMoodMaster = () => {
                   state: { 
                     awarenessId: params?.data?.id, 
                     awarenessName: params?.data?.mood_meter_name,
-                    subsidebarId: id?.id 
+                    subsidebarId: id?.id,
+                    subsidebarName: subsidebarName
                   } 
                 })}
                 className="bg-blue-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -230,13 +242,16 @@ const ManageMoodMaster = () => {
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Mood Master</h2>
-              <Button
-                onClick={() => setOpenTagModal(true)}
-                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-              >
-                Add Mood Master
-              </Button>
+              <h2 className="text-2xl font-semibold">{subsidebarName}</h2>
+              <div className="flex gap-2">
+                <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+                <Button
+                  onClick={() => setOpenTagModal(true)}
+                  className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                >
+                  Add Mood Master
+                </Button>
+              </div>
             </div>
             <div
               className="ag-theme-alpine"

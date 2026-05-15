@@ -81,7 +81,7 @@ const TransactionUser = () => {
         },
         {
             field: "doctorName",
-            headerName: "Doctor Name",
+            headerName: "Expert Name",
             sortable: true,
             filter: true,
             flex: 1
@@ -158,11 +158,12 @@ const TransactionUser = () => {
                     </div>
                     
                     <div className="flex items-center gap-3">
+                        <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
                         <Button 
                             onClick={() => navigate(`/DoctorTransaction/${id}`)}
                             className="bg-[#52b69a] hover:bg-black text-white"
                         >
-                            <Users size={18} className="mr-2" /> Doctors Transaction
+                            <Users size={18} className="mr-2" /> Experts Transaction
                         </Button>
 
                         <div className="relative w-72">

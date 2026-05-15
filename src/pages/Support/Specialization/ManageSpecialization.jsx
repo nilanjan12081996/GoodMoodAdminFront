@@ -3,11 +3,13 @@ import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
 import { changeStatus, getSingleSpecialization, getSpecialization } from "../../../Reducer/SpecializationSlice"
 import { AgGridReact } from "ag-grid-react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "flowbite-react"
 import AddSpecialization from "./AddSpecialization"
 import UpdateSpecialization from "./UpdateSpecialization"
 
 const ManageSpecialization=()=>{
+       const navigate = useNavigate()
        const[openAddModal,setOpenAddModal]=useState(false)
         const[openUpdateModal,setOpenUpdateModal]=useState(false)
         const[splId,setSplId]=useState()
@@ -162,12 +164,15 @@ const ManageSpecialization=()=>{
                         <div className="h-full lg:h-screen">
                           <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Specialization</h2>
-                            <Button
-                               onClick={() => setOpenAddModal(true)}
-                              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                            >
-                              Add Specialization
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+                              <Button
+                                 onClick={() => setOpenAddModal(true)}
+                                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                              >
+                                Add Specialization
+                              </Button>
+                            </div>
                           </div>
                           <div
                             className="ag-theme-alpine"

@@ -25,7 +25,7 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading }) => {
           <div className="absolute -bottom-12 left-8 flex items-end gap-6">
             <div className="w-24 h-24 rounded-2xl border-4 border-white bg-slate-100 flex items-center justify-center overflow-hidden shadow-lg">
               {doctor.avatar ? (
-                <img src={doctor.avatar} alt="Doctor" className="w-full h-full object-cover" />
+                <img src={doctor.avatar} alt="Expert" className="w-full h-full object-cover" />
               ) : (
                 <User size={48} className="text-slate-400" />
               )}
@@ -44,7 +44,7 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading }) => {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-slate-500 font-medium">Fetching doctor details...</p>
+              <p className="text-slate-500 font-medium">Fetching expert details...</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

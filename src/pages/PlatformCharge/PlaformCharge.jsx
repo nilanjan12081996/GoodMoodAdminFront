@@ -7,6 +7,7 @@ import { AgGridReact } from "ag-grid-react"
 import { getCategoryWithoutParent, getPlatformCharges } from "../../Reducer/PlatformSlice"
 import AddUpdateCharges from "./AddUpdateCharges"
 import { ToastContainer } from "react-toastify"
+import { Button } from "flowbite-react"
 
 
 const PlaformCharge=()=>{
@@ -88,12 +89,12 @@ const PlaformCharge=()=>{
       <label className="relative w-12 h-12 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition">
         
         {/* Hidden file input */}
-        <input
+        {/* <input
           type="file"
           accept="image/*"
           onChange={handleFileChange}
           className="hidden"
-        />
+        /> */}
 
         {/* Show image if exists */}
         {params.value ? (
@@ -140,12 +141,7 @@ const PlaformCharge=()=>{
                 <div className="h-full lg:h-screen">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-semibold">Platform Charges</h2>
-                    {/* <Button
-                       onClick={() => setOpenAddModal(true)}
-                      className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                    >
-                      Add Support
-                    </Button> */}
+                    <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
                   </div>
                   <div
                     className="ag-theme-alpine"

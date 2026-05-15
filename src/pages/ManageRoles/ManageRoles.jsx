@@ -52,7 +52,9 @@
 // export default ManageRoles;
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Button } from "flowbite-react";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer } from "react-toastify";
 import "ag-grid-community/styles/ag-grid.css";
@@ -60,6 +62,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { getRoles } from "../../Reducer/RoleSlice"; // Update path if needed
 
 const ManageRoles = () => {
+  const navigate = useNavigate();
   const { roleData } = useSelector((state) => state?.role);
   const dispatch = useDispatch();
 
@@ -120,6 +123,7 @@ const ManageRoles = () => {
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Role Details</h2>
+            <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
           </div>
           <div
             className="ag-theme-alpine"

@@ -135,12 +135,20 @@ const handleNewUpload=()=>{
            <h2 className="text-2xl font-semibold mb-4">
         🎥 Uploaded Content
         </h2> 
-        <button
-        className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-        onClick={()=>handleNewUpload()}
-        >
-            Upload New Content
-        </button>
+        <div className="flex gap-2">
+            <button
+                className="bg-gray-200 hover:bg-gray-300 px-4 py-1 text-gray-700 text-base font-semibold flex justify-center items-center rounded-md"
+                onClick={() => navigate(-1)}
+            >
+                Back
+            </button>
+            <button
+                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                onClick={() => handleNewUpload()}
+            >
+                Upload New Content
+            </button>
+        </div>
         </div>
    
 

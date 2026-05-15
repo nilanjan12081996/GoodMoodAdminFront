@@ -4,13 +4,12 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { changeAnswer, getSingleQuestion } from "../../Reducer/QuestionSlice";
-import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 const MappingModal = ( ) => {
-
+  const navigate = useNavigate();
   const {  singleQuestion } = useSelector(
     (state) => state?.questions
   );
@@ -112,38 +111,46 @@ dispatch(getSingleQuestion({ id: id?.id }))
 
 
   return (
-   
     <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
-        <div className="space-y-4">
-          <p className="text-sm text-gray-500">
-           <p className="text-sm font-bold">{singleQuestion?.data?.[0]?.question}</p> 
-          <p className="text-xs mt-3">Showing {singleQuestion.data?.[0]?.answer.length} mapped options. You can manage points and descriptions here.</p>  
+      <div className="flex justify-between items-center mb-4">
+        <div className="space-y-1">
+          <p className="text-sm font-bold">
+            {singleQuestion?.data?.[0]?.question}
           </p>
-          
-          <div className="ag-theme-alpine" style={{ height: 350, width: '100%' }}>
-            <AgGridReact
-              rowData={singleQuestion?.data?.[0]?.answer} 
-              columnDefs={columnDefs}
-              defaultColDef={defaultColDef}
-              animateRows={true}
-              pagination={true}
-              paginationPageSize={5}
-            />
-          </div>
+          <p className="text-xs text-gray-500">
+            Showing {singleQuestion.data?.[0]?.answer.length} mapped options.
+            You can manage points and descriptions here.
+          </p>
         </div>
-        {
-                deleteConfirmModal&&(
-                  <DeleteConfirmationModal
-                  deleteConfirmModal={deleteConfirmModal}
-                  setDeleteConfirmationModal={setDeleteConfirmationModal}
-                  optionid={optionid}
-                 
-                  id={id}
-                  />
-                )
-              }
-        </div>
+        <button 
+          onClick={() => navigate(-1)}
+          className="bg-[#52b69a] hover:bg-black text-white px-4 py-2 rounded-md font-semibold transition-colors"
+        >
+          Back
+        </button>
+      </div>
 
+      <div className="ag-theme-alpine" style={{ height: 350, width: "100%" }}>
+        <AgGridReact
+          rowData={singleQuestion?.data?.[0]?.answer}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          animateRows={true}
+          pagination={true}
+          paginationPageSize={5}
+        />
+      </div>
+
+      {deleteConfirmModal && (
+        <DeleteConfirmationModal
+          deleteConfirmModal={deleteConfirmModal}
+          setDeleteConfirmationModal={setDeleteConfirmationModal}
+          optionid={optionid}
+          id={id}
+        />
+      )}
+    </div>
   );
 };
+
 export default MappingModal;

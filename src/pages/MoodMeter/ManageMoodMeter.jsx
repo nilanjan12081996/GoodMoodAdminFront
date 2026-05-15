@@ -16,7 +16,7 @@ import {
 import { ToastContainer } from "react-toastify";
 import AddMoodMeterModal from "./AddMoodMeterModal";
 import UpdateMoodMeterModal from "./UpdateMoodMeterModal";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getQuestion } from "../../Reducer/QuestionSlice";
 import MapperQuestion from "./MapperQuestion";
 
@@ -25,6 +25,7 @@ const ManageMoodMeter = () => {
       (state) => state?.questions
     );
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const id=useParams()
   console.log("id",id);
   let baseUrl="http://localhost:8080"
@@ -228,12 +229,15 @@ const ManageMoodMeter = () => {
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Mood Meter</h2>
-            <Button
-              onClick={() => setOpenTagModal(true)}
-              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-            >
-              Add Mood Meter
-            </Button>
+            <div className="flex gap-2">
+              <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+              <Button
+                onClick={() => setOpenTagModal(true)}
+                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+              >
+                Add Mood Meter
+              </Button>
+            </div>
           </div>
           <div
             className="ag-theme-alpine"

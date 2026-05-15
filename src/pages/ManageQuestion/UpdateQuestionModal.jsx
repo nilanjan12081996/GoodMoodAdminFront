@@ -224,30 +224,22 @@
 import { Button, Label, Modal, Textarea, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getQuestion,
   updateQuestionDetails,
 } from "../../Reducer/QuestionSlice";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
-const UpdateQuestionModal = ({
-  // openUpdateModal,
-  // setOpenUpdateModal,
-  // singleQuestion,
- // questionId,
- // setOptionId,
- // setDeleteConfirmationModal,
-}) => {
+const UpdateQuestionModal = ({}) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { questionList, singleQuestion } = useSelector(
+  const { singleQuestion } = useSelector(
     (state) => state?.questions
   );
   const location=useLocation()
   const questionId=location?.state?.id
-  // const =location?.state?.questionId
 const[deleteConfirmModal,setDeleteConfirmationModal]=useState(false)
 const[optionid,setOptionId]=useState()
   
@@ -323,7 +315,10 @@ const[optionid,setOptionId]=useState()
 
   return (
     <div >
-       <h2 className="text-[30px] font-semibold mb-3">Update Question</h2>
+       <div className="flex justify-between items-center mb-3">
+         <h2 className="text-[30px] font-semibold">Update Question</h2>
+         <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>

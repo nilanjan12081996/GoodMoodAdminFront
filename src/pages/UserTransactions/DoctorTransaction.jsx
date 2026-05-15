@@ -10,6 +10,8 @@ import { Button, Modal, Select, Label, TextInput } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { Filter, X } from "lucide-react";
 import { toggleIsPaid, getAllTransactions } from "../../Reducer/TransactionHistorySlice";
+import html2pdf from 'html2pdf.js';
+import { FileText } from "lucide-react";
 
 const DoctorTransaction = () => {
     const dispatch = useDispatch();
@@ -62,7 +64,7 @@ const DoctorTransaction = () => {
                 const doctorInfo = doctorsDetails?.data?.find(d => d.id === updatedDoctor.doctorId);
                 setSelectedDoctor({
                     ...updatedDoctor,
-                    doctorName: updatedDoctor.doctorName || (doctorInfo ? `${doctorInfo.firstName} ${doctorInfo.lastName}` : `Doctor ID: ${updatedDoctor.doctorId}`),
+                    doctorName: updatedDoctor.doctorName || (doctorInfo ? `${doctorInfo.firstName} ${doctorInfo.lastName}` : `Expert ID: ${updatedDoctor.doctorId}`),
                     unpaidAmount: updatedDoctor.unpaidAmount || 0,
                     unpaidTransactionCount: updatedDoctor.unpaidTransactionCount || 0,
                     paidAmount: updatedDoctor.paidAmount || 0,
@@ -79,6 +81,22 @@ const DoctorTransaction = () => {
             }
         }
     }, [doctorTotals, doctorsDetails]);
+    
+    const handleGeneratePDF = () => {
+        const element = document.getElementById('transaction-modal-content');
+        if (!element) return;
+        
+        const opt = {
+            margin:       [10, 10, 10, 10],
+            filename:     `${selectedDoctor?.doctorName || 'Expert'}_Payment_Statement.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Temporarily hide actions column if any
+        html2pdf().from(element).set(opt).save();
+    };
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -120,7 +138,7 @@ const DoctorTransaction = () => {
             const doctor = doctorsDetails?.data?.find(d => d.id === total.doctorId);
             return {
                 ...total,
-                doctorName: total.doctorName || (doctor ? `${doctor.firstName} ${doctor.lastName}` : `Doctor ID: ${total.doctorId}`),
+                doctorName: total.doctorName || (doctor ? `${doctor.firstName} ${doctor.lastName}` : `Expert ID: ${total.doctorId}`),
                 unpaidAmount: total.unpaidAmount || 0,
                 unpaidTransactionCount: total.unpaidTransactionCount || 0,
                 paidAmount: total.paidAmount || 0,
@@ -138,14 +156,14 @@ const DoctorTransaction = () => {
     const columnDefs = useMemo(() => [
         {
             field: "doctorName",
-            headerName: "Doctor Name",
+            headerName: "Expert Name",
             sortable: true,
             filter: true,
             flex: 1.5
         },
         {
             field: "unpaidTransactionCount",
-            headerName: "Unpaid Appointments",
+            headerName: "Unpaid Payments",
             sortable: true,
             filter: true,
             flex: 1,
@@ -233,7 +251,7 @@ const DoctorTransaction = () => {
                             <ArrowLeft size={20} className="text-gray-600" />
                         </button>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-800">Doctors Revenue</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">Experts Revenue</h2>
                             <p className="text-gray-500 text-sm mt-1">Manage pending and completed settlements</p>
                         </div>
                     </div>
@@ -244,7 +262,7 @@ const DoctorTransaction = () => {
                         </div>
                         <input
                             type="text"
-                            placeholder="Search doctor or amount..."
+                            placeholder="Search expert or amount..."
                             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-[#52b69a] focus:border-[#52b69a] sm:text-sm transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -325,13 +343,12 @@ const DoctorTransaction = () => {
                 </div>
             </div>
 
-            {/* Doctor Detail Modal */}
             <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} size="4xl">
                 <Modal.Header>
                     Transaction Details: {selectedDoctor?.doctorName}
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="space-y-6 p-2">
+                    <div id="transaction-modal-content" className="space-y-6 p-2">
                         {/* Unpaid Section */}
                         <div className="border border-orange-200 rounded-xl overflow-hidden">
                             <div className="bg-orange-50 px-4 py-2 border-b border-orange-200">
@@ -342,7 +359,7 @@ const DoctorTransaction = () => {
                             </div>
                             <div className="p-4 grid grid-cols-2 gap-4">
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500 uppercase font-semibold">Appointments</span>
+                                    <span className="text-xs text-gray-500 uppercase font-semibold">Payments</span>
                                     <span className="text-xl font-bold text-gray-800">{selectedDoctor?.unpaidTransactionCount}</span>
                                 </div>
                                 <div className="flex flex-col">
@@ -362,7 +379,7 @@ const DoctorTransaction = () => {
                             </div>
                             <div className="p-4 grid grid-cols-2 gap-4">
                                 <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500 uppercase font-semibold">Appointments</span>
+                                    <span className="text-xs text-gray-500 uppercase font-semibold">Payments</span>
                                     <span className="text-xl font-bold text-gray-800">{selectedDoctor?.paidTransactionCount}</span>
                                 </div>
                                 <div className="flex flex-col">
@@ -408,7 +425,7 @@ const DoctorTransaction = () => {
                         {/* Total Revenue Footer */}
                         <div className="p-4 bg-gray-50 rounded-xl flex justify-between items-center border border-gray-200">
                             <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Overall Doctor Earnings</span>
+                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Overall Expert Earnings</span>
                                 <span className="text-sm text-gray-400 font-medium">(Paid + Unpaid)</span>
                             </div>
                             <span className="text-xl font-bold text-gray-700">
@@ -423,7 +440,7 @@ const DoctorTransaction = () => {
                                 <div className="space-y-3">
                                     <h4 className="text-sm font-bold text-orange-700 uppercase tracking-wider flex items-center gap-2 px-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                                        Pending Appointments Breakdown
+                                        Pending Payments Breakdown
                                     </h4>
                                     <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                                         <table className="w-full text-sm text-left text-gray-500">
@@ -474,7 +491,7 @@ const DoctorTransaction = () => {
                                 <div className="space-y-3">
                                     <h4 className="text-sm font-bold text-green-700 uppercase tracking-wider flex items-center gap-2 px-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                                        Settled Appointments History
+                                        Settled Payments History
                                     </h4>
                                     <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                                         <table className="w-full text-sm text-left text-gray-500">
@@ -512,7 +529,14 @@ const DoctorTransaction = () => {
                         </div>
                     </div>
                 </Modal.Body>
-                <Modal.Footer className="flex justify-end">
+                <Modal.Footer className="flex justify-between items-center">
+                    <Button 
+                        color="success" 
+                        onClick={handleGeneratePDF}
+                        className="bg-[#52b69a] hover:bg-black font-bold"
+                    >
+                        <FileText size={18} className="mr-2" /> Generate PDF Statement
+                    </Button>
                     <Button color="gray" onClick={() => setIsModalOpen(false)}>
                         Close
                     </Button>

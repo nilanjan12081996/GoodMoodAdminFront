@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { changeStatus, getChildCategory, getSingleChildCategory, uploladImage } from "../../../Reducer/SupportSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AgGridReact } from "ag-grid-react";
 import { Button } from "flowbite-react";
 import AddSupport from "./AddSupport";
@@ -16,6 +16,7 @@ const SupportDetails=()=>{
     const parentId=location?.state?.parentid
     const{childCateList}=useSelector((state)=>state?.support)
     const dispatch=useDispatch()
+    const navigate=useNavigate()
     useEffect(()=>{
         dispatch(getChildCategory({id:parentId}))
     },[])
@@ -175,12 +176,15 @@ const SupportDetails=()=>{
                         <div className="h-full lg:h-screen">
                           <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Support Category</h2>
-                            <Button
-                              onClick={() => setOpenAddModal(true)}
-                              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                            >
-                              Add 
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+                              <Button
+                                onClick={() => setOpenAddModal(true)}
+                                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                              >
+                                Add 
+                              </Button>
+                            </div>
                           </div>
                           <div
                             className="ag-theme-alpine"

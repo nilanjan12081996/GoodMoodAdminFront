@@ -3,8 +3,11 @@ import { useDispatch } from "react-redux"
 import { useSelector } from "react-redux"
 import { daysChangeStatus, getallDays } from "../../../Reducer/DaysSlice"
 import { AgGridReact } from "ag-grid-react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "flowbite-react"
 
 const ManageDays=()=>{
+    const navigate = useNavigate()
     const{alldays}=useSelector((state)=>state?.days)
     const dispatch=useDispatch()
     useEffect(()=>{
@@ -73,7 +76,7 @@ const ManageDays=()=>{
                                     <div className="h-full lg:h-screen">
                                       <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-2xl font-semibold">Days</h2>
-                                       
+                                        <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
                                       </div>
                                       <div
                                         className="ag-theme-alpine"

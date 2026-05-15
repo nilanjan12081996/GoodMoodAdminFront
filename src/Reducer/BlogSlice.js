@@ -50,12 +50,11 @@ export const addBlog = createAsyncThunk(
 )
 export const publishUnPublished = createAsyncThunk(
     'publishUnPublished',
-    async ({ id }, { rejectWithValue }) => {
+    async ({ id }, { rejectWithValue, dispatch }) => {
         try {
-
-            const response = await api.patch(`goodmood/post/publish/${id}`);
-
+            const response = await api.patch(`goodmood/post/toggle-status/${id}`);
             if (response?.data?.statusCode === 200) {
+                dispatch(getBlog()); // Refresh the list
                 return response.data;
             } else {
                 return rejectWithValue(response.data);

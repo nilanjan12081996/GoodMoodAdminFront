@@ -109,7 +109,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     const normalizedName = name.trim();
     if (normalizedName === "Appointment") return unreadCounts.APPOINTMENT;
     if (normalizedName === "User Registration") return unreadCounts.USER_REGISTRATION;
-    if (normalizedName === "Doctor Registration") return unreadCounts.DOCTOR_REGISTRATION;
+    if (normalizedName === "Expert Registration") return unreadCounts.DOCTOR_REGISTRATION;
     if (normalizedName === "Payment") return unreadCounts.PAYMENT;
     return 0;
   };

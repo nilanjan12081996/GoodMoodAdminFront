@@ -3,9 +3,12 @@ import api from '../../store/Api';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { decrementCount } from '../../Reducer/NotificationSlice';
+import { useNavigate } from 'react-router-dom';
+import { Button } from 'flowbite-react';
 
 const UserRegistrationNotification = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -66,7 +69,10 @@ const UserRegistrationNotification = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">User Registration Alerts</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold text-gray-800">User Registration Alerts</h2>
+            <Button color="gray" size="xs" onClick={() => navigate(-1)}>Back</Button>
+          </div>
           <div className="flex items-center gap-2">
              <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

@@ -217,12 +217,15 @@ console.log("equilizerList",equilizerList);
                   <div className="h-full lg:h-screen">
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-2xl font-semibold">Mood Equilizer</h2>
-                      <Button
-                        onClick={() => setOpenTagModal(true)}
-                        className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                      >
-                        Add Mood Equilizer
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+                        <Button
+                          onClick={() => setOpenTagModal(true)}
+                          className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                        >
+                          Add Mood Equilizer
+                        </Button>
+                      </div>
                     </div>
                     <div
                       className="ag-theme-alpine"

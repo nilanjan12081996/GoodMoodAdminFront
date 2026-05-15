@@ -4,8 +4,11 @@ import { approveDoctor, getDoctor, getDoctorDetails, toggleStatus } from "../../
 import DoctorDetailModal from "./DoctorDetailModal"
 import { Eye } from 'lucide-react'
 import { AgGridReact } from "ag-grid-react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "flowbite-react"
 
 const ManageDoctor=()=>{
+    const navigate = useNavigate()
     const {doctorsDetails, doctorDetail, loading}=useSelector((state)=>state?.doctors)
     const [openDetailModal, setOpenDetailModal] = useState(false)
     const dispatch=useDispatch()
@@ -116,8 +119,8 @@ const ManageDoctor=()=>{
           className={`px-4 py-1 text-white text-base font-semibold rounded-md
             ${
               isApproved
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#52b69a] hover:bg-black"
+                ? "bg-[#52b69a] cursor-not-allowed"
+                : "bg-gray-400 hover:bg-black"
             }`}
         >
           {isApproved ? "Approved" : "Approve"}
@@ -144,13 +147,8 @@ const ManageDoctor=()=>{
          <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
                         <div className="h-full lg:h-screen">
                           <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold">Doctor</h2>
-                            {/* <Button
-                               onClick={() => setOpenAddModal(true)}
-                              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                            >
-                              Add Support
-                            </Button> */}
+                            <h2 className="text-2xl font-semibold">Expert</h2>
+                            <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
                           </div>
                           <div
                             className="ag-theme-alpine"

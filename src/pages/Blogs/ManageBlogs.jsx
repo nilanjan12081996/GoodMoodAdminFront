@@ -41,7 +41,7 @@ const ManageBlogs = () => {
         title: tags?.title,
         content: tags?.content,
         image_url:tags?.image,
-        status:tags?.status===0?"Publish":"Published",
+        status:tags?.status===0?"Draft":"Published",
         is_published: tags.is_published,
       })) || []
     );
@@ -51,7 +51,7 @@ const ManageBlogs = () => {
     () => [
       {
         field: "title",
-        headerName: "Blog Title",
+        headerName: "Psychiatric Insights Title",
         sortable: true,
         filter: true,
       },
@@ -139,6 +139,16 @@ const ManageBlogs = () => {
               >
                 Edit
               </button>
+              <button
+                onClick={() => handleToggleStatus(params?.data?.id)}
+                className={`${
+                  params?.data?.status === "Draft"
+                    ? "bg-green-500"
+                    : "bg-red-500"
+                } hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md`}
+              >
+                {params?.data?.status === "Draft" ? "Publish" : "Unpublish"}
+              </button>
             </div>
           );
         },
@@ -165,6 +175,10 @@ const ManageBlogs = () => {
     setOpenUpdateBlogModal(true);
   };
 
+  const handleToggleStatus = (id) => {
+    dispatch(publishUnPublished({ id }));
+  };
+
   return (
     <>
       <>
@@ -172,13 +186,16 @@ const ManageBlogs = () => {
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Blog</h2>
-              <Button
-                onClick={() => setOpenBlogModal(true)}
-                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-              >
-                Add Blog
-              </Button>
+              <h2 className="text-2xl font-semibold">Psychiatric Insights</h2>
+              <div className="flex gap-2">
+                <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+                <Button
+                  onClick={() => setOpenBlogModal(true)}
+                  className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                >
+                  Add Psychiatric Insights
+                </Button>
+              </div>
             </div>
             <div
               className="ag-theme-alpine"

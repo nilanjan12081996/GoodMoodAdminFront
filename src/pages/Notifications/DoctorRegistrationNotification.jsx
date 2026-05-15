@@ -3,9 +3,12 @@ import api from '../../store/Api';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { decrementCount } from '../../Reducer/NotificationSlice';
+import { useNavigate } from 'react-router-dom';
+import { Button } from 'flowbite-react';
 
 const DoctorRegistrationNotification = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -20,7 +23,7 @@ const DoctorRegistrationNotification = () => {
         // If polling and we see more unread items than before, show a toast
         if (isPolling && newData.length > prevCountRef.current) {
           const newItemsCount = newData.length - prevCountRef.current;
-          toast.info(`You have ${newItemsCount} new doctor registration(s)!`);
+          toast.info(`You have ${newItemsCount} new expert registration(s)!`);
         }
         
         setNotifications(newData);
@@ -87,7 +90,10 @@ const markAsRead = async (id) => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Live Doctor Alerts</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold text-gray-800">Live Expert Alerts</h2>
+            <Button color="gray" size="xs" onClick={() => navigate(-1)}>Back</Button>
+          </div>
           <div className="flex items-center gap-2">
              <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -118,7 +124,7 @@ const markAsRead = async (id) => {
               }`}>
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
-                    <h3 className="font-bold text-blue-900 text-lg">{notification.title || "New Doctor Registration"}</h3>
+                    <h3 className="font-bold text-blue-900 text-lg">{notification.title || "New Expert Registration"}</h3>
                     <p className="text-gray-600 mb-2">{notification.message}</p>
                     <span className="text-xs text-gray-400">
                        {new Date(notification.createdAt).toLocaleString()}

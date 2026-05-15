@@ -35,11 +35,12 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { contentListSingle, contentUpdate } from "../../Reducer/ContentUploadSlice";
 
 const UpdateContent = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const { singleContent, loading } = useSelector(
@@ -162,9 +163,18 @@ const UpdateContent = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h2 className="text-2xl font-semibold">
-        Update Content
-      </h2>
+     
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">
+          Update Content
+        </h2>
+        <button 
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+        >
+          Back
+        </button>
+      </div>
 
       {/* Content Preview */}
       <div className="bg-white rounded-xl shadow p-4">

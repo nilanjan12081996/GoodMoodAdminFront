@@ -25,6 +25,17 @@ const ManageMoodMatter = () => {
   console.log("id",id);
   
   const { allMoodMeter,singleAwarness } = useSelector((state) => state?.moodData);
+  const { sidebarData } = useSelector((state) => state?.sidebars);
+
+  const subsidebarName = useMemo(() => {
+    if (!sidebarData?.data) return "Moodz Matter";
+    for (const side of sidebarData.data) {
+      const found = side.subsidebar?.find(sub => sub.id === parseInt(id?.id));
+      if (found) return found.subSidebarName;
+    }
+    return "Moodz Matter";
+  }, [sidebarData, id?.id]);
+
   const [openAddTagModal, setOpenTagModal] = useState(false);
   const [openUpdateTagModal, setOpenUpdateTagModal] = useState(false);
   const [moodmeterId, setMoodMeterId] = useState();
@@ -171,7 +182,8 @@ const ManageMoodMatter = () => {
                   state: { 
                     awarenessId: params?.data?.id, 
                     awarenessName: params?.data?.mood_meter_name,
-                    subsidebarId: id?.id 
+                    subsidebarId: id?.id,
+                    subsidebarName: subsidebarName
                   } 
                 })}
                 className="bg-blue-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -207,13 +219,16 @@ const ManageMoodMatter = () => {
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Moodz Matter</h2>
-            <Button
-              onClick={() => setOpenTagModal(true)}
-              className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-            >
-              Add Moodz Matter
-            </Button>
+            <h2 className="text-2xl font-semibold">{subsidebarName}</h2>
+            <div className="flex gap-2">
+              <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+              <Button
+                onClick={() => setOpenTagModal(true)}
+                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+              >
+                Add Moodz Matter
+              </Button>
+            </div>
           </div>
           <div
             className="ag-theme-alpine"

@@ -1,16 +1,17 @@
 import { AgGridReact } from "ag-grid-react";
 import { Button } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { getTopics } from "../../Reducer/TopicSlice";
-import { useSelector } from "react-redux";
 import userRoles from "../utils/userRoles";
 import AddTopicModal from "./AddTopicModal";
 import UpdateTopicModal from "./UpdateTopicModal";
 
 const TopicList = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { allTopics } = useSelector((state) => state?.topicsData);
   console.log("allTopics", allTopics);
   const currentUserRole = userRoles();
@@ -131,16 +132,17 @@ const TopicList = () => {
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Topic</h2>
-              {currentUserRole === "SA" && (
-                <>
+              <div className="flex gap-2">
+                <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+                {currentUserRole === "SA" && (
                   <Button
                     onClick={() => handleAddTopic()}
                     className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
                   >
                     Add Topic
                   </Button>
-                </>
-              )}
+                )}
+              </div>
             </div>
 
             <div

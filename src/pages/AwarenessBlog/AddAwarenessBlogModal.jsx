@@ -39,7 +39,7 @@ const AddAwarenessBlogModal = ({
 
     dispatch(addAwarenessBlog(payload)).then((res) => {
       if (res?.payload?.statusCode === 201) {
-        toast.success("Blog Added successfully");
+        toast.success("Content Added successfully");
         setOpenBlogModal(false);
         dispatch(getAwarenessBlogs({ awarenessId, subsidebarId }));
         reset();
@@ -56,13 +56,13 @@ const AddAwarenessBlogModal = ({
 
   return (
     <Modal show={openBlogModal} onClose={handleModalClose} size="2xl">
-      <Modal.Header>Add New Awareness Blog</Modal.Header>
+      <Modal.Header>Add New Content</Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Body>
           <div className="space-y-4">
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="title" value="Blog Title" />
+                <Label htmlFor="title" value="Content Title" />
               </div>
               <TextInput
                 id="title"
@@ -101,7 +101,7 @@ const AddAwarenessBlogModal = ({
         </Modal.Body>
         <Modal.Footer>
           <Button type="button" color="gray" onClick={handleModalClose}>Cancel</Button>
-          <Button color="success" type="submit">Add Blog</Button>
+          <Button color="success" type="submit">Add Content</Button>
         </Modal.Footer>
       </form>
     </Modal>

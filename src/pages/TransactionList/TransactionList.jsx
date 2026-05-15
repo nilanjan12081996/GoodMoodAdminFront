@@ -2,7 +2,8 @@ import { Pagination, Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "flowbite-react";
 import {
   getTransaction,
   getWallet,
@@ -18,6 +19,7 @@ const TransactionList = () => {
   const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const id = useParams();
   useEffect(() => {
     dispatch(getWallet({ id: id?.id }));
@@ -61,9 +63,12 @@ const TransactionList = () => {
         <div className="bg-white rounded-2xl p-5 lg:p-10 mb-4">
           <div className="lg:flex w-full gap-8 mb-4 lg:mb-0">
             <div className="lg:w-full bg-white border border-[#e6e6e6] p-6 rounded-2xl">
-              <h3 className="text-[#5e6161] text-xl font-medium pb-6">
-                History
-              </h3>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-[#5e6161] text-xl font-medium">
+                  History
+                </h3>
+                <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
+              </div>
               <div className="table_area">
                 <div className="overflow-x-auto">
                   <Table hoverable className="relative">

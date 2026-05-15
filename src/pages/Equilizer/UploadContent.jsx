@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { uploadContent } from "../../Reducer/ContentUploadSlice";
 
@@ -14,6 +14,7 @@ const generateUUID = () =>
   });
 
 const UploadContent = () => {
+  const navigate = useNavigate();
   const baseUrl="https://newadminapigoodmood.goodmood.solutions"
   const location = useLocation();
   const id = location?.state?.id;
@@ -120,9 +121,17 @@ const UploadContent = () => {
 
   return (
     <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
-      <h2 className="text-2xl font-semibold mb-2">
-        🚀 Upload Content
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold">
+          🚀 Upload Content
+        </h2>
+        <button 
+          onClick={() => navigate(-1)}
+          className="px-4 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+        >
+          Back
+        </button>
+      </div>
 
       {/* Upload Section */}
       {!uploadedMedia && (
