@@ -13,7 +13,7 @@ const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  const { profileDetail } = useSelector((state) => state.profile);
+  const { profileDetail, role } = useSelector((state: any) => state.profile);
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
@@ -53,9 +53,9 @@ const DropdownUser = () => {
   // const decodedUserName = Base64.decode(userName)
   // const parseUserName = JSON.parse(decodedUserName)
 
-  // useEffect(() => {
-  //   dispatch(viewProfile())
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(viewProfile() as any)
+  }, [dispatch]);
 
 
   return (
@@ -68,16 +68,19 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-xs font-medium text-black">
-            User Name
+            {profileDetail ? `${profileDetail.firstName} ${profileDetail.lastName}` : 'User Name'}
           </span>
           <span className="block text-xs text-gray-400">
-            {/* {parseUserName?.user_type} */}
-            Admin
+            {role || 'Admin'}
           </span>
         </span>
 
-        <span className="h-8 w-8 rounded-full">
-          {/* <img src={profileDetail?.data?.avatar ? profileDetail?.data?.avatar : UserOne} alt="User" /> */}
+        <span className="h-10 w-10 rounded-full overflow-hidden border border-gray-200">
+          <img 
+            src={profileDetail?.avatar ? profileDetail?.avatar : UserOne} 
+            alt="User" 
+            className="h-full w-full object-cover"
+          />
         </span>
 
         <svg

@@ -3,9 +3,9 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllTransactions, searchTransactions, toggleIsPaid } from "../../Reducer/TransactionHistorySlice";
+import { getAllTransactions, searchTransactions } from "../../Reducer/TransactionHistorySlice";
 import { formatDate } from "../../utils/FormatData";
-import { Search, CheckCircle, CreditCard, Users } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import { Button } from "flowbite-react";
 import debounce from "lodash.debounce";
 import { toast, ToastContainer } from "react-toastify";
@@ -51,9 +51,7 @@ const TransactionUser = () => {
         debouncedSearch(value);
     };
 
-    const handleTogglePaid = (id) => {
-        dispatch(toggleIsPaid(id));
-    };
+
 
     const rowData = useMemo(() => {
         return transactionHistory || [];
@@ -129,23 +127,10 @@ const TransactionUser = () => {
             cellRenderer: (params) => {
                 const isPaid = params.value === 1;
                 return (
-                    <div className="flex items-center h-full gap-2">
-                        <Button
-                            size="xs"
-                            onClick={() => handleTogglePaid(params.data.id)}
-                            disabled={isPaid}
-                            className={`${isPaid ? "bg-green-50 text-green-600 border-green-200 cursor-default" : "bg-[#52b69a] hover:bg-black text-white"}`}
-                        >
-                            {isPaid ? (
-                                <span className="flex items-center gap-1">
-                                    <CheckCircle size={14} /> Paid
-                                </span>
-                            ) : (
-                                <span className="flex items-center gap-1">
-                                    <CreditCard size={14} /> Mark Paid
-                                </span>
-                            )}
-                        </Button>
+                    <div className="flex items-center h-full">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${isPaid ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}`}>
+                            {isPaid ? "Paid" : "Pending"}
+                        </span>
                     </div>
                 );
             }

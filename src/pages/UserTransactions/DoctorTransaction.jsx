@@ -5,16 +5,18 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllDoctorTransactionTotals } from "../../Reducer/DoctorTransactionSlice";
 import { getDoctor } from "../../Reducer/DoctorSlice";
-import { Eye, IndianRupee, ArrowLeft, Search } from "lucide-react";
+import { Eye, IndianRupee, ArrowLeft, Search, CheckCircle, CreditCard } from "lucide-react";
 import { Button, Modal, Select, Label, TextInput } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { Filter, X } from "lucide-react";
+import { toggleIsPaid, getAllTransactions } from "../../Reducer/TransactionHistorySlice";
 
 const DoctorTransaction = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { doctorTotals, loading } = useSelector((state) => state?.doctorTransaction);
     const { doctorsDetails } = useSelector((state) => state?.doctors);
+    const { transactionHistory } = useSelector((state) => state?.transactionHistory);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +32,53 @@ const DoctorTransaction = () => {
     useEffect(() => {
         dispatch(getAllDoctorTransactionTotals(filters));
         dispatch(getDoctor());
+        dispatch(getAllTransactions());
     }, [dispatch, filters]);
+
+    const handleTogglePaid = async (tx) => {
+        const transaction = transactionHistory?.find(t => t.transactionCode === tx.transactionCode);
+        const idToToggle = tx.id || transaction?.id;
+        if (idToToggle) {
+            await dispatch(toggleIsPaid(idToToggle));
+            dispatch(getAllDoctorTransactionTotals(filters));
+            dispatch(getAllTransactions());
+            
+            // Update selectedDoctor in the modal to reflect changes
+            if (selectedDoctor) {
+                // The re-fetch will update doctorTotals, we should update selectedDoctor
+                // But since doctorTotals is used in rowData, maybe just close modal or let user see it disappear.
+                // We'll close the modal or let the user close it.
+                // It might be better to just let Redux update state, but selectedDoctor is local state.
+                // To safely update the modal without closing, we can trigger a refetch and update selectedDoctor from new rowData.
+            }
+        }
+    };
+
+    // Keep selectedDoctor in sync with Redux updates
+    useEffect(() => {
+        if (selectedDoctor && doctorTotals) {
+            const updatedDoctor = doctorTotals.find(d => d.doctorId === selectedDoctor.doctorId);
+            if (updatedDoctor) {
+                const doctorInfo = doctorsDetails?.data?.find(d => d.id === updatedDoctor.doctorId);
+                setSelectedDoctor({
+                    ...updatedDoctor,
+                    doctorName: updatedDoctor.doctorName || (doctorInfo ? `${doctorInfo.firstName} ${doctorInfo.lastName}` : `Doctor ID: ${updatedDoctor.doctorId}`),
+                    unpaidAmount: updatedDoctor.unpaidAmount || 0,
+                    unpaidTransactionCount: updatedDoctor.unpaidTransactionCount || 0,
+                    paidAmount: updatedDoctor.paidAmount || 0,
+                    paidTransactionCount: updatedDoctor.paidTransactionCount || 0,
+                    platformPercentage: updatedDoctor.platformPercentage || 0,
+                    appliedPercentages: updatedDoctor.appliedPercentages || [],
+                    platformCharges: updatedDoctor.platformCharges || 0,
+                    payableAmount: updatedDoctor.payableAmount || 0,
+                    unpaidTransactions: updatedDoctor.unpaidTransactions || [],
+                    paidTransactions: updatedDoctor.paidTransactions || []
+                });
+            } else {
+                setIsModalOpen(false);
+            }
+        }
+    }, [doctorTotals, doctorsDetails]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -385,6 +433,7 @@ const DoctorTransaction = () => {
                                                     <th className="px-4 py-3 font-bold">Total</th>
                                                     <th className="px-4 py-3 font-bold text-red-500 text-center">Platform Charges</th>
                                                     <th className="px-4 py-3 font-bold text-[#52b69a] text-right">Net Payout</th>
+                                                    <th className="px-4 py-3 font-bold text-center">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
@@ -402,6 +451,15 @@ const DoctorTransaction = () => {
                                                         </td>
                                                         <td className="px-4 py-3 text-right">
                                                             <div className="text-[#52b69a] font-black text-base">₹{tx.payoutAmount.toFixed(2)}</div>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            <Button
+                                                                size="xs"
+                                                                className="bg-[#52b69a] hover:bg-black text-white w-full max-w-[110px] mx-auto"
+                                                                onClick={() => handleTogglePaid(tx)}
+                                                            >
+                                                                <CheckCircle size={14} className="mr-1" /> Mark Paid
+                                                            </Button>
                                                         </td>
                                                     </tr>
                                                 ))}

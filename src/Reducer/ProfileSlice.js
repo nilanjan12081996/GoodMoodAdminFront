@@ -5,15 +5,11 @@ export const viewProfile = createAsyncThunk(
     'viewProfile',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get('/user/view-profile');
-            if (response?.data?.status_code === 200) {
+            const response = await api.get('/goodmood/profile');
+            if (response?.data?.statusCode === 200) {
                 return response.data;
             } else {
-                if (response?.data?.errors) {
-                    return rejectWithValue(response.data.errors);
-                } else {
-                    return rejectWithValue('Something went wrong.');
-                }
+                return rejectWithValue(response.data);
             }
         } catch (err) {
             return rejectWithValue(err);
@@ -45,7 +41,8 @@ const initialState = {
     loading: false,
     error: "",
     message: "",
-    profileDetail: {},
+    profileDetail: null,
+    role: "",
     loadingPro: false,
 }
 
@@ -61,12 +58,10 @@ const ProfileSlice = createSlice(
                 })
                 .addCase(viewProfile.fulfilled, (state, { payload }) => {
                     state.loading = false
-                    state.profileDetail = payload
+                    state.profileDetail = payload.data
+                    state.role = payload.role
                     state.error = ""
-                    state.message =
-                        payload !== undefined && payload.message
-                            ? payload.message
-                            : 'Something went wrong. Try again later.';
+                    state.message = payload.message || 'Profile fetched successfully';
                 })
                 .addCase(viewProfile.rejected, (state, { payload }) => {
                     state.error = true;

@@ -59,6 +59,7 @@ import AwarenessBlogDetails from '../pages/AwarenessBlog/AwarenessBlogDetails.js
 import DoctorRegistrationNotification from '../pages/Notifications/DoctorRegistrationNotification.jsx';
 import UserRegistrationNotification from '../pages/Notifications/UserRegistrationNotification.jsx';
 import AppointmentNotification from '../pages/Notifications/AppointmentNotification.jsx';
+import PaymentNotification from '../pages/Notifications/PaymentNotification.jsx';
 
 
 
@@ -603,6 +604,16 @@ const allRoutes = [
       {
         index: true,
         element: <AppointmentNotification />,
+      },
+    ],
+  },
+  {
+    path: '/PaymentNotification/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <PaymentNotification />,
       },
     ],
   },
