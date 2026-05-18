@@ -59,7 +59,23 @@ const ManageAwarenessBlogs = () => {
                 />
             )
         },
-        { field: "status", headerName: "Status", width: 150 },
+        { 
+            field: "status", 
+            headerName: "Status", 
+            width: 150,
+            cellRenderer: (params) => {
+                const isPublished = params.data.statusValue === 1;
+                return (
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                        isPublished 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-yellow-100 text-yellow-800"
+                    }`}>
+                        {params.value}
+                    </span>
+                );
+            }
+        },
         {
             field: "image",
             headerName: "Image",
@@ -126,11 +142,10 @@ const ManageAwarenessBlogs = () => {
                     </Button>
                     <Button 
                         size="xs" 
-                        color="success" 
+                        color={params.data.statusValue === 1 ? "failure" : "success"} 
                         onClick={() => handleToggleStatus(params.data.id)}
-                        disabled={params.data.statusValue === 1}
                     >
-                        Publish
+                        {params.data.statusValue === 1 ? "Unpublish" : "Publish"}
                     </Button>
                 </div>
             )

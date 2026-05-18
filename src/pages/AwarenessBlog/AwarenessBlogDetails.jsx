@@ -36,11 +36,17 @@ const AwarenessBlogDetails = () => {
             <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="flex justify-between items-center p-4 border-b">
                     <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                         {blog?.status === 1 ? (
-                            <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Published</span>
+                            <>
+                                <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Published</span>
+                                <Button color="failure" size="xs" onClick={handleToggleStatus}>Unpublish</Button>
+                            </>
                         ) : (
-                            <Button color="success" size="xs" onClick={handleToggleStatus}>Publish</Button>
+                            <>
+                                <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">Not Published</span>
+                                <Button color="success" size="xs" onClick={handleToggleStatus}>Publish</Button>
+                            </>
                         )}
                     </div>
                 </div>
