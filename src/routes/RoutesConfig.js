@@ -60,8 +60,10 @@ import DoctorRegistrationNotification from '../pages/Notifications/DoctorRegistr
 import UserRegistrationNotification from '../pages/Notifications/UserRegistrationNotification.jsx';
 import AppointmentNotification from '../pages/Notifications/AppointmentNotification.jsx';
 import PaymentNotification from '../pages/Notifications/PaymentNotification.jsx';
-
-
+import AnalyticsAndReports from '../pages/AnalyticsAndReports/AnalyticsAndReports.jsx';
+import AwarenessSettings from '../pages/AwarenessSettings/AwarenessSettings.jsx';
+import Myprofile from '../components/Myprofile.jsx';
+import path from 'node:path'; 
 
 const allRoutes = [
   {
@@ -618,7 +620,38 @@ const allRoutes = [
     ],
   },
 
+{
+    path: '/AnalyticsAndReports/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AnalyticsAndReports />,
+      },
+    ],
+  },
 
+  {
+    path: '/AwarenessSettings/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AwarenessSettings />,
+      },
+    ],
+  },
+
+  {
+    path: '/profile',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <Myprofile />,
+      },
+    ],
+  },
 
   {
     path: '*',

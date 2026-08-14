@@ -52,6 +52,8 @@ import DoctorTransactionSlice from '../Reducer/DoctorTransactionSlice';
 import PrescriptionSlice from '../Reducer/PrescriptionSlice';
 import AwarenessBlogSlice from '../Reducer/AwarenessBlogSlice';
 import NotificationSlice from '../Reducer/NotificationSlice';
+import AwarenessSettingsSlice from '../Reducer/AwarenessSettingsSlice';
+import MyprofileSlice from '../Reducer/MyprofileSlice';
 
 const store = configureStore({
   reducer: {
@@ -107,7 +109,9 @@ const store = configureStore({
     doctorTransaction: DoctorTransactionSlice,
     prescription: PrescriptionSlice,
     awarenessBlog: AwarenessBlogSlice,
-    notifications: NotificationSlice
+    notifications: NotificationSlice,
+    awarenessSettings: AwarenessSettingsSlice,
+    myprofile: MyprofileSlice,
 
   },
 
