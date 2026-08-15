@@ -54,6 +54,7 @@ import AwarenessBlogSlice from '../Reducer/AwarenessBlogSlice';
 import NotificationSlice from '../Reducer/NotificationSlice';
 import AwarenessSettingsSlice from '../Reducer/AwarenessSettingsSlice';
 import MyprofileSlice from '../Reducer/MyprofileSlice';
+import AnalyticsAndReportsSlice from '../Reducer/AnalyticsAndReportsSlice';
 
 const store = configureStore({
   reducer: {
@@ -112,7 +113,7 @@ const store = configureStore({
     notifications: NotificationSlice,
     awarenessSettings: AwarenessSettingsSlice,
     myprofile: MyprofileSlice,
-
+    dashboardData: AnalyticsAndReportsSlice,
   },
 
 

@@ -159,7 +159,7 @@ const Profile = () => {
                 {/* Phone */}
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Mobile Number
+                    Phone Number
                   </label>
                   <div className="p-2.5 bg-gray-50/80 rounded-xl border border-gray-200 text-gray-900 font-medium text-xs sm:text-sm flex items-center gap-2">
                     <FiPhone className="text-gray-400 shrink-0" />
