@@ -108,7 +108,7 @@ export default function AdminDashboard() {
 
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-start">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Counselor Sessions</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Appointments</p>
             <h3 className="text-2xl font-bold mt-2">{Number(totalApptCount).toLocaleString()}</h3>
           </div>
           <div className="p-3 bg-blue-50 text-blue-500 rounded-xl"><Users className="w-5 h-5" /></div>
