@@ -64,6 +64,7 @@ import AnalyticsAndReports from '../pages/AnalyticsAndReports/AnalyticsAndReport
 import AwarenessSettings from '../pages/AwarenessSettings/AwarenessSettings.jsx';
 import Myprofile from '../components/Myprofile.jsx';
 import path from 'node:path'; 
+import AddSidebarForm from '../pages/AddSidebar/AddSidebar.jsx';
 
 const allRoutes = [
   {
@@ -233,6 +234,7 @@ const allRoutes = [
       },
     ],
   },
+
   {
     path: '/options/:id',
     element: <InsideLayout />,
@@ -649,6 +651,17 @@ const allRoutes = [
       {
         index: true,
         element: <Myprofile />,
+      },
+    ],
+  },
+
+{
+    path: '/addsidebar',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AddSidebarForm />,
       },
     ],
   },
