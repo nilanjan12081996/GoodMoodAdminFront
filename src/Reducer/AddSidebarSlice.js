@@ -1,58 +1,68 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import api from "../store/Api";
 
-// Async thunk to fetch master sidebars list
+// Get all master sidebars
 export const fetchMasterSidebars = createAsyncThunk(
-  'sidebar/fetchMasterSidebars',
+  "sidebar/fetchMasterSidebars",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:8085/api/goodmood/sidebar/list');
-      if (!response.ok) {
-        throw new Error('Failed to fetch master sidebars');
+      const response = await api.get("goodmood/sidebar/list");
+      
+      // Accept response if HTTP status is 200 or custom status_code is 200, or if data exists directly
+      if (
+        response?.status === 200 || 
+        response?.data?.status_code === 200 || 
+        response?.data
+      ) {
+        return response.data;
+      } else {
+        return rejectWithValue(response?.data?.errors || "Something went wrong.");
       }
-      const data = await response.json();
-      return Array.isArray(data) ? data : data.data || data.content || [];
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (err) {
+      return rejectWithValue(err?.response?.data || err.message);
     }
   }
 );
 
-// Async thunk to save a new sidebar item
-// export const saveSidebar = createAsyncThunk(
-//   'sidebar/saveSidebar',
-//   async (sidebarData, { rejectWithValue }) => {
-//     try {
-//       const response = await fetch('http://localhost:8085/api/goodmood/sidebar/add', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify(sidebarData),
-//       });
-//       if (!response.ok) {
-//         throw new Error('Failed to save sidebar item');
-//       }
-//       const data = await response.json();
-//       return data;
-//     } catch (error) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
+// Create sub sidebar
+export const createSubSidebar = createAsyncThunk(
+  "sidebar/createSubSidebar",
+  async (userInput, { rejectWithValue }) => {
+    try {
+      const response = await api.post("goodmood/sidebar/sub-sidebar-create", userInput);
+      
+      if (
+        response?.status === 200 || 
+        response?.status === 201 || 
+        response?.data?.status_code === 200 || 
+        response?.data?.status_code === 201 ||
+        response?.data
+      ) {
+        return response.data;
+      } else {
+        return rejectWithValue(response?.data?.errors || "Something went wrong.");
+      }
+    } catch (err) {
+      return rejectWithValue(err?.response?.data || err.message);
+    }
+  }
+);
+
+const initialState = {
+  loading: false,
+  error: null,
+  message: "",
+  masterSidebars: [],
+};
 
 const AddSidebarSlice = createSlice({
-  name: 'sidebar',
-  initialState: {
-    masterSidebars: [],
-    loading: false,
-    submitting: false,
-    error: null,
-    success: false,
-  },
+  name: "sidebar",
+  initialState,
   reducers: {
-    resetSidebarState: (state) => {
-      state.success = false;
+    clearSidebarState: (state) => {
+      state.loading = false;
       state.error = null;
+      state.message = "";
     },
   },
   extraReducers: (builder) => {
@@ -62,29 +72,53 @@ const AddSidebarSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchMasterSidebars.fulfilled, (state, action) => {
+      .addCase(fetchMasterSidebars.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.masterSidebars = action.payload;
+        
+        // Safely extract the array regardless of response structure
+        if (Array.isArray(payload)) {
+          state.masterSidebars = payload;
+        } else if (Array.isArray(payload?.data)) {
+          state.masterSidebars = payload.data;
+        } else if (Array.isArray(payload?.result)) {
+          state.masterSidebars = payload.result;
+        } else if (Array.isArray(payload?.data?.data)) {
+          state.masterSidebars = payload.data.data;
+        } else {
+          state.masterSidebars = [];
+        }
+        
+        state.error = null;
       })
-      .addCase(fetchMasterSidebars.rejected, (state, action) => {
+      .addCase(fetchMasterSidebars.rejected, (state, { payload }) => {
+        state.error = true;
         state.loading = false;
-        state.error = action.payload;
+        state.message =
+          typeof payload === "string"
+            ? payload
+            : payload?.message || "Something went wrong. Try again later.";
       })
-      // Save Sidebar
-    //   .addCase(saveSidebar.pending, (state) => {
-    //     state.submitting = true;
-    //     state.success = false;
-    //     state.error = null;
-    //   })
-    //   .addCase(saveSidebar.fulfilled, (state) => {
-    //     state.submitting = false;
-    //     state.success = true;
-    //   })
-    //   .addCase(saveSidebar.rejected, (state, action) => {
-    //     state.submitting = false;
-    //     state.error = action.payload;
-    //   });
+
+      // Create Sub Sidebar
+      .addCase(createSubSidebar.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createSubSidebar.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.message = payload;
+        state.error = null;
+      })
+      .addCase(createSubSidebar.rejected, (state, { payload }) => {
+        state.error = true;
+        state.loading = false;
+        state.message =
+          typeof payload === "string"
+            ? payload
+            : payload?.message || "Something went wrong. Try again later.";
+      });
   },
 });
 
+export const { clearSidebarState } = AddSidebarSlice.actions;
 export default AddSidebarSlice.reducer;
