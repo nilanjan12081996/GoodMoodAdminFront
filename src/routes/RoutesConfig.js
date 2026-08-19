@@ -65,6 +65,7 @@ import AwarenessSettings from '../pages/AwarenessSettings/AwarenessSettings.jsx'
 import Myprofile from '../components/Myprofile.jsx';
 import path from 'node:path'; 
 import AddSidebarForm from '../pages/AddSidebar/AddSidebar.jsx';
+import Banner from '../pages/Banner/Banner.jsx';
 
 const allRoutes = [
   {
@@ -662,6 +663,17 @@ const allRoutes = [
       {
         index: true,
         element: <AddSidebarForm />,
+      },
+    ],
+  },
+
+  {
+    path: '/addbanner/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <Banner />,
       },
     ],
   },

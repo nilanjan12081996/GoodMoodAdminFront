@@ -46,17 +46,22 @@ export default function AddSidebarForm() {
     setValue('masterSidebarId', String(foundId), { shouldValidate: true });
   };
 
-  const onSubmit = (data) => {
-    // Dispatch the thunk with the form data payload
-    dispatch(createSubSidebar(data))
+ const onSubmit = (data) => {
+    // Convert string fields to integers where the Java backend expects numbers
+    const payload = {
+      ...data,
+      masterSidebarId: Number(data.masterSidebarId) || 0, 
+      status: 1, // Change 'active' string to whatever Integer your backend uses (e.g., 1 for active)
+    };
+
+    // Dispatch the thunk with the formatted payload
+    dispatch(createSubSidebar(payload))
       .unwrap()
       .then((response) => {
-        // Success handling
         console.log('Sub-sidebar created successfully:', response);
         reset(); // Clear form fields after successful creation
       })
       .catch((err) => {
-        // Error handling
         console.error('Failed to create sub-sidebar:', err);
       });
   };

@@ -56,6 +56,7 @@ import AwarenessSettingsSlice from '../Reducer/AwarenessSettingsSlice';
 import MyprofileSlice from '../Reducer/MyprofileSlice';
 import AnalyticsAndReportsSlice from '../Reducer/AnalyticsAndReportsSlice';
 import AddSidebarSlice from '../Reducer/AddSidebarSlice';
+import BannerSlice from '../Reducer/BannerSlice';
 import { add } from 'lodash';
 
 const store = configureStore({
@@ -117,6 +118,7 @@ const store = configureStore({
     myprofile: MyprofileSlice,
     dashboardData: AnalyticsAndReportsSlice,
     sidebar: AddSidebarSlice,
+    banner: BannerSlice,
   },
 
 
