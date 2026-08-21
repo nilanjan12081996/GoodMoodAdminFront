@@ -1,18 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   getUserCounts, 
   getTotalSupportRequests, 
   getSupportRequestsByCategory, 
-  getTotalAppointments 
+  getTotalAppointments,
+  getAppointmentsByDate
 } from '../../Reducer/AnalyticsAndReportsSlice';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell 
 } from 'recharts';
-import { Users, UserCheck, PhoneCall } from 'lucide-react';
+import { Users, UserCheck, PhoneCall, Calendar } from 'lucide-react';
 
 const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#3B82F6'];
+
+// Helper function to format today's local date as YYYY-MM-DD
+const getTodayDate = () => new Date().toLocaleDateString('en-CA');
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -24,15 +28,28 @@ export default function AdminDashboard() {
     userCounts, 
     totalSupportRequests, 
     supportRequestsByCategory, 
-    totalAppointments 
+    totalAppointments,
+    appointmentsByDate
   } = dashboardData;
+
+  // Defaults to today's date on initial load
+  const [selectedDate, setSelectedDate] = useState(getTodayDate());
 
   useEffect(() => {
     dispatch(getUserCounts());
     dispatch(getTotalSupportRequests());
     dispatch(getSupportRequestsByCategory());
     dispatch(getTotalAppointments());
+    dispatch(getAppointmentsByDate(selectedDate));
   }, [dispatch]);
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    setSelectedDate(newDate);
+    if (newDate) {
+      dispatch(getAppointmentsByDate(newDate));
+    }
+  };
 
   // Safe numeric extractions
   const totalUserCount = 
@@ -58,7 +75,7 @@ export default function AdminDashboard() {
     { name: 'Support Requests', value: totalSupportCount }
   ];
 
-  // Normalized data for the Donut Chart (prioritizing categoryName from your API)
+  // Normalized data for the Donut Chart
   const rawDonutData = Array.isArray(supportRequestsByCategory) 
     ? supportRequestsByCategory 
     : (supportRequestsByCategory?.data || supportRequestsByCategory?.categories || []);
@@ -67,6 +84,11 @@ export default function AdminDashboard() {
     category: item.categoryName || item.name || item.category || item.category_name || item.support_category || item.title || item._id || 'General Support',
     count: item.count ?? item.total ?? item.value ?? 0
   }));
+
+  // Appointments list normalization
+  const appointmentList = Array.isArray(appointmentsByDate) 
+    ? appointmentsByDate 
+    : (appointmentsByDate?.data || []);
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
@@ -118,7 +140,7 @@ export default function AdminDashboard() {
       {/* Analytics & Support Requests Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
         
-        {/* 1st Graph: Overview Bar Chart (Narrower via lg:col-span-7) */}
+        {/* Overview Bar Chart */}
         <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-bold text-gray-800">Platform Overview Analytics</h2>
@@ -135,11 +157,10 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* 2nd Graph: Support Requests Donut Chart (Wider via lg:col-span-5, lines removed) */}
+        {/* Support Requests Donut Chart */}
         <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-gray-800">Support Requests</h2>
-            {/* <span className="text-xs font-semibold text-indigo-600 cursor-pointer">View All</span> */}
           </div>
           <div className="relative flex justify-center items-center my-4">
             <PieChart width={240} height={240}>
@@ -175,6 +196,69 @@ export default function AdminDashboard() {
         </div>
 
       </div>
+
+      {/* Recent Appointment Requests Card (Width restricted to max-w-2xl) */}
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm max-w-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-bold text-gray-800 text-lg">Recent Appointment Requests</h2>
+          
+          {/* Calendar Date Picker Filter */}
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl">
+            <Calendar className="w-4 h-4 text-indigo-600" />
+            <input 
+              type="date" 
+              value={selectedDate} 
+              onChange={handleDateChange}
+              className="bg-transparent text-xs font-semibold text-gray-700 outline-none cursor-pointer"
+            />
+          </div>
+        </div>
+
+        {/* Height controlled scroll container */}
+        <div className="max-h-[340px] overflow-y-auto pr-2 space-y-4">
+          {appointmentList && appointmentList.length > 0 ? (
+            appointmentList.map((item) => {
+              const userInitials = item.userName 
+                ? item.userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : 'U';
+
+              return (
+                <div 
+                  key={item.id} 
+                  className="flex justify-between items-center p-3 rounded-xl hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0">
+                      {userInitials}
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-bold text-gray-800 text-sm">
+                        {item.userName || 'Unknown User'}
+                      </h4>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {item.doctorName || 'NA'} • <span className="text-gray-500">{item.supportCategoryName || 'NA'}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="inline-block px-3 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg">
+                      {item.timeSlot}
+                    </span>
+                    <p className="text-[11px] text-gray-400 mt-1">{item.date}</p>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-12 text-gray-400 text-sm">
+              No appointment requests found for {selectedDate}.
+            </div>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

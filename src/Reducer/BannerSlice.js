@@ -1,62 +1,108 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios"; // Direct import bypasses api.js interceptor
-import api from "../store/Api"; // Used for standard GET requests
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../store/Api";
 
+// Fetch All Banners
 export const fetchBanners = createAsyncThunk(
   "banner/fetchBanners",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("goodmood/banners/all");
+      const response = await api.get("/goodmood/banners/all");
       return response.data;
-    } catch (err) {
-      return rejectWithValue(err?.response?.data || err.message);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to fetch banners");
     }
   }
 );
 
-// Upload banner using standard axios to bypass api.js header forced JSON
+// Fetch Single Banner by ID
+export const fetchBannerById = createAsyncThunk(
+  "banner/fetchBannerById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/goodmood/banners/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to fetch banner details");
+    }
+  }
+);
+
+// Add Banner
 export const addBanner = createAsyncThunk(
   "banner/addBanner",
-  async (formDataPayload, { rejectWithValue }) => {
+  async (formData, { rejectWithValue }) => {
     try {
-      const tokenData = JSON.parse(sessionStorage.getItem("good_mood_admin_token") || "{}");
-      const token = tokenData?.token;
-      const domain = window.location.origin;
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}goodmood/banners/add`,
-        formDataPayload,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-            Domain: domain,
-            // Do NOT set Content-Type; Axios sets boundary automatically for FormData
+      const response = await api.post("/goodmood/banners/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        transformRequest: [
+          (data, headers) => {
+            if (headers) {
+              delete headers["Content-Type"];
+              delete headers["content-type"];
+            }
+            return data;
           },
-        }
-      );
-
+        ],
+      });
       return response.data;
-    } catch (err) {
-      return rejectWithValue(err?.response?.data || err.message);
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to add banner");
     }
   }
 );
 
-const initialState = {
-  loading: false,
-  error: null,
-  message: "",
-  bannerList: [],
-};
+// Update Banner
+export const updateBanner = createAsyncThunk(
+  "banner/updateBanner",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/goodmood/banners/update/${id}`, payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        transformRequest: [
+          (data, headers) => {
+            if (headers) {
+              delete headers["Content-Type"];
+              delete headers["content-type"];
+            }
+            return data;
+          },
+        ],
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to update banner");
+    }
+  }
+);
 
-const BannerSlice = createSlice({
+// Toggle Banner Status
+export const toggleBannerStatus = createAsyncThunk(
+  "banner/toggleBannerStatus",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/goodmood/banners/toggle-status/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to toggle status");
+    }
+  }
+);
+
+const bannerSlice = createSlice({
   name: "banner",
-  initialState,
+  initialState: {
+    bannerList: [],
+    currentBanner: null,
+    loading: false,
+    error: null,
+  },
   reducers: {
-    clearBannerState: (state) => {
-      state.loading = false;
-      state.error = null;
-      state.message = "";
+    clearCurrentBanner: (state) => {
+      state.currentBanner = null;
     },
   },
   extraReducers: (builder) => {
@@ -64,46 +110,29 @@ const BannerSlice = createSlice({
       // Fetch Banners
       .addCase(fetchBanners.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(fetchBanners.fulfilled, (state, { payload }) => {
+      .addCase(fetchBanners.fulfilled, (state, action) => {
         state.loading = false;
-        if (Array.isArray(payload)) state.bannerList = payload;
-        else if (Array.isArray(payload?.data)) state.bannerList = payload.data;
-        else if (Array.isArray(payload?.result)) state.bannerList = payload.result;
-        else state.bannerList = [];
+        state.bannerList = action.payload?.data || action.payload || [];
       })
-      .addCase(fetchBanners.rejected, (state, { payload }) => {
-        state.error = true;
+      .addCase(fetchBanners.rejected, (state, action) => {
         state.loading = false;
-        state.message = typeof payload === "string" ? payload : payload?.message || "Failed to fetch banners.";
+        state.error = action.payload;
       })
-
+      // Fetch Banner By ID
+      .addCase(fetchBannerById.fulfilled, (state, action) => {
+        state.currentBanner = action.payload;
+      })
       // Add Banner
-      .addCase(addBanner.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(addBanner.fulfilled, (state) => {
         state.loading = false;
-        state.message = "Banner created successfully!";
-        state.error = null;
       })
-      .addCase(addBanner.rejected, (state, { payload }) => {
-        state.error = true;
+      // Update Banner
+      .addCase(updateBanner.fulfilled, (state) => {
         state.loading = false;
-        
-        // Extract field-specific messages if backend sends a 422 errors object
-        if (payload?.errors && typeof payload.errors === "object") {
-          const firstKey = Object.keys(payload.errors)[0];
-          const errorVal = payload.errors[firstKey];
-          state.message = Array.isArray(errorVal) ? errorVal[0] : errorVal;
-        } else {
-          state.message = typeof payload === "string" ? payload : payload?.message || "Validation failed.";
-        }
       });
   },
 });
 
-export const { clearBannerState } = BannerSlice.actions;
-export default BannerSlice.reducer;
+export const { clearCurrentBanner } = bannerSlice.actions;
+export default bannerSlice.reducer;

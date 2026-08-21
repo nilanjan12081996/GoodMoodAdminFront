@@ -668,7 +668,7 @@ const allRoutes = [
   },
 
   {
-    path: '/addbanner/:id',
+    path: '/banner/:id',
     element: <InsideLayout />,
     children: [
       {
@@ -677,6 +677,7 @@ const allRoutes = [
       },
     ],
   },
+
 
   {
     path: '*',
