@@ -9,7 +9,6 @@ export const getTotalSupportRequests = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('goodmood/appointments/dashboard/support-requests/total');
-      console.log("Raw Support Total:", response?.data);
       return response?.data?.data ?? response?.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -25,7 +24,6 @@ export const getSupportRequestsByCategory = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('goodmood/appointments/dashboard/support-requests/by-category');
-      console.log("Raw Support Category:", response?.data);
       return response?.data?.data ?? response?.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -41,7 +39,6 @@ export const getUserCounts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('goodmood/users/count');
-      console.log("Raw User Counts:", response?.data);
       return response?.data?.data ?? response?.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -57,7 +54,6 @@ export const getTotalAppointments = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('goodmood/appointments/dashboard/totalAppoinment');
-      console.log("Raw Total Appointments:", response?.data);
       return response?.data?.data ?? response?.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -66,14 +62,15 @@ export const getTotalAppointments = createAsyncThunk(
 );
 
 // ======================================================
-// FETCH APPOINTMENTS BY SPECIFIC DATE
+// FETCH APPOINTMENTS BY DATE RANGE
 // ======================================================
-export const getAppointmentsByDate = createAsyncThunk(
-  'analytics/getAppointmentsByDate',
-  async (date, { rejectWithValue }) => {
+export const getAppointmentsByDateRange = createAsyncThunk(
+  'analytics/getAppointmentsByDateRange',
+  async ({ startDate, endDate }, { rejectWithValue }) => {
     try {
-      const response = await api.get(`goodmood/appointments/list?date=${date}`);
-      console.log("Raw Appointments By Date:", response?.data);
+      const response = await api.get(
+        `goodmood/appointments/list?startDate=${startDate}&endDate=${endDate}`
+      );
       return response?.data?.data ?? response?.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -101,45 +98,41 @@ const AnalyticsAndReportsSlice = createSlice({
   name: 'analyticsAndReports',
   initialState,
   reducers: {
-    clearAppointmentsByDate: (state) => {
+    clearAppointments: (state) => {
       state.appointmentsByDate = [];
     },
   },
   extraReducers: (builder) => {
     builder
-      // Total Support Requests
       .addCase(getTotalSupportRequests.fulfilled, (state, { payload }) => {
         state.totalSupportRequests = payload;
       })
-      // Support Requests by Category
       .addCase(getSupportRequestsByCategory.fulfilled, (state, { payload }) => {
         state.supportRequestsByCategory = Array.isArray(payload) 
           ? payload 
           : (payload?.categories || []);
       })
-      // User Counts
       .addCase(getUserCounts.fulfilled, (state, { payload }) => {
         state.userCounts = payload;
       })
-      // Total Appointments
       .addCase(getTotalAppointments.fulfilled, (state, { payload }) => {
         state.totalAppointments = payload;
       })
-      // Appointments By Specific Date
-      .addCase(getAppointmentsByDate.pending, (state) => {
+      // Appointments by Date Range
+      .addCase(getAppointmentsByDateRange.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAppointmentsByDate.fulfilled, (state, { payload }) => {
+      .addCase(getAppointmentsByDateRange.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.appointmentsByDate = Array.isArray(payload) ? payload : [];
       })
-      .addCase(getAppointmentsByDate.rejected, (state, { payload }) => {
+      .addCase(getAppointmentsByDateRange.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload;
       });
   },
 });
 
-export const { clearAppointmentsByDate } = AnalyticsAndReportsSlice.actions;
+export const { clearAppointments } = AnalyticsAndReportsSlice.actions;
 export default AnalyticsAndReportsSlice.reducer;
