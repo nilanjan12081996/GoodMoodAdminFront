@@ -26,6 +26,14 @@ const Profile = () => {
   const { profileDetail, role, loading, passwordLoading, error, successMessage } =
     useSelector((state) => state?.profile || {});
 
+  const isSuperAdmin = (() => {
+    const cleanRole = String(role || sessionStorage.getItem("role") || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]/g, "");
+    return cleanRole === "superadmin" || cleanRole === "rolesuperadmin";
+  })();
+
   // Active Tab: "profile" or "settings"
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -96,12 +104,12 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-emerald-50/60 p-3 sm:p-5 lg:p-6">
       <div className="max-w-4xl mx-auto space-y-5">
-        
+
         {/* ================= HEADER CARD ================= */}
         <div className="bg-white rounded-2xl shadow-sm border border-emerald-100/80 overflow-hidden">
           {/* Banner */}
           <div className="h-28 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600"></div>
-          
+
           {/* Header Content */}
           <div className="px-5 pb-5 pt-2 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-3">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
@@ -137,22 +145,20 @@ const Profile = () => {
           <div className="flex border-t border-gray-100 px-5 gap-6">
             <button
               onClick={() => handleTabChange("profile")}
-              className={`flex items-center gap-2 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "profile"
-                  ? "border-emerald-600 text-emerald-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={`flex items-center gap-2 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors ${activeTab === "profile"
+                ? "border-emerald-600 text-emerald-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
             >
               <FiUser className="w-4 h-4" />
               Profile Details
             </button>
             <button
               onClick={() => handleTabChange("settings")}
-              className={`flex items-center gap-2 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "settings"
-                  ? "border-emerald-600 text-emerald-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={`flex items-center gap-2 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors ${activeTab === "settings"
+                ? "border-emerald-600 text-emerald-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
             >
               <FiSettings className="w-4 h-4" />
               Account Settings
@@ -323,94 +329,96 @@ const Profile = () => {
             </div>
 
             {/* Change Password Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-emerald-100/80 p-5 space-y-4">
-              <div className="pb-3 border-b border-gray-100">
-                <h2 className="text-base font-semibold text-gray-900">
-                  Change Password
-                </h2>
-                <p className="text-xs text-gray-500">
-                  Ensure your account is using a secure password.
-                </p>
+            {isSuperAdmin && (
+              <div className="bg-white rounded-2xl shadow-sm border border-emerald-100/80 p-5 space-y-4">
+                <div className="pb-3 border-b border-gray-100">
+                  <h2 className="text-base font-semibold text-gray-900">
+                    Change Password
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    Ensure your account is using a secure password.
+                  </p>
+                </div>
+
+                <form onSubmit={handlePasswordSubmit(onChangePasswordSubmit)} className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                        Current Password
+                      </label>
+                      <input
+                        type="password"
+                        {...registerPassword("currentPassword", {
+                          required: "Current password is required",
+                        })}
+                        className="w-full p-2.5 bg-white rounded-xl border border-gray-200 text-gray-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        placeholder="••••••••"
+                      />
+                      {passwordErrors.currentPassword && (
+                        <span className="text-red-500 text-[10px]">
+                          {passwordErrors.currentPassword.message}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                        New Password
+                      </label>
+                      <input
+                        type="password"
+                        {...registerPassword("newPassword", {
+                          required: "New password is required",
+                          minLength: {
+                            value: 6,
+                            message: "Password must be at least 6 characters",
+                          },
+                        })}
+                        className="w-full p-2.5 bg-white rounded-xl border border-gray-200 text-gray-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        placeholder="••••••••"
+                      />
+                      {passwordErrors.newPassword && (
+                        <span className="text-red-500 text-[10px]">
+                          {passwordErrors.newPassword.message}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                        Confirm New Password
+                      </label>
+                      <input
+                        type="password"
+                        {...registerPassword("confirmPassword", {
+                          required: "Please confirm your password",
+                          validate: (value) =>
+                            value === newPasswordValue || "Passwords do not match",
+                        })}
+                        className="w-full p-2.5 bg-white rounded-xl border border-gray-200 text-gray-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        placeholder="••••••••"
+                      />
+                      {passwordErrors.confirmPassword && (
+                        <span className="text-red-500 text-[10px]">
+                          {passwordErrors.confirmPassword.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="submit"
+                      disabled={passwordLoading}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                    >
+                      <FiLock className="w-4 h-4" />
+                      {passwordLoading ? "Updating..." : "Update Password"}
+                    </button>
+                  </div>
+                </form>
               </div>
-
-              <form onSubmit={handlePasswordSubmit(onChangePasswordSubmit)} className="space-y-4">
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                      Current Password
-                    </label>
-                    <input
-                      type="password"
-                      {...registerPassword("currentPassword", {
-                        required: "Current password is required",
-                      })}
-                      className="w-full p-2.5 bg-white rounded-xl border border-gray-200 text-gray-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      placeholder="••••••••"
-                    />
-                    {passwordErrors.currentPassword && (
-                      <span className="text-red-500 text-[10px]">
-                        {passwordErrors.currentPassword.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                      New Password
-                    </label>
-                    <input
-                      type="password"
-                      {...registerPassword("newPassword", {
-                        required: "New password is required",
-                        minLength: {
-                          value: 6,
-                          message: "Password must be at least 6 characters",
-                        },
-                      })}
-                      className="w-full p-2.5 bg-white rounded-xl border border-gray-200 text-gray-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      placeholder="••••••••"
-                    />
-                    {passwordErrors.newPassword && (
-                      <span className="text-red-500 text-[10px]">
-                        {passwordErrors.newPassword.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                      Confirm New Password
-                    </label>
-                    <input
-                      type="password"
-                      {...registerPassword("confirmPassword", {
-                        required: "Please confirm your password",
-                        validate: (value) =>
-                          value === newPasswordValue || "Passwords do not match",
-                      })}
-                      className="w-full p-2.5 bg-white rounded-xl border border-gray-200 text-gray-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      placeholder="••••••••"
-                    />
-                    {passwordErrors.confirmPassword && (
-                      <span className="text-red-500 text-[10px]">
-                        {passwordErrors.confirmPassword.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    type="submit"
-                    disabled={passwordLoading}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
-                  >
-                    <FiLock className="w-4 h-4" />
-                    {passwordLoading ? "Updating..." : "Update Password"}
-                  </button>
-                </div>
-              </form>
-            </div>
+            )}
           </div>
         )}
       </div>
