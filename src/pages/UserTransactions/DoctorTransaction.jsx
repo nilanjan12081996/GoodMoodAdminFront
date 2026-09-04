@@ -10,7 +10,6 @@ import { Button, Modal, Select, Label, TextInput } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { Filter, X } from "lucide-react";
 import { toggleIsPaid, getAllTransactions } from "../../Reducer/TransactionHistorySlice";
-import html2pdf from 'html2pdf.js';
 import { FileText } from "lucide-react";
 
 const DoctorTransaction = () => {
@@ -82,10 +81,12 @@ const DoctorTransaction = () => {
         }
     }, [doctorTotals, doctorsDetails]);
     
-    const handleGeneratePDF = () => {
+    const handleGeneratePDF = async () => {
         const element = document.getElementById('transaction-modal-content');
         if (!element) return;
         
+        const html2pdf = (await import('html2pdf.js/dist/html2pdf.bundle.min.js')).default;
+
         const opt = {
             margin:       [10, 10, 10, 10],
             filename:     `${selectedDoctor?.doctorName || 'Expert'}_Payment_Statement.pdf`,

@@ -63,7 +63,6 @@ import PaymentNotification from '../pages/Notifications/PaymentNotification.jsx'
 import AnalyticsAndReports from '../pages/AnalyticsAndReports/AnalyticsAndReports.jsx';
 import AwarenessSettings from '../pages/AwarenessSettings/AwarenessSettings.jsx';
 import Myprofile from '../components/Myprofile.jsx';
-import path from 'node:path'; 
 import AddSidebarForm from '../pages/AddSidebar/AddSidebar.jsx';
 import Banner from '../pages/Banner/Banner.jsx';
 
