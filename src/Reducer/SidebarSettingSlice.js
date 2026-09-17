@@ -20,16 +20,17 @@ export const getMainSidebar = createAsyncThunk(
 
 export const updateMainSidebar = createAsyncThunk(
     'updateMainSidebar',
-    async ({id,data}, { rejectWithValue }) => {
+    async ({ id, name, data }, { rejectWithValue }) => {
         try {
-            const response = await api.patch(`goodmood/sidebar/master-update/${id}`,{data});
-            if (response?.data?.statusCode === 200) {
+            const sidebarName = name !== undefined ? name : data;
+            const response = await api.patch(`goodmood/sidebar/master-update/${id}`, { name: sidebarName });
+            if (response?.data?.statusCode === 200 || response?.status === 200) {
                 return response?.data;
             } else {
-                return rejectWithValue(response);
+                return rejectWithValue(response?.data || response);
             }
         } catch (error) {
-            return rejectWithValue(error);
+            return rejectWithValue(error?.response?.data || error?.message);
         }
     }
 )
@@ -39,29 +40,30 @@ export const getSubSidebar = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await api.get(`goodmood/sidebar/sub-sidebar-list`);
-            if (response?.data?.statusCode === 200) {
+            if (response?.data?.statusCode === 200 || response?.status === 200) {
                 return response?.data;
             } else {
-                return rejectWithValue(response);
+                return rejectWithValue(response?.data || response);
             }
         } catch (error) {
-            return rejectWithValue(error);
+            return rejectWithValue(error?.response?.data || error?.message);
         }
     }
 )
 
 export const updateSubSidebar = createAsyncThunk(
     'updateSubSidebar',
-    async ({id,data}, { rejectWithValue }) => {
+    async ({ id, name, data }, { rejectWithValue }) => {
         try {
-            const response = await api.patch(`goodmood/sidebar/side-update/${id}`,{data});
-            if (response?.data?.statusCode === 200) {
+            const subSidebarName = name !== undefined ? name : data;
+            const response = await api.patch(`goodmood/sidebar/sub-update/${id}`, { name: subSidebarName });
+            if (response?.data?.statusCode === 200 || response?.status === 200) {
                 return response?.data;
             } else {
-                return rejectWithValue(response);
+                return rejectWithValue(response?.data || response);
             }
         } catch (error) {
-            return rejectWithValue(error);
+            return rejectWithValue(error?.response?.data || error?.message);
         }
     }
 )
