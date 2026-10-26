@@ -13,6 +13,14 @@ import {
 import AddBannerModal from "./AddBannerModal";
 import UpdateBannerModal from "./UpdateBannerModal";
 
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const rawBase = import.meta.env.VITE_API_BASE_URL || "https://newadminapigoodmood.goodmood.solutions/api/";
+  const baseUrl = rawBase.replace("/api/", "").replace(/\/$/, "");
+  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+};
+
 const ManageBanner = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -61,12 +69,16 @@ const ManageBanner = () => {
         headerName: "Banner Image",
         flex: 1,
         cellRenderer: (params) => {
-          return params.value ? (
+          const imgUrl = resolveImageUrl(params.value);
+          return imgUrl ? (
             <div className="flex items-center h-full py-1">
               <img
-                src={params.value}
+                src={imgUrl}
                 alt="Banner"
                 className="w-16 h-10 object-cover rounded-md border border-gray-200"
+                onError={() => {
+                  console.error("Banner image failed to load:", imgUrl);
+                }}
               />
             </div>
           ) : (

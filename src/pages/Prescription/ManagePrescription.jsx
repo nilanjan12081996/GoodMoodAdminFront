@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPrescriptionBody, savePrescriptionBody, clearPrescriptionMessage } from "../../Reducer/PrescriptionSlice";
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import TiptapEditor from "../../components/TiptapEditor";
 import { Button, Card, Label } from "flowbite-react";
 import { toast, ToastContainer } from "react-toastify";
 import { Save, FileText } from "lucide-react";
@@ -66,20 +65,11 @@ const ManagePrescription = () => {
                             <Label htmlFor="footer-desc" value="Prescription Footer Description" className="text-lg font-semibold" />
                             <p className="text-xs text-gray-400 mt-1">This text will appear at the bottom of all generated prescriptions.</p>
                         </div>
-                        <div className="ck-editor-container min-h-[300px]">
-                            <CKEditor
-                                editor={ClassicEditor}
-                                data={footerDescription}
-                                onChange={(event, editor) => {
-                                    const data = editor.getData();
-                                    setFooterDescription(data);
-                                }}
-                                config={{
-                                    placeholder: "Write your prescription footer description here...",
-                                    toolbar: [
-                                        'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'blockQuote', 'insertTable', 'undo', 'redo'
-                                    ]
-                                }}
+                        <div className="tiptap-editor-container">
+                            <TiptapEditor
+                                value={footerDescription}
+                                onChange={(data) => setFooterDescription(data)}
+                                placeholder="Write your prescription footer description here..."
                             />
                         </div>
                     </div>

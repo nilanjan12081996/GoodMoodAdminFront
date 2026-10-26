@@ -1214,3 +1214,41 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   outline: none;
   border: none;
 }
+
+/* Modern CKEditor modal styling */
+.ck-editor-custom .ck.ck-editor {
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+.ck-editor-custom:focus-within .ck.ck-editor {
+  border-color: #0B8843;
+  box-shadow: 0 0 0 3px rgba(11, 136, 67, 0.12);
+}
+.ck-editor-custom .ck-toolbar {
+  border: none !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  padding: 8px 12px !important;
+}
+.ck-editor-custom .ck.ck-editor__main > .ck-editor__editable {
+  border: none !important;
+  box-shadow: none !important;
+  min-height: 280px !important;
+  max-height: 480px !important;
+  padding: 16px 20px !important;
+  font-family: inherit !important;
+  font-size: 0.95rem !important;
+  line-height: 1.65 !important;
+  background-color: #ffffff !important;
+}
+.dark .ck-editor-custom .ck-toolbar {
+  background-color: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+.dark .ck-editor-custom .ck.ck-editor__main > .ck-editor__editable {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+

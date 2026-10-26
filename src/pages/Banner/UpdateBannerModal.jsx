@@ -5,6 +5,14 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { fetchBanners, updateBanner, clearCurrentBanner } from "../../Reducer/BannerSlice";
 
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const rawBase = import.meta.env.VITE_API_BASE_URL || "https://newadminapigoodmood.goodmood.solutions/api/";
+  const baseUrl = rawBase.replace("/api/", "").replace(/\/$/, "");
+  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+};
+
 const UpdateBannerModal = ({
   openUpdateBannerModal,
   setOpenUpdateBannerModal,
@@ -54,7 +62,7 @@ const UpdateBannerModal = ({
   };
 
   const bannerData = currentBanner?.data || currentBanner?.result || currentBanner;
-  const existingImageUrl = bannerData?.image || bannerData?.banner_image || bannerData?.imageUrl;
+  const existingImageUrl = resolveImageUrl(bannerData?.image || bannerData?.banner_image || bannerData?.imageUrl);
 
   return (
     <Modal show={openUpdateBannerModal} onClose={handleClose}>

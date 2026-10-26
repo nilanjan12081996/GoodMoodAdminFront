@@ -32,6 +32,16 @@
     <!--  -->
 
     <title>Good Mood Admin</title>
+    <script>
+      // Prevent false-positive CKEditor duplicated modules check in bundled environment
+      try {
+        Object.defineProperty(globalThis, 'CKEDITOR_VERSION', {
+          get: function() { return undefined; },
+          set: function(v) {},
+          configurable: true
+        });
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

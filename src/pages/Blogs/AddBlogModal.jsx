@@ -5,8 +5,7 @@ import { Button, FileInput, Label, Modal, TextInput } from "flowbite-react"
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { addBlog, getBlog, uploadImage } from "../../Reducer/BlogSlice";
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import TiptapEditor from "../../components/TiptapEditor";
 import { toast } from "react-toastify";
 
 const AddBlogModal = ({
@@ -110,33 +109,10 @@ const AddBlogModal = ({
                   control={control}
                   rules={{ required: "Content is required" }}
                   render={({ field }) => (
-                    <CKEditor
-                      editor={ClassicEditor}
-                      config={{
-                        toolbar: [
-                          'heading',
-                          '|',
-                          'bold',
-                          'italic',
-                          'link',
-                          'bulletedList',
-                          'numberedList',
-                          '|',
-                          'outdent',
-                          'indent',
-                          '|',
-                          'blockQuote',
-                          'insertTable',
-                          'undo',
-                          'redo'
-                        ],
-                        placeholder: 'Write your blog content here...',
-                      }}
-                      data={field.value || ''}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        field.onChange(data);
-                      }}
+                    <TiptapEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Write your blog content here..."
                     />
                   )}
                 />

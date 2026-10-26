@@ -1,3 +1,16 @@
+// Prevent false-positive CKEditor duplicated-modules check
+try {
+  Object.defineProperty(globalThis, 'CKEDITOR_VERSION', {
+    get: function () {
+      return undefined;
+    },
+    set: function () {},
+    configurable: true,
+  });
+} catch (e) {
+  // Ignore error if property already defined
+}
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";

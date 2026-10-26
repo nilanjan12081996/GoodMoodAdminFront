@@ -47,7 +47,19 @@ const ManageAwarenessBlogs = () => {
     }, [awarenessBlogList]);
 
     const columnDefs = useMemo(() => [
-        { field: "title", headerName: "Title", flex: 1, sortable: true, filter: true },
+        { 
+            field: "title", 
+            headerName: "Title", 
+            flex: 1, 
+            sortable: true, 
+            filter: true,
+            cellRenderer: (params) => (
+                <div 
+                    className="truncate max-w-full font-semibold"
+                    dangerouslySetInnerHTML={{ __html: params.value }} 
+                />
+            )
+        },
         { 
             field: "content", 
             headerName: "Content", 
