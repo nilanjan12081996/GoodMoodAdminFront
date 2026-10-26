@@ -55,7 +55,7 @@ export const getTimeSlot=createAsyncThunk(
     'getTimeSlot',
     async (id, { rejectWithValue }) => {
     try {
-      let url = "http://localhost:8085/api/goodmood/doctor-time-slot/slot-list";
+      let url = "goodmood/doctor-time-slot/slot-list";
 
       // if id is provided, append query param
       if (id) {
