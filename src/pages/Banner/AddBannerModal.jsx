@@ -1,10 +1,11 @@
-import { Button, FileInput, Label, Modal, Textarea, TextInput } from "flowbite-react";
+import { Button, FileInput, Label, Modal, Select, TextInput } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { addBanner, fetchBanners } from "../../Reducer/BannerSlice";
+import { PACKAGE_OPTIONS } from "./packageConstants";
 
-const AddBannerModal = ({ openAddBannerModal, setOpenAddBannerModal }) => {
+const AddBannerModal = ({ openAddBannerModal, setOpenAddBannerModal, isPackageBanner = false }) => {
   const dispatch = useDispatch();
   const {
     register,
@@ -24,7 +25,11 @@ const AddBannerModal = ({ openAddBannerModal, setOpenAddBannerModal }) => {
 
     dispatch(addBanner(formData)).then((res) => {
       if (res?.meta?.requestStatus === "fulfilled") {
-        toast.success("Banner added successfully!");
+        toast.success(
+          isPackageBanner
+            ? "Package banner added successfully!"
+            : "Banner added successfully!"
+        );
         setOpenAddBannerModal(false);
         dispatch(fetchBanners());
       } else {
@@ -35,43 +40,52 @@ const AddBannerModal = ({ openAddBannerModal, setOpenAddBannerModal }) => {
 
   return (
     <Modal show={openAddBannerModal} onClose={() => setOpenAddBannerModal(false)}>
-      <Modal.Header>Add New Banner</Modal.Header>
+      <Modal.Header>
+        {isPackageBanner ? "Add New Package Banner" : "Add New Banner"}
+      </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Body>
           <div className="space-y-4">
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="title" value="Banner Title" />
+                <Label
+                  htmlFor="title"
+                  value={
+                    isPackageBanner
+                      ? "Package Title (Select from 4 Packages)"
+                      : "Banner Title"
+                  }
+                />
               </div>
-              <TextInput
-                id="title"
-                type="text"
-                placeholder="Enter Banner Title"
-                {...register("title", { required: true })}
-              />
+              {isPackageBanner ? (
+                <Select id="title" {...register("title", { required: true })}>
+                  <option value="">Select Package</option>
+                  {PACKAGE_OPTIONS.map((pkg) => (
+                    <option key={pkg} value={pkg}>
+                      {pkg}
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <TextInput
+                  id="title"
+                  type="text"
+                  placeholder="Enter Banner Title"
+                  {...register("title", { required: true })}
+                />
+              )}
               {errors.title && (
-                <span className="text-red-500 text-sm">Title is required</span>
+                <span className="text-red-500 text-sm">
+                  {isPackageBanner
+                    ? "Please select a package title"
+                    : "Title is required"}
+                </span>
               )}
             </div>
 
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="description" value="Banner Description" />
-              </div>
-              <Textarea
-                id="description"
-                placeholder="Enter Banner Description"
-                rows={3}
-                {...register("description", { required: true })}
-              />
-              {errors.description && (
-                <span className="text-red-500 text-sm">Description is required</span>
-              )}
-            </div>
-
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="image" value="Banner Image" />
+                <Label htmlFor="image" value="Banner Image / Photo" />
               </div>
               <FileInput
                 id="image"
@@ -89,7 +103,7 @@ const AddBannerModal = ({ openAddBannerModal, setOpenAddBannerModal }) => {
             Cancel
           </Button>
           <Button color="success" type="submit" className="bg-[#52b69a] hover:bg-black">
-            Add New Banner
+            {isPackageBanner ? "Add Package Banner" : "Add New Banner"}
           </Button>
         </Modal.Footer>
       </form>

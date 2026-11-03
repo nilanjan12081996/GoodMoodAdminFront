@@ -1,52 +1,23 @@
 import { useEffect, useState } from "react";
-import { Suspense } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import Header from "../layout/header";
+import { Outlet, useNavigate } from "react-router-dom";
+import Header from "../layout/Header";
 import Sidebar from "../layout/Sidebar";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { getSubdomain } from "../../Reducer/AuthSlice";
+import { useSelector, useDispatch } from "react-redux";
 import { fetchUnreadCounts } from "../../Reducer/NotificationSlice";
 
 const InsideLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // const location = useLocation();
-  // const isBaseUrl = (endPoint) => {
-  //   return location.pathname === endPoint;
-  // };
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { subdomain } = useSelector((state) => state?.auth);
-  // useEffect(() => {
-  //   dispatch(getSubdomain());
-  // }, [dispatch]);
-
-  // console.log("SubDomain: ", subdomain?.data?.[0]?.server_domain);
-  // localStorage.setItem("subDomainInside", subdomain?.data?.[0]?.server_domain);
-  const subDomain = localStorage.getItem("serverDomainInside");
-  console.log("subDomain: ", subDomain);
-
-  const baseURL = window.location.origin;
-  // const newBaseURL = baseURL.replace(/^https?:\/\//, "");
-  const localUrl = "http://localhost:5173";
-  // console.log("BaseURLInside: ", newBaseURL);
-
-  // if (baseURL !== subdomain?.data?.[0]?.server_domain && baseURL !== localUrl) {
-  //   navigate("/pageNotFound");
-  // }
-
-  // if (baseURL !== subDomain && baseURL !== localUrl) {
-  //   navigate("/pageNotFound");
-  // }
 
   const token = sessionStorage.getItem("good_mood_admin_token");
   const parseToken = token ? JSON.parse(token)?.token : null;
-  const nevigate = useNavigate();
+
   useEffect(() => {
-    if (parseToken === null || parseToken === null) {
-      nevigate("/");
+    if (!parseToken) {
+      navigate("/");
     }
-  }, []);
+  }, [parseToken, navigate]);
 
   useEffect(() => {
     if (parseToken) {
@@ -58,35 +29,22 @@ const InsideLayout = () => {
     }
   }, [dispatch, parseToken]);
 
-
   return (
-    <>
-      <div className="dark:bg-boxdark-2 dark:text-bodydark">
-        {/* <!-- ===== Page Wrapper Start ===== --> */}
-        <div className="lg:flex overflow-hidden pl-5 temp_bg pt-5">
-          {/* <!-- ===== Sidebar Start ===== --> */}
-          <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-          {/* <!-- ===== Sidebar End ===== --> */}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f3f2f7] p-3 gap-3">
+      {/* ===== Fixed Left Sidebar (Does not scroll with page) ===== */}
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-          {/* <!-- ===== Content Area Start ===== --> */}
-          <div className="relative flex flex-1 flex-col mb-24 py-0 mr-6 ml-12">
-            {/* <!-- ===== Header Start ===== --> */}
-            <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-            {/* <!-- ===== Header End ===== --> */}
+      {/* ===== Right Content Area (Header + Scrollable Main Content) ===== */}
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        {/* Header */}
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-            {/* <!-- ===== Main Content Start ===== --> */}
-            <main>
-              <div className="mx-auto lg:p-4 md:p-6 2xl:p-0">
-                <Outlet />
-              </div>
-            </main>
-            {/* <!-- ===== Main Content End ===== --> */}
-          </div>
-          {/* <!-- ===== Content Area End ===== --> */}
-        </div>
-        {/* <!-- ===== Page Wrapper End ===== --> */}
+        {/* Main Content: Only this right area scrolls */}
+        <main className="flex-1 overflow-y-auto pr-1 pb-4">
+          <Outlet />
+        </main>
       </div>
-    </>
+    </div>
   );
 };
 

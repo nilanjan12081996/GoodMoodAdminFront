@@ -1,9 +1,10 @@
-import { Button, FileInput, Label, Modal, Textarea, TextInput } from "flowbite-react";
+import { Button, FileInput, Label, Modal, Select, TextInput } from "flowbite-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { fetchBanners, updateBanner, clearCurrentBanner } from "../../Reducer/BannerSlice";
+import { PACKAGE_OPTIONS } from "./packageConstants";
 
 const resolveImageUrl = (path) => {
   if (!path) return "";
@@ -18,6 +19,7 @@ const UpdateBannerModal = ({
   setOpenUpdateBannerModal,
   bannerId,
   currentBanner,
+  isPackageBanner = false,
 }) => {
   const dispatch = useDispatch();
   const {
@@ -52,7 +54,11 @@ const UpdateBannerModal = ({
 
     dispatch(updateBanner({ id: bannerId, payload: formData })).then((res) => {
       if (res?.meta?.requestStatus === "fulfilled") {
-        toast.success("Banner updated successfully!");
+        toast.success(
+          isPackageBanner
+            ? "Package banner updated successfully!"
+            : "Banner updated successfully!"
+        );
         handleClose();
         dispatch(fetchBanners());
       } else {
@@ -66,37 +72,46 @@ const UpdateBannerModal = ({
 
   return (
     <Modal show={openUpdateBannerModal} onClose={handleClose}>
-      <Modal.Header>Edit Banner</Modal.Header>
+      <Modal.Header>
+        {isPackageBanner ? "Edit Package Banner" : "Edit Banner"}
+      </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Body>
           <div className="space-y-4">
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="title" value="Banner Title" />
+                <Label
+                  htmlFor="title"
+                  value={
+                    isPackageBanner
+                      ? "Package Title (Select from 4 Packages)"
+                      : "Banner Title"
+                  }
+                />
               </div>
-              <TextInput
-                id="title"
-                type="text"
-                placeholder="Enter Banner Title"
-                {...register("title", { required: true })}
-              />
-              {errors.title && (
-                <span className="text-red-500 text-sm">Title is required</span>
+              {isPackageBanner ? (
+                <Select id="title" {...register("title", { required: true })}>
+                  <option value="">Select Package</option>
+                  {PACKAGE_OPTIONS.map((pkg) => (
+                    <option key={pkg} value={pkg}>
+                      {pkg}
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <TextInput
+                  id="title"
+                  type="text"
+                  placeholder="Enter Banner Title"
+                  {...register("title", { required: true })}
+                />
               )}
-            </div>
-
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="description" value="Banner Description" />
-              </div>
-              <Textarea
-                id="description"
-                placeholder="Enter Banner Description"
-                rows={3}
-                {...register("description", { required: true })}
-              />
-              {errors.description && (
-                <span className="text-red-500 text-sm">Description is required</span>
+              {errors.title && (
+                <span className="text-red-500 text-sm">
+                  {isPackageBanner
+                    ? "Please select a package title"
+                    : "Title is required"}
+                </span>
               )}
             </div>
 
@@ -123,7 +138,7 @@ const UpdateBannerModal = ({
             Cancel
           </Button>
           <Button color="success" type="submit" className="bg-[#52b69a] hover:bg-black">
-            Update Banner
+            {isPackageBanner ? "Update Package Banner" : "Update Banner"}
           </Button>
         </Modal.Footer>
       </form>

@@ -215,7 +215,7 @@ const ManageMoodMaster = () => {
                 })}
                 className="bg-blue-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                Add Content
+                Manage Content
               </button>
             </div>
           );

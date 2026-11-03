@@ -1,173 +1,244 @@
-import { useEffect, useMemo, useState } from "react"
-import { useDispatch } from "react-redux"
-import { useSelector } from "react-redux"
-import { useNavigate, useParams } from "react-router-dom"
-import { getParentCategory } from "../../Reducer/SupportSlice"
-import { AgGridReact } from "ag-grid-react"
-import { getCategoryWithoutParent, getPlatformCharges } from "../../Reducer/PlatformSlice"
-import AddUpdateCharges from "./AddUpdateCharges"
-import { ToastContainer } from "react-toastify"
-import { Button } from "flowbite-react"
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { AgGridReact } from "ag-grid-react";
+import { getCategoryWithoutParent, getPlatformCharges } from "../../Reducer/PlatformSlice";
+import api from "../../store/Api";
+import AddUpdateCharges from "./AddUpdateCharges";
+import { ToastContainer } from "react-toastify";
+import { ArrowLeft, Edit3 } from "lucide-react";
 
+const PlaformCharge = () => {
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [categoryId, setCategoryId] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [chargesMap, setChargesMap] = useState({});
+  const [loadingCharges, setLoadingCharges] = useState(false);
 
-const PlaformCharge=()=>{
-    const[openAddModal,setOpenAddModal]=useState(false)
-    const[isEdit,setisEdit]=useState(false)
-    const[categoryId,setCategoryId]=useState()
-    // const{parentcateList}=useSelector((state)=>state?.support)
-    const{categoryWithoutParent}=useSelector((state)=>state?.platform)
-    const id=useParams()
-    const dispatch=useDispatch()
-    const navigate=useNavigate()
-    useEffect(()=>{
-        // dispatch(getParentCategory({id:id?.id}))
-        dispatch(getCategoryWithoutParent())
-    },[])
+  const { categoryWithoutParent } = useSelector((state) => state?.platform);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-      const rowData = useMemo(() => {
+  useEffect(() => {
+    dispatch(getCategoryWithoutParent());
+  }, [dispatch]);
+
+  // Load charges for all categories
+  useEffect(() => {
+    const list = categoryWithoutParent?.data;
+    if (Array.isArray(list) && list.length > 0) {
+      setLoadingCharges(true);
+      Promise.all(
+        list.map((cat) =>
+          api
+            .get(`goodmood/charges/get-charges/${cat.id}`)
+            .then((res) => ({
+              id: cat.id,
+              charge: res?.data?.data?.charge ?? null,
+            }))
+            .catch(() => ({
+              id: cat.id,
+              charge: null,
+            }))
+        )
+      )
+        .then((results) => {
+          const map = {};
+          results.forEach((r) => {
+            map[r.id] = r.charge;
+          });
+          setChargesMap(map);
+        })
+        .finally(() => {
+          setLoadingCharges(false);
+        });
+    }
+  }, [categoryWithoutParent?.data]);
+
+  const rowData = useMemo(() => {
     return (
       categoryWithoutParent?.data?.map((tags) => ({
         id: tags?.id,
         name: tags?.name,
-       
-        image:categoryWithoutParent?.baseurl+tags?.image,
-        status: tags.status,
+        charge: chargesMap[tags?.id] !== undefined ? chargesMap[tags?.id] : null,
+        status: tags?.status,
       })) || []
     );
-  }, [categoryWithoutParent?.data]);
+  }, [categoryWithoutParent?.data, chargesMap]);
 
-  const handleUpdateTags=(id)=>{
-    setCategoryId(id)
-    setOpenAddModal(true)
-   dispatch(getPlatformCharges({categoryId:id})).then((res)=>{
-        if(res?.payload?.statusCode===200){
-            setisEdit(true)
-        }
-        else{
-            setisEdit(false)
-        }
-    })
-    
-  }
+  const handleUpdateTags = (category) => {
+    setSelectedCategory(category);
+    setCategoryId(category.id);
+    setOpenAddModal(true);
+
+    dispatch(getPlatformCharges({ categoryId: category.id })).then((res) => {
+      if (res?.payload?.statusCode === 200 && res?.payload?.data) {
+        setIsEdit(true);
+      } else {
+        setIsEdit(Boolean(chargesMap[category.id] != null));
+      }
+    });
+  };
+
+  const defaultColDef = useMemo(
+    () => ({
+      resizable: true,
+      sortable: true,
+      filter: true,
+    }),
+    []
+  );
 
   const columnDefs = useMemo(
     () => [
       {
+        headerName: "#",
+        valueGetter: (params) => (params.node ? params.node.rowIndex + 1 : ""),
+        width: 70,
+        maxWidth: 80,
+        sortable: false,
+        filter: false,
+        cellRenderer: (params) => (
+          <div className="flex items-center justify-center h-full text-xs font-semibold text-gray-500">
+            {params.value}
+          </div>
+        ),
+      },
+      {
         field: "name",
-        headerName: "Name",
-        sortable: true,
-        filter: true,
+        headerName: "Category Name",
+        flex: 2,
+        minWidth: 200,
+        cellRenderer: (params) => (
+          <div className="flex items-center h-full">
+            <span className="font-semibold text-gray-800 text-sm">{params.value || "-"}</span>
+          </div>
+        ),
       },
-  
-
       {
-  field: "image",
-  headerName: "Avatar",
-  cellRenderer: (params) => {
-  const handleFileChange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-
-      // Update AG Grid cell value
-      params.node.setDataValue("mood_meter_avatar", previewUrl);
-        const formData=new FormData()
-      
-        formData.append("file",file)
-      dispatch(
-    uploladImage({
-      id: params.data.id,
-      user_input: formData,
-    })
-      )
-  
-    };
-
-    return (
-      <label className="relative w-12 h-12 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition">
-        
-        {/* Hidden file input */}
-        {/* <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        /> */}
-
-        {/* Show image if exists */}
-        {params.value ? (
-          <img
-            src={params.value}
-            alt="avatar"
-            className="w-full h-full object-cover rounded-full"
-          />
-        ) : (
-          <span className="text-xs text-gray-400">Upload</span>
-        )}
-      </label>
-    );
-  },
+        field: "charge",
+        headerName: "Charge Percentage",
+        flex: 1.3,
+        minWidth: 160,
+        cellRenderer: (params) => {
+          const val = params.value;
+          if (loadingCharges && val === undefined) {
+            return (
+              <div className="flex items-center h-full">
+                <span className="text-xs text-gray-400 animate-pulse">Loading...</span>
+              </div>
+            );
+          }
+          if (val !== null && val !== undefined && val !== "") {
+            return (
+              <div className="flex items-center h-full">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#0B8843] border border-emerald-200 shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0B8843]"></span>
+                  {val}%
+                </span>
+              </div>
+            );
+          }
+          return (
+            <div className="flex items-center h-full">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                Not Configured
+              </span>
+            </div>
+          );
+        },
       },
-     
-
-    
       {
-        width: 260,
         headerName: "Actions",
         field: "actions",
+        flex: 1.1,
+        minWidth: 160,
+        sortable: false,
+        filter: false,
         cellRenderer: (params) => {
+          const isConfigured =
+            params.data?.charge !== null &&
+            params.data?.charge !== undefined &&
+            params.data?.charge !== "";
           return (
-            <div className="flex gap-2">
+            <div className="flex items-center h-full">
               <button
-                onClick={() => handleUpdateTags(params?.data?.id)}
-                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                onClick={() => handleUpdateTags(params?.data)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0B8843] hover:bg-black rounded-lg transition-all shadow-xs cursor-pointer"
               >
-                Add Edit Charges
+                <Edit3 size={13} />
+                <span>{isConfigured ? "Edit Charge" : "Add Charge"}</span>
               </button>
             </div>
           );
         },
       },
-   
     ],
-    []
+    [loadingCharges, chargesMap]
   );
-    return(
-        <>
-         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
-            <ToastContainer/>
-                <div className="h-full lg:h-screen">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold">Platform Charges</h2>
-                    <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
-                  </div>
-                  <div
-                    className="ag-theme-alpine"
-                    style={{ height: 600, width: "100%" }}
-                  >
-                    <AgGridReact
-                      rowData={rowData}
-                      columnDefs={columnDefs}
-                      pagination={true}
-                      paginationPageSize={10}
-                      domLayout="autoHeight"
-                      getRowHeight={() => 50}
-                    />
-                  </div>
-                </div>
-                {openAddModal && (
-                  <AddUpdateCharges
-                    openAddModal={openAddModal}
-                    setOpenAddModal={setOpenAddModal}
-                    isEdit={isEdit}
-                    categoryId={categoryId}
-                  />
-                )}
-          
+
+  return (
+    <>
+      <div className="wrapper_area my-0 mx-auto p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
+        <ToastContainer />
+        <div>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Platform Charges</h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Configure platform commission and charge percentage for each support category
+              </p>
+            </div>
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all shadow-xs cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+              <span>Back</span>
+            </button>
           </div>
-        </>
-    )
-}
-export default PlaformCharge
+
+          <div
+            className="ag-theme-alpine w-full rounded-xl overflow-hidden border border-gray-200"
+            style={{ width: "100%" }}
+          >
+            <AgGridReact
+              rowData={rowData}
+              columnDefs={columnDefs}
+              defaultColDef={defaultColDef}
+              pagination={true}
+              paginationPageSize={10}
+              paginationPageSizeSelector={[10, 20, 50]}
+              domLayout="autoHeight"
+              rowHeight={56}
+              headerHeight={44}
+              animateRows={true}
+              onGridReady={(params) => params.api.sizeColumnsToFit()}
+              onGridSizeChanged={(params) => params.api.sizeColumnsToFit()}
+            />
+          </div>
+        </div>
+
+        {openAddModal && (
+          <AddUpdateCharges
+            openAddModal={openAddModal}
+            setOpenAddModal={setOpenAddModal}
+            isEdit={isEdit}
+            categoryId={categoryId}
+            categoryName={selectedCategory?.name}
+            initialCharge={categoryId ? chargesMap[categoryId] : null}
+            onSuccess={(catId, updatedCharge) => {
+              setChargesMap((prev) => ({
+                ...prev,
+                [catId]: updatedCharge,
+              }));
+            }}
+          />
+        )}
+      </div>
+    </>
+  );
+};
+
+export default PlaformCharge;

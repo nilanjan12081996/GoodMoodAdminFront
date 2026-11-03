@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 let domain = window.location.origin
-const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add', '/admin/mood-meter/update-image', '/mood-master/create', '/mood-master/image-update', '/admin-blog-manage/add', '/admin/mood-equelizer/create', 'goodmood/awarness/image-upload', 'goodmood/post/image', 'goodmood/equalizer/upload', 'goodmood/equalizer/banner/update', 'goodmood/support/category/image', 'goodmood/awareness-blog/image'];
+const formDataURL = ['/goodmood/banners/add', '/goodmood/banners/update', '/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add', '/admin/mood-meter/update-image', '/mood-master/create', '/mood-master/image-update', '/admin-blog-manage/add', '/admin/mood-equelizer/create', 'goodmood/awarness/image-upload', 'goodmood/post/image', 'goodmood/equalizer/upload', 'goodmood/equalizer/banner/update', 'goodmood/support/category/image', 'goodmood/awareness-blog/image'];
 api.interceptors.request.use((req) => {
   let userTokenData;
   try {
@@ -14,11 +14,9 @@ api.interceptors.request.use((req) => {
   let token = userTokenData && userTokenData.token ? userTokenData.token : null;
   // console.log("Req: ", req.url);
   req.headers['Content-Type'] = 'application/json';
-  // if (formDataURL.includes(req.url)) {
-  //   req.headers['Content-Type'] = 'multipart/form-data';
-  // }
-  if (formDataURL.some(url => req.url.startsWith(url))) {
-    req.headers['Content-Type'] = 'multipart/form-data';
+  if (formDataURL.some(url => req.url.startsWith(url)) || req.data instanceof FormData) {
+    delete req.headers['Content-Type'];
+    delete req.headers['content-type'];
   }
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;

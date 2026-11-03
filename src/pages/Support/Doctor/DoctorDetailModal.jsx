@@ -123,7 +123,7 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading, onApprove }) => {
               {avatarSrc && !imageError ? (
                 <img
                   src={avatarSrc}
-                  alt={`Dr. ${doctor.firstName || 'Expert'}`}
+                  alt={`${doctor.firstName || 'Expert'}`}
                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                   onError={() => setImageError(true)}
                 />
@@ -148,7 +148,7 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading, onApprove }) => {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2.5">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white capitalize truncate">
-                  Dr. {doctor.firstName} {doctor.lastName}
+                  {[doctor.firstName, doctor.lastName].filter(Boolean).join(' ') || 'Expert'}
                 </h2>
                 {isApproved ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
@@ -286,7 +286,7 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading, onApprove }) => {
                       <div>
                         <p className="text-xs font-medium text-slate-400">Full Name</p>
                         <p className="text-sm font-semibold text-slate-800 dark:text-white capitalize mt-0.5">
-                          Dr. {doctor.firstName} {doctor.lastName}
+                          {[doctor.firstName, doctor.lastName].filter(Boolean).join(' ') || 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -692,8 +692,8 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading, onApprove }) => {
                   onApprove(
                     doctor.id,
                     doctor.firstName
-                      ? `Dr. ${doctor.firstName} ${doctor.lastName || ''}`.trim()
-                      : 'Doctor / Expert'
+                      ? `${doctor.firstName} ${doctor.lastName || ''}`.trim()
+                      : 'Expert'
                   )
                 }
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B8843] hover:bg-black text-white text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs cursor-pointer"
@@ -737,7 +737,7 @@ const DoctorDetailModal = ({ isOpen, onClose, data, loading, onApprove }) => {
               />
             </div>
             <p className="text-center font-bold text-slate-800 dark:text-white capitalize text-base mt-2.5 pb-1">
-              Dr. {doctor.firstName} {doctor.lastName}
+              {[doctor.firstName, doctor.lastName].filter(Boolean).join(' ') || 'Expert'}
             </p>
           </div>
         </div>

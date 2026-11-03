@@ -187,9 +187,20 @@ const ManageAwarenessBlogs = () => {
                     <h2 className="text-2xl font-bold text-gray-800">{subsidebarName} -&gt; {awarenessName}</h2>
                     <p className="text-sm text-gray-500">Managing content for: <span className="font-semibold">{awarenessName}</span></p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                     <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
-                    <Button color="success" onClick={() => setOpenAddModal(true)}>Add New Content</Button>
+                    <Button
+                        color="success"
+                        disabled={rowData.length > 0}
+                        onClick={() => {
+                            if (rowData.length === 0) {
+                                setOpenAddModal(true);
+                            }
+                        }}
+                        className={rowData.length > 0 ? "opacity-50 cursor-not-allowed" : ""}
+                    >
+                        Add New Content
+                    </Button>
                 </div>
             </div>
 

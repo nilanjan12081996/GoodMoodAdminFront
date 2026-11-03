@@ -8,10 +8,12 @@ import {
   fetchBannerById,
   fetchBanners,
   toggleBannerStatus,
+  deleteBanner,
 } from "../../Reducer/BannerSlice";
 
 import AddBannerModal from "./AddBannerModal";
 import UpdateBannerModal from "./UpdateBannerModal";
+import { isPackageBanner } from "./packageConstants";
 
 const resolveImageUrl = (path) => {
   if (!path) return "";
@@ -27,6 +29,7 @@ const ManageBanner = () => {
 
   const { bannerList, currentBanner } = useSelector((state) => state?.banner || {});
 
+  const [activeTab, setActiveTab] = useState("normal"); // "normal" | "package"
   const [openAddBannerModal, setOpenAddBannerModal] = useState(false);
   const [openUpdateBannerModal, setOpenUpdateBannerModal] = useState(false);
   const [selectedBannerId, setSelectedBannerId] = useState(null);
@@ -35,9 +38,19 @@ const ManageBanner = () => {
     dispatch(fetchBanners());
   }, [dispatch]);
 
+  const normalBanners = useMemo(() => {
+    return (bannerList || []).filter((b) => !isPackageBanner(b));
+  }, [bannerList]);
+
+  const packageBanners = useMemo(() => {
+    return (bannerList || []).filter((b) => isPackageBanner(b));
+  }, [bannerList]);
+
+  const currentList = activeTab === "normal" ? normalBanners : packageBanners;
+
   const rowData = useMemo(() => {
     return (
-      bannerList?.map((banner, index) => ({
+      currentList?.map((banner, index) => ({
         id: banner?.id || banner?._id,
         slNo: index + 1,
         title: banner?.title || banner?.name || "N/A",
@@ -46,28 +59,41 @@ const ManageBanner = () => {
         status: banner?.status === "active" || banner?.status === 1 || banner?.status === true,
       })) || []
     );
-  }, [bannerList]);
+  }, [currentList]);
+
+  const handleUpdateBanner = (id) => {
+    setSelectedBannerId(id);
+    dispatch(fetchBannerById(id));
+    setOpenUpdateBannerModal(true);
+  };
+
+  const handleDeleteBanner = (id) => {
+    const label = activeTab === "normal" ? "banner" : "package banner";
+    if (window.confirm(`Are you sure you want to delete this ${label}?`)) {
+      dispatch(deleteBanner(id)).then((res) => {
+        if (res?.meta?.requestStatus === "fulfilled") {
+          toast.success("Deleted successfully!");
+          dispatch(fetchBanners());
+        } else {
+          toast.error(res?.payload?.message || "Failed to delete.");
+        }
+      });
+    }
+  };
 
   const columnDefs = useMemo(
     () => [
       {
         field: "title",
-        headerName: "Banner Title",
-        sortable: true,
-        filter: true,
-        flex: 1,
-      },
-      {
-        field: "description",
-        headerName: "Banner Description",
+        headerName: activeTab === "normal" ? "Banner Title" : "Package Name",
         sortable: true,
         filter: true,
         flex: 1.5,
       },
       {
         field: "image",
-        headerName: "Banner Image",
-        flex: 1,
+        headerName: activeTab === "normal" ? "Banner Image" : "Package Banner Image",
+        flex: 1.2,
         cellRenderer: (params) => {
           const imgUrl = resolveImageUrl(params.value);
           return imgUrl ? (
@@ -120,37 +146,40 @@ const ManageBanner = () => {
       {
         field: "actions",
         headerName: "Actions",
-        width: 160,
+        width: 180,
         cellRenderer: (params) => {
           return (
             <div className="flex gap-2 items-center h-full">
               <button
                 onClick={() => handleUpdateBanner(params?.data?.id)}
-                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md transition-colors"
+                className="bg-[#52b69a] hover:bg-black px-3 py-1 text-white text-sm font-semibold flex justify-center items-center rounded-md transition-colors"
               >
                 Update
+              </button>
+              <button
+                onClick={() => handleDeleteBanner(params?.data?.id)}
+                className="bg-red-500 hover:bg-red-700 px-3 py-1 text-white text-sm font-semibold flex justify-center items-center rounded-md transition-colors"
+              >
+                Delete
               </button>
             </div>
           );
         },
       },
     ],
-    [dispatch]
+    [dispatch, activeTab]
   );
-
-  const handleUpdateBanner = (id) => {
-    setSelectedBannerId(id);
-    dispatch(fetchBannerById(id));
-    setOpenUpdateBannerModal(true);
-  };
 
   return (
     <>
       <ToastContainer />
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Banner Management</h2>
+          {/* Top Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold">Banner Management</h2>
+            </div>
             <div className="flex gap-2">
               <Button color="gray" onClick={() => navigate(-1)}>
                 Back
@@ -159,13 +188,47 @@ const ManageBanner = () => {
                 onClick={() => setOpenAddBannerModal(true)}
                 className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                Add Banner
+                {activeTab === "normal" ? "Add Normal Banner" : "Add Package Banner"}
               </Button>
             </div>
           </div>
 
+          {/* 2 Tabs */}
+          <div className="flex border-b border-gray-200 mb-6 gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab("normal")}
+              className={`py-2.5 px-5 font-semibold text-sm border-b-2 transition-all duration-200 flex items-center gap-2 ${
+                activeTab === "normal"
+                  ? "border-[#52b69a] text-[#52b69a] bg-teal-50/60 rounded-t-lg"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <span>Normal Banner (App Popup)</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-bold">
+                {normalBanners.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("package")}
+              className={`py-2.5 px-5 font-semibold text-sm border-b-2 transition-all duration-200 flex items-center gap-2 ${
+                activeTab === "package"
+                  ? "border-[#52b69a] text-[#52b69a] bg-teal-50/60 rounded-t-lg"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <span>Package Banner (Support Slider)</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-bold">
+                {packageBanners.length}
+              </span>
+            </button>
+          </div>
+
+          {/* AG Grid Table */}
           <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
             <AgGridReact
+              key={activeTab} // Force refresh grid when switching tabs
               rowData={rowData}
               columnDefs={columnDefs}
               pagination={true}
@@ -180,6 +243,7 @@ const ManageBanner = () => {
           <AddBannerModal
             openAddBannerModal={openAddBannerModal}
             setOpenAddBannerModal={setOpenAddBannerModal}
+            isPackageBanner={activeTab === "package"}
           />
         )}
 
@@ -189,6 +253,7 @@ const ManageBanner = () => {
             setOpenUpdateBannerModal={setOpenUpdateBannerModal}
             bannerId={selectedBannerId}
             currentBanner={currentBanner}
+            isPackageBanner={activeTab === "package"}
           />
         )}
       </div>

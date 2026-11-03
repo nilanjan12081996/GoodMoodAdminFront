@@ -676,6 +676,36 @@ const allRoutes = [
       },
     ],
   },
+  {
+    path: '/banner',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <Banner />,
+      },
+    ],
+  },
+  {
+    path: '/packages-banner/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <Banner />,
+      },
+    ],
+  },
+  {
+    path: '/packages-banner',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <Banner />,
+      },
+    ],
+  },
 
 
   {

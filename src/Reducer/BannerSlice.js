@@ -92,6 +92,19 @@ export const toggleBannerStatus = createAsyncThunk(
   }
 );
 
+// Delete Banner
+export const deleteBanner = createAsyncThunk(
+  "banner/deleteBanner",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/goodmood/banners/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to delete banner");
+    }
+  }
+);
+
 const bannerSlice = createSlice({
   name: "banner",
   initialState: {
@@ -130,6 +143,14 @@ const bannerSlice = createSlice({
       // Update Banner
       .addCase(updateBanner.fulfilled, (state) => {
         state.loading = false;
+      })
+      // Delete Banner
+      .addCase(deleteBanner.fulfilled, (state, action) => {
+        state.loading = false;
+        const deletedId = action.meta.arg;
+        state.bannerList = state.bannerList.filter(
+          (b) => String(b.id || b._id) !== String(deletedId)
+        );
       });
   },
 });
