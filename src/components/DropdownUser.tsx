@@ -59,7 +59,7 @@ const DropdownUser = () => {
 
 
   return (
-    <div className="relative">
+    <div className="relative z-50">
       <Link
         ref={trigger}
         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -106,33 +106,43 @@ const DropdownUser = () => {
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
         onBlur={() => setDropdownOpen(false)}
-        className={`absolute right-0 mt-3 flex w-52 flex-col rounded-sm border border-stroke bg-white shadow-md ${dropdownOpen === true ? 'block' : 'hidden'
-          }`}
+        className={`absolute right-0 mt-3 flex w-56 flex-col rounded-xl border border-gray-100 bg-white shadow-2xl z-[9999] py-1.5 transition-all ${
+          dropdownOpen === true ? 'block' : 'hidden'
+        }`}
       >
-        <ul className="flex flex-col gap-3 border-b border-stroke px-4 py-4">
+        <div className="px-4 py-2.5 border-b border-gray-100 bg-gray-50/50">
+          <p className="text-xs font-semibold text-gray-900 truncate">
+            {profileDetail ? `${profileDetail.firstName} ${profileDetail.lastName}` : 'Administrator'}
+          </p>
+          <p className="text-[11px] text-gray-400 capitalize">
+            {role || 'System SuperAdmin'}
+          </p>
+        </div>
+
+        <ul className="flex flex-col py-1 border-b border-gray-100">
           <li>
             <Link
               to="/profile"
-              className="flex items-center gap-2 text-sm font-normal duration-300 ease-in-out text-[#2E2E2E] hover:text-[#52b69a]"
+              onClick={() => setDropdownOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#0B8843] hover:bg-emerald-50/60 transition-colors"
             >
-              <BiSolidUser className='text-lg' />
+              <BiSolidUser className="text-lg text-gray-400" />
               My Profile
             </Link>
           </li>
-          {/* <li>
-            <Link
-              to="/settings"
-              className="flex items-center gap-2 text-sm font-normal duration-300 ease-in-out text-[#2E2E2E] hover:text-[#52b69a]"
-            >
-              <AiFillSetting className='text-lg' />
-              Account Settings
-            </Link>
-          </li> */}
         </ul>
-        <button onClick={handleLogout} className="flex items-center gap-2 py-3 px-4 text-sm font-normal duration-300 ease-in-out text-[#2E2E2E] hover:text-[#52b69a]">
-          <AiOutlineLogout className='text-lg' />
-          Log Out
-        </button>
+        <div className="pt-1">
+          <button
+            onClick={() => {
+              setDropdownOpen(false);
+              handleLogout();
+            }}
+            className="flex items-center gap-2.5 w-full px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+          >
+            <AiOutlineLogout className="text-lg text-red-500" />
+            Log Out
+          </button>
+        </div>
       </div>
       {/* <!-- Dropdown End --> */}
     </div>

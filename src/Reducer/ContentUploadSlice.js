@@ -64,6 +64,38 @@ export const contentUpdate=createAsyncThunk(
         }
     }
 )
+
+export const updateContentMedia=createAsyncThunk(
+    'updateContentMedia',
+    async (formData, { rejectWithValue }) => {
+        try {
+            const response = await api.post('goodmood/equalizer/content/update', formData);
+            if (response?.data?.statusCode === 200 || response?.data?.statusCode === 201) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
+
+export const deleteContent=createAsyncThunk(
+    'deleteContent',
+    async ({id}, { rejectWithValue }) => {
+        try {
+            const response = await api.delete(`goodmood/equalizer/delete?id=${id}`);
+            if (response?.data?.statusCode === 200 ||response?.data?.statusCode === 201) {
+                return response?.data;
+            } else {
+                return rejectWithValue(response);
+            }
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+)
 const initialState={
     loading:false,
     error:false,

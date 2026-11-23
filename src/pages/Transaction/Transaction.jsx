@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Base64 } from "js-base64";
 import debounce from "lodash.debounce";
 import AddUserModal from "./AddUserModal";
+import api from "../../store/Api";
 
 const Transaction = () => {
   // const [switch1, setSwitch1] = useState(false);
@@ -27,12 +28,69 @@ const Transaction = () => {
   const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [openAddNewProjectModal, setOpenAddNewProjectModal] = useState(false);
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [testerLoadingId, setTesterLoadingId] = useState(null);
   const { userListData, userStatusData, userSearchData } = useSelector(
     (state) => state?.transaction
   );
   console.log("userList", userListData);
   console.log("userStatusData", userStatusData);
   const [searchInput, setSearchInput] = useState("");
+
+  const fetchMaintenanceStatus = async () => {
+    try {
+      const res = await api.get('/goodmood/users/maintenance-status');
+      if (res?.data?.status) {
+        setMaintenanceActive(res.data.maintenance);
+      }
+    } catch (e) {
+      console.log('Error fetching maintenance status', e);
+    }
+  };
+
+  const handleToggleMaintenance = async () => {
+    setMaintenanceLoading(true);
+    try {
+      const res = await api.post('/goodmood/users/maintenance-toggle', {
+        enabled: !maintenanceActive
+      });
+      if (res?.data?.status) {
+        setMaintenanceActive(res.data.maintenance);
+        toast.success(res.data.message);
+      }
+    } catch (e) {
+      toast.error('Failed to update maintenance mode');
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleToggleTester = async (userId, currentIsTester) => {
+    setTesterLoadingId(userId);
+    try {
+      const res = await api.post(`/goodmood/users/toggle-tester/${userId}`, {
+        isTester: !currentIsTester
+      });
+      if (res?.data?.status) {
+        toast.success(res.data.message);
+        dispatch(
+          userList({
+            page: currentPage,
+            limit: 10,
+          })
+        );
+      }
+    } catch (e) {
+      toast.error('Failed to update tester status');
+    } finally {
+      setTesterLoadingId(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchMaintenanceStatus();
+  }, []);
   useEffect(() => {
     dispatch(
       userList({
@@ -134,6 +192,35 @@ const Transaction = () => {
       <ToastContainer />
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
+          {/* Customer App Maintenance Mode Control Card */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-xl mb-6 gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block w-3 h-3 rounded-full ${maintenanceActive ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></span>
+                <h3 className="font-bold text-gray-800 text-base">Customer App Maintenance Mode</h3>
+                <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${maintenanceActive ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                  {maintenanceActive ? 'ACTIVE (Public Blocked)' : 'NORMAL (Public Allowed)'}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {maintenanceActive 
+                  ? 'General users see the Maintenance screen. Only users marked as Tester can log in and test the app.' 
+                  : 'All users can freely access the Good Mood app.'}
+              </p>
+            </div>
+            <button
+              onClick={handleToggleMaintenance}
+              disabled={maintenanceLoading}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                maintenanceActive 
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm' 
+                  : 'bg-amber-600 hover:bg-amber-700 text-white shadow-sm'
+              }`}
+            >
+              {maintenanceLoading ? 'Updating...' : (maintenanceActive ? 'Turn OFF Maintenance' : 'Turn ON Maintenance')}
+            </button>
+          </div>
+
           <div className="flex justify-between mb-4">
             <div className="w-full max-w-sm min-w-[200px]">
               {/* <div className="relative">
@@ -173,6 +260,7 @@ const Transaction = () => {
                   Email ID
                 </Table.HeadCell>
                 <Table.HeadCell className="bg-[#f3f2f7]">Mobile</Table.HeadCell>
+                <Table.HeadCell className="bg-[#f3f2f7]">Tester Account</Table.HeadCell>
                 <Table.HeadCell className="bg-[#f3f2f7]">Status</Table.HeadCell>
                 <Table.HeadCell className="bg-[#f3f2f7]">Wallet</Table.HeadCell>
                 <Table.HeadCell className="bg-[#f3f2f7]">
@@ -193,6 +281,20 @@ const Transaction = () => {
                     </Table.Cell>
                     <Table.Cell>{userData?.email}</Table.Cell>
                     <Table.Cell>{userData?.phone}</Table.Cell>
+                    <Table.Cell>
+                      <button
+                        onClick={() => handleToggleTester(userData?.id, userData?.is_tester === 1 || userData?.is_tester === true)}
+                        disabled={testerLoadingId === userData?.id}
+                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          userData?.is_tester === 1 || userData?.is_tester === true
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
+                            : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${userData?.is_tester === 1 || userData?.is_tester === true ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                        {userData?.is_tester === 1 || userData?.is_tester === true ? 'Tester User' : 'Normal User'}
+                      </button>
+                    </Table.Cell>
                     <Table.Cell>
                       <ToggleSwitch
                         checked={userData?.is_active === 1}

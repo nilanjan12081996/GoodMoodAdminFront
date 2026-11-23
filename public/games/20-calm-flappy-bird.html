@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Peaceful Sky Glider</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #e0f2fe; color: #1e293b; }
+  .app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 520px; margin: 0 auto; padding: 14px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .title { font-size: 18px; font-weight: 700; color: #065f46; }
+  .pill { background: #ffffff; border: 1px solid #d1fae5; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #0b8843; }
+  .btn { background: #0b8843; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:active { transform: scale(0.96); }
+
+  /* Help Button & Modal Styles */
+  .help-btn {
+    background: #ffffff;
+    border: 1px solid #d1fae5;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0b8843;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .help-btn:hover { background: #f0fdf4; border-color: #0b8843; }
+  .help-btn:active { transform: scale(0.95); }
+  .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+  .help-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: helpFadeIn 0.2s ease-out;
+  }
+  .help-modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.28);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  .help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .help-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .help-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: #64748b;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .help-close-btn:hover { background: #e2e8f0; color: #0f172a; }
+  .help-modal-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.55;
+  }
+  .help-section { margin-bottom: 14px; }
+  .help-section:last-child { margin-bottom: 0; }
+  .help-label {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #0b8843;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .help-text { margin: 0; }
+  .help-list { margin: 4px 0 0; padding-left: 18px; }
+  .help-list li { margin-bottom: 5px; }
+  .help-benefit {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .help-benefit .help-label { color: #047857; }
+  .help-benefit .help-text { color: #065f46; font-size: 12.5px; }
+  .help-modal-footer {
+    padding: 12px 18px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+  @keyframes helpFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title" style="color:#0369a1;">Peaceful Sky Glider</div>
+    <div class="header-actions">
+      <button type="button" class="help-btn" onclick="toggleHelpModal(true)" title="How to Play / Instructions">❓ Help</button>
+      <div class="pill">Score: <span id="sc">0</span></div>
+    </div>
+  </div>
+  <canvas id="c" style="flex:1;width:100%;border-radius:18px;background:linear-gradient(180deg,#bae6fd,#ecfdf5);border:1px solid #7dd3fc;touch-action:none;"></canvas>
+</div>
+<script>
+const canvas = document.getElementById("c"), ctx = canvas.getContext("2d");
+let by=150, vy=0, pipes=[], sc=0, frame=0;
+function resize() { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+window.addEventListener("resize", resize); resize();
+canvas.addEventListener("pointerdown", () => { vy = -5.2; });
+function loop() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  frame++; vy += 0.22; by += vy;
+  if (by > canvas.height || by < 0) { by = canvas.height/2; vy = 0; pipes = []; sc = 0; document.getElementById("sc").textContent = 0; }
+  if (frame % 110 === 0) {
+    const gapY = 70 + Math.random() * (canvas.height - 200);
+    pipes.push({ x: canvas.width, gapY, passed: false });
+  }
+  pipes.forEach(p => {
+    p.x -= 2.2;
+    ctx.fillStyle = "#52b69a";
+    ctx.fillRect(p.x, 0, 44, p.gapY);
+    ctx.fillRect(p.x, p.gapY + 130, 44, canvas.height);
+    if (p.x < 70 && p.x + 44 > 50 && (by < p.gapY || by > p.gapY + 130)) {
+      by = canvas.height/2; vy = 0; pipes = []; sc = 0; document.getElementById("sc").textContent = 0;
+    }
+    if (!p.passed && p.x + 44 < 50) { p.passed = true; sc++; document.getElementById("sc").textContent = sc; }
+  });
+  pipes = pipes.filter(p => p.x > -50);
+  ctx.font = "28px sans-serif"; ctx.textAlign = "center"; ctx.fillText("🕊️", 60, by);
+  requestAnimationFrame(loop);
+}
+loop();
+
+function toggleHelpModal(show) {
+  const el = document.getElementById("helpModal");
+  if (el) el.style.display = show ? "flex" : "none";
+}
+
+</script>
+<!-- HELP / HOW TO PLAY MODAL -->
+<div id="helpModal" class="help-modal-overlay" style="display:none;" onclick="if(event.target===this) toggleHelpModal(false)">
+  <div class="help-modal-card">
+    <div class="help-modal-header">
+      <div class="help-modal-title">
+        <span>🎮</span>
+        <span>Peaceful Sky Glider — How to Play</span>
+      </div>
+      <button type="button" class="help-close-btn" onclick="toggleHelpModal(false)">&times;</button>
+    </div>
+    <div class="help-modal-body">
+      <div class="help-section">
+        <div class="help-label">🎯 Objective</div>
+        <p class="help-text">Glide a gentle white dove peacefully between soft sky pillars.</p>
+      </div>
+      <div class="help-section">
+        <div class="help-label">🕹️ How to Play</div>
+        <ul class="help-list">
+          <li>Tap the screen, click the mouse, or press Spacebar to gently flap wings.</li>
+          <li>Guide the dove through the wide gaps between serene sky pillars.</li>
+          <li>Gentle gravity and forgiving boundaries ensure a smooth, peaceful flight.</li>
+        </ul>
+      </div>
+      <div class="help-section help-benefit">
+        <div class="help-label">🌿 Wellness Benefit</div>
+        <p class="help-text">Flow-state motion mechanics evoke a sense of floating lightness and mental release.</p>
+      </div>
+    </div>
+    <div class="help-modal-footer">
+      <button type="button" class="btn" style="width:100%;padding:10px;font-size:14px;" onclick="toggleHelpModal(false)">Got It! Let's Play</button>
+    </div>
+  </div>
+</div>
+
+</body></html>

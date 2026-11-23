@@ -93,6 +93,30 @@ const AddMoodMeterModal = ({ openAddTagModal, setOpenTagModal,id }) => {
               </div>
                 )
               }
+              {
+                id?.id == 5 && (
+                  <div>
+                    <div className="mb-2 block">
+                      <Label htmlFor="contentType" value="Content Type" />
+                    </div>
+                    <select
+                      id="contentType"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#0B8843] focus:border-[#0B8843] block w-full p-2.5"
+                      {...register("colorCode", { required: true })}
+                    >
+                      <option value="">Select Content Type</option>
+                      <option value="video">Video Player</option>
+                      <option value="audio">Audio Player</option>
+                      <option value="story">Story & Article</option>
+                      <option value="drawing">Drawing & Art Therapy</option>
+                      <option value="game">Relaxing Game</option>
+                    </select>
+                    {errors.colorCode && (
+                      <span className="text-red-500 text-xs mt-1 block">Content Type is Required</span>
+                    )}
+                  </div>
+                )
+              }
                 
             </div>
           </Modal.Body>

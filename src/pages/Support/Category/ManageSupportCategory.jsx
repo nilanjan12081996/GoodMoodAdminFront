@@ -33,6 +33,16 @@ const ManageSupportCategory=()=>{
 navigate("/support-details",{state:{parentid:id}})
   }
 
+  const defaultColDef = useMemo(
+    () => ({
+      resizable: true,
+      sortable: true,
+      filter: true,
+      flex: 1,
+    }),
+    []
+  );
+
   const columnDefs = useMemo(
     () => [
       {
@@ -40,17 +50,22 @@ navigate("/support-details",{state:{parentid:id}})
         headerName: "Name",
         sortable: true,
         filter: true,
+        flex: 1.5,
+        minWidth: 160,
       },
       {
         field: "description",
         headerName: "Description",
         sortable: true,
         filter: true,
+        flex: 2,
+        minWidth: 200,
       },
-
       {
-  field: "image",
-  headerName: "Avatar",
+        field: "image",
+        headerName: "Avatar",
+        flex: 1,
+        minWidth: 120,
   cellRenderer: (params) => {
   const handleFileChange = (e) => {
       const file = e.target.files[0];
@@ -133,15 +148,16 @@ navigate("/support-details",{state:{parentid:id}})
       },
     
       {
-        width: 260,
         headerName: "Actions",
         field: "actions",
+        flex: 1,
+        minWidth: 140,
         cellRenderer: (params) => {
           return (
             <div className="flex gap-2">
               <button
                 onClick={() => handleUpdateTags(params?.data?.id)}
-                className="bg-[#52b69a] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                className="bg-[#0B8843] hover:bg-[#086a34] px-4 py-1.5 text-white text-sm font-semibold flex justify-center items-center rounded-lg shadow-xs transition-colors cursor-pointer"
               >
                 View
               </button>
@@ -158,20 +174,26 @@ navigate("/support-details",{state:{parentid:id}})
          <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
                 <div className="h-full lg:h-screen">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold">Support</h2>
+                    <h2 className="text-2xl font-semibold text-gray-800">Support</h2>
                     <Button color="gray" onClick={() => navigate(-1)}>Back</Button>
                   </div>
                   <div
-                    className="ag-theme-alpine"
-                    style={{ height: 600, width: "100%" }}
+                    className="ag-theme-alpine w-full"
+                    style={{ width: "100%" }}
                   >
                     <AgGridReact
                       rowData={rowData}
                       columnDefs={columnDefs}
+                      defaultColDef={defaultColDef}
                       pagination={true}
                       paginationPageSize={10}
+                      paginationPageSizeSelector={[10, 20, 50]}
                       domLayout="autoHeight"
-                      getRowHeight={() => 50}
+                      rowHeight={58}
+                      headerHeight={44}
+                      animateRows={true}
+                      onGridReady={(params) => params.api.sizeColumnsToFit()}
+                      onGridSizeChanged={(params) => params.api.sizeColumnsToFit()}
                     />
                   </div>
                 </div>

@@ -117,30 +117,41 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                   {/* Submenu List */}
                   {!sidebarOpen && hasSubmenu && isOpen && (
                     <ul className="ml-4 pl-3.5 my-1 border-l-2 border-emerald-100 flex flex-col gap-1">
-                      {side.subsidebar.map((sub: any) => {
-                        const notifCount = getNotificationCount(sub.subSidebarName);
-                        return (
-                          <li key={sub.id}>
-                            <NavLink
-                              to={`/${sub.subSidebarShortName}/${sub.id}`}
-                              className={({ isActive }) =>
-                                `flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-150 ${
-                                  isActive
-                                    ? 'bg-[#52B69A] text-white font-semibold shadow-xs'
-                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium'
-                                }`
-                              }
-                            >
-                              <span className="truncate">{sub.subSidebarName}</span>
-                              {notifCount > 0 && (
-                                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full flex items-center justify-center min-w-[18px]">
-                                  {notifCount}
-                                </span>
-                              )}
-                            </NavLink>
-                          </li>
-                        );
-                      })}
+                      {(() => {
+                        let subList = side.subsidebar ? [...side.subsidebar] : [];
+                        const isSystemSettings = (side.sidebarName || '').toUpperCase().includes('SYSTEM') || (side.sidebarShortName || '').toUpperCase().includes('SYSTEM');
+                        if (isSystemSettings && !subList.some((s: any) => s.subSidebarShortName === 'AppMaintenance')) {
+                          subList.push({
+                            id: 'maintenance',
+                            subSidebarName: 'App Maintenance',
+                            subSidebarShortName: 'AppMaintenance'
+                          });
+                        }
+                        return subList.map((sub: any) => {
+                          const notifCount = getNotificationCount(sub.subSidebarName);
+                          return (
+                            <li key={sub.id}>
+                              <NavLink
+                                to={`/${sub.subSidebarShortName}/${sub.id}`}
+                                className={({ isActive }) =>
+                                  `flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-150 ${
+                                    isActive
+                                      ? 'bg-[#52B69A] text-white font-semibold shadow-xs'
+                                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium'
+                                  }`
+                                }
+                              >
+                                <span className="truncate">{sub.subSidebarName}</span>
+                                {notifCount > 0 && (
+                                  <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full flex items-center justify-center min-w-[18px]">
+                                    {notifCount}
+                                  </span>
+                                )}
+                              </NavLink>
+                            </li>
+                          );
+                        });
+                      })()}
                     </ul>
                   )}
                 </li>

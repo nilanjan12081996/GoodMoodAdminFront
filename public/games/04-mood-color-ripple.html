@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Mood Color Ripple</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #1e293b; }
+  .app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 520px; margin: 0 auto; padding: 14px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .title { font-size: 18px; font-weight: 700; color: #065f46; }
+  .pill { background: #ffffff; border: 1px solid #d1fae5; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #0b8843; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .btn { background: #0b8843; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s, opacity 0.2s; }
+  .btn:active { transform: scale(0.96); }
+  .btn-outline { background: #fff; color: #0b8843; border: 1.5px solid #0b8843; }
+
+  /* Help Button & Modal Styles */
+  .help-btn {
+    background: #ffffff;
+    border: 1px solid #d1fae5;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0b8843;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .help-btn:hover { background: #f0fdf4; border-color: #0b8843; }
+  .help-btn:active { transform: scale(0.95); }
+  .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+  .help-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: helpFadeIn 0.2s ease-out;
+  }
+  .help-modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.28);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  .help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .help-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .help-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: #64748b;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .help-close-btn:hover { background: #e2e8f0; color: #0f172a; }
+  .help-modal-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.55;
+  }
+  .help-section { margin-bottom: 14px; }
+  .help-section:last-child { margin-bottom: 0; }
+  .help-label {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #0b8843;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .help-text { margin: 0; }
+  .help-list { margin: 4px 0 0; padding-left: 18px; }
+  .help-list li { margin-bottom: 5px; }
+  .help-benefit {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .help-benefit .help-label { color: #047857; }
+  .help-benefit .help-text { color: #065f46; font-size: 12.5px; }
+  .help-modal-footer {
+    padding: 12px 18px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+  @keyframes helpFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+</style>
+</head>
+<body>
+<div class="app" style="color:#fff;">
+  <div class="header">
+    <div class="title" style="color:#6ee7b7;">Zen Pond Ripples</div>
+    <div class="header-actions">
+      <button type="button" class="help-btn" onclick="toggleHelpModal(true)" title="How to Play / Instructions">❓ Help</button>
+      <div class="pill">Tap Water</div>
+    </div>
+  </div>
+  <canvas id="c" style="flex:1;width:100%;border-radius:18px;background:radial-gradient(circle at center, #0f292e 0%, #071318 100%);touch-action:none;"></canvas>
+</div>
+<script>
+const canvas = document.getElementById("c"), ctx = canvas.getContext("2d");
+const palette = ["#34d399", "#38bdf8", "#a78bfa", "#f472b6", "#fbbf24"];
+let ripples = [];
+function resize() { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+window.addEventListener("resize", resize); resize();
+function addRipple(x, y) {
+  const c = palette[Math.floor(Math.random() * palette.length)];
+  ripples.push({ x, y, r: 6, maxR: 120 + Math.random() * 80, alpha: 0.9, color: c });
+}
+canvas.addEventListener("pointerdown", e => {
+  const rect = canvas.getBoundingClientRect();
+  addRipple(e.clientX - rect.left, e.clientY - rect.top);
+});
+setInterval(() => {
+  if (ripples.length < 4) addRipple(Math.random() * canvas.width, Math.random() * canvas.height);
+}, 1400);
+function loop() {
+  ctx.fillStyle = "rgba(7, 19, 24, 0.14)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const rp = ripples[i];
+    rp.r += 1.6;
+    rp.alpha = Math.max(0, 1 - rp.r / rp.maxR);
+    ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+    ctx.strokeStyle = rp.color; ctx.globalAlpha = rp.alpha; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.globalAlpha = 1;
+    if (rp.r >= rp.maxR) ripples.splice(i, 1);
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+
+function toggleHelpModal(show) {
+  const el = document.getElementById("helpModal");
+  if (el) el.style.display = show ? "flex" : "none";
+}
+
+</script>
+<!-- HELP / HOW TO PLAY MODAL -->
+<div id="helpModal" class="help-modal-overlay" style="display:none;" onclick="if(event.target===this) toggleHelpModal(false)">
+  <div class="help-modal-card">
+    <div class="help-modal-header">
+      <div class="help-modal-title">
+        <span>🎮</span>
+        <span>Zen Pond Ripples — How to Play</span>
+      </div>
+      <button type="button" class="help-close-btn" onclick="toggleHelpModal(false)">&times;</button>
+    </div>
+    <div class="help-modal-body">
+      <div class="help-section">
+        <div class="help-label">🎯 Objective</div>
+        <p class="help-text">Create luminous, peaceful water ripples to soothe an overactive mind.</p>
+      </div>
+      <div class="help-section">
+        <div class="help-label">🕹️ How to Play</div>
+        <ul class="help-list">
+          <li>Touch, tap, or drag anywhere across the tranquil pond surface.</li>
+          <li>Watch colorful glowing fluid rings expand, interact, and gently dissolve.</li>
+          <li>Select different calming mood palettes from the bottom buttons.</li>
+        </ul>
+      </div>
+      <div class="help-section help-benefit">
+        <div class="help-label">🌿 Wellness Benefit</div>
+        <p class="help-text">Visual rhythm and fluid simulations reduce sensory overload and induce meditative focus.</p>
+      </div>
+    </div>
+    <div class="help-modal-footer">
+      <button type="button" class="btn" style="width:100%;padding:10px;font-size:14px;" onclick="toggleHelpModal(false)">Got It! Let's Play</button>
+    </div>
+  </div>
+</div>
+
+</body></html>

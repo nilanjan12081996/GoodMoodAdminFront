@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   return (
-    <div className="flex items-center justify-between px-3 py-2 bg-transparent mb-2 shrink-0">
+    <div className="relative z-40 flex items-center justify-between px-3 py-2 bg-transparent mb-2 shrink-0">
       <div className="flex items-center gap-3">
         {/* Toggle Button */}
         <button

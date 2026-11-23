@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Relaxing Color Sort</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; }
+  .app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 520px; margin: 0 auto; padding: 14px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .title { font-size: 18px; font-weight: 700; color: #065f46; }
+  .pill { background: #ffffff; border: 1px solid #d1fae5; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #0b8843; }
+  .btn { background: #0b8843; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:active { transform: scale(0.96); }
+
+  /* Help Button & Modal Styles */
+  .help-btn {
+    background: #ffffff;
+    border: 1px solid #d1fae5;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0b8843;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .help-btn:hover { background: #f0fdf4; border-color: #0b8843; }
+  .help-btn:active { transform: scale(0.95); }
+  .header-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+  .help-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: helpFadeIn 0.2s ease-out;
+  }
+  .help-modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.28);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  .help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .help-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .help-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: #64748b;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .help-close-btn:hover { background: #e2e8f0; color: #0f172a; }
+  .help-modal-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.55;
+  }
+  .help-section { margin-bottom: 14px; }
+  .help-section:last-child { margin-bottom: 0; }
+  .help-label {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #0b8843;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .help-text { margin: 0; }
+  .help-list { margin: 4px 0 0; padding-left: 18px; }
+  .help-list li { margin-bottom: 5px; }
+  .help-benefit {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .help-benefit .help-label { color: #047857; }
+  .help-benefit .help-text { color: #065f46; font-size: 12.5px; }
+  .help-modal-footer {
+    padding: 12px 18px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+  @keyframes helpFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+</style>
+</head>
+<body>
+<div class="app" style="justify-content:space-between;">
+  <div class="header">
+    <div class="title">Color Sort Tubes</div>
+    <div class="header-actions">
+      <button type="button" class="help-btn" onclick="toggleHelpModal(true)" title="How to Play / Instructions">❓ Help</button>
+      <button class="btn" style="padding:6px 14px;" onclick="init()">Reset</button>
+    </div>
+  </div>
+  <div id="tubes" style="display:flex;justify-content:center;gap:14px;align-items:flex-end;flex:1;padding-bottom:30px;"></div>
+  <div id="msg" style="text-align:center;font-weight:600;color:#0b8843;min-height:24px;">Tap a tube to move the top ball</div>
+</div>
+<script>
+const cols = ["#10b981", "#3b82f6", "#f59e0b"];
+let tubes = [], sel = -1;
+function init() {
+  const pool = [...cols, ...cols, ...cols].sort(() => Math.random() - 0.5);
+  tubes = [pool.slice(0,3), pool.slice(3,6), pool.slice(6,9), []];
+  sel = -1; document.getElementById("msg").textContent = "Sort matching colors into separate tubes!";
+  render();
+}
+function won() { return tubes.every(t => t.length === 0 || (t.length === 3 && t.every(c => c === t[0]))); }
+function render() {
+  const el = document.getElementById("tubes"); el.innerHTML = "";
+  tubes.forEach((t, idx) => {
+    const div = document.createElement("div");
+    div.style.cssText = "width:58px;height:170px;border:3px solid " + (sel === idx ? "#0b8843" : "#cbd5e1") + ";border-top:none;border-radius:0 0 28px 28px;display:flex;flex-direction:column-reverse;align-items:center;padding:6px;gap:6px;background:#fff;cursor:pointer;";
+    t.forEach(c => {
+      const b = document.createElement("div");
+      b.style.cssText = "width:40px;height:40px;border-radius:50%;background:" + c + ";box-shadow:inset -3px -3px 6px rgba(0,0,0,0.15);";
+      div.appendChild(b);
+    });
+    div.onclick = () => {
+      if (sel === -1) { if (t.length) sel = idx; }
+      else if (sel === idx) { sel = -1; }
+      else {
+        const src = tubes[sel], dst = tubes[idx];
+        if (dst.length < 3 && (dst.length === 0 || dst[dst.length - 1] === src[src.length - 1])) {
+          dst.push(src.pop());
+          if (won()) document.getElementById("msg").textContent = "🎉 Sorted! Calm & Organized!";
+        }
+        sel = -1;
+      }
+      render();
+    };
+    el.appendChild(div);
+  });
+}
+init();
+
+function toggleHelpModal(show) {
+  const el = document.getElementById("helpModal");
+  if (el) el.style.display = show ? "flex" : "none";
+}
+
+</script>
+<!-- HELP / HOW TO PLAY MODAL -->
+<div id="helpModal" class="help-modal-overlay" style="display:none;" onclick="if(event.target===this) toggleHelpModal(false)">
+  <div class="help-modal-card">
+    <div class="help-modal-header">
+      <div class="help-modal-title">
+        <span>🎮</span>
+        <span>Color Sort Tubes — How to Play</span>
+      </div>
+      <button type="button" class="help-close-btn" onclick="toggleHelpModal(false)">&times;</button>
+    </div>
+    <div class="help-modal-body">
+      <div class="help-section">
+        <div class="help-label">🎯 Objective</div>
+        <p class="help-text">Sort mixed colored liquids so each test tube contains only one uniform color.</p>
+      </div>
+      <div class="help-section">
+        <div class="help-label">🕹️ How to Play</div>
+        <ul class="help-list">
+          <li>Tap a test tube to select its top liquid color.</li>
+          <li>Tap another tube that has matching top color and empty space to pour.</li>
+          <li>Complete the puzzle when all tubes are neatly organized by color.</li>
+        </ul>
+      </div>
+      <div class="help-section help-benefit">
+        <div class="help-label">🌿 Wellness Benefit</div>
+        <p class="help-text">Provides profound organizational satisfaction that satisfies the brain's innate desire for order and calmness.</p>
+      </div>
+    </div>
+    <div class="help-modal-footer">
+      <button type="button" class="btn" style="width:100%;padding:10px;font-size:14px;" onclick="toggleHelpModal(false)">Got It! Let's Play</button>
+    </div>
+  </div>
+</div>
+
+</body></html>

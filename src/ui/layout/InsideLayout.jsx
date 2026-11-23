@@ -35,12 +35,14 @@ const InsideLayout = () => {
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       {/* ===== Right Content Area (Header + Scrollable Main Content) ===== */}
-      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
-        {/* Header */}
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative">
+        {/* Header with higher stacking context so dropdowns overlay main content */}
+        <div className="relative z-30">
+          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        </div>
 
         {/* Main Content: Only this right area scrolls */}
-        <main className="flex-1 overflow-y-auto pr-1 pb-4">
+        <main className="flex-1 overflow-y-auto pr-1 pb-4 relative z-10">
           <Outlet />
         </main>
       </div>

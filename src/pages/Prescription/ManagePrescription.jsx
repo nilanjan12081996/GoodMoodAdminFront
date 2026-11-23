@@ -22,7 +22,8 @@ import {
   Move,
   Image as ImageIcon,
   User,
-  MapPin
+  MapPin,
+  ClipboardList
 } from "lucide-react";
 import defaultLogo from "../../assets/imagesource/logo.png";
 import smileLogo from "../../assets/imagesource/goodmood_smile_logo.png";
@@ -101,7 +102,39 @@ const ManagePrescription = () => {
   const [showDocTitle, setShowDocTitle] = useState(true);
   const [documentTitle, setDocumentTitle] = useState("ONLINE MENTAL HEALTH COUNSELLING ADVICE");
 
+  // --- Session Summary Section (Editable Titles, Subtitles, Samples & Toggles) ---
+  const [showSessionSummary, setShowSessionSummary] = useState(true);
   const [summaryTitle, setSummaryTitle] = useState("COUNSELLING SESSION SUMMARY");
+
+  // 1. Key Findings
+  const [showKeyFindings, setShowKeyFindings] = useState(true);
+  const [keyFindingsTitle, setKeyFindingsTitle] = useState("KEY FINDINGS");
+  const [keyFindingsSubtitle, setKeyFindingsSubtitle] = useState("Key concerns, observations, patterns, triggers, or progress identified during the session.");
+  const [keyFindingsSample, setKeyFindingsSample] = useState("The client discussed ongoing work-related stress and difficulty maintaining a consistent routine. The client reported that periods of increased workload tend to coincide with increased worry and reduced sleep.");
+
+  // 2. Support Provided
+  const [showSupportProvided, setShowSupportProvided] = useState(true);
+  const [supportProvidedTitle, setSupportProvidedTitle] = useState("SUPPORT PROVIDED");
+  const [supportProvidedSubtitle, setSupportProvidedSubtitle] = useState("Interventions, guidance, techniques, psychoeducation, or support provided during the session.");
+  const [supportProvidedSample, setSupportProvidedSample] = useState("Supportive counselling was provided. The session included discussion of stress-management strategies, grounding techniques, and the importance of maintaining a consistent daily routine.");
+
+  // 3. Actions
+  const [showActions, setShowActions] = useState(true);
+  const [actionsTitle, setActionsTitle] = useState("ACTIONS");
+  const [actionsSubtitle, setActionsSubtitle] = useState("Specific steps the client has agreed to take before the next session.");
+  const [actionsSample, setActionsSample] = useState("The client agreed to establish a regular sleep routine, break daily tasks into manageable steps, and use a brief breathing exercise during periods of increased stress.");
+
+  // 4. Practice
+  const [showPractice, setShowPractice] = useState(true);
+  const [practiceTitle, setPracticeTitle] = useState("PRACTICE");
+  const [practiceSubtitle, setPracticeSubtitle] = useState("Exercises, skills, habits, or techniques the client should practise between sessions.");
+  const [practiceSample, setPracticeSample] = useState("Practise slow breathing for a few minutes each day and note situations that appear to increase stress or worry. Review observations during the next session.");
+
+  // 5. Next Session
+  const [showNextSession, setShowNextSession] = useState(true);
+  const [nextSessionTitle, setNextSessionTitle] = useState("NEXT SESSION");
+  const [nextSessionSubtitle, setNextSessionSubtitle] = useState("Follow-up focus, topics to revisit, and/or agreed next steps for the next session.");
+  const [nextSessionSample, setNextSessionSample] = useState("Review progress with the agreed routine and coping strategies, discuss any continuing stressors, and identify further areas for counselling support.");
 
   // Watermark Settings
   const [showWatermark, setShowWatermark] = useState(true);
@@ -223,6 +256,35 @@ const ManagePrescription = () => {
             if (parsed.patientName !== undefined) setPatientName(parsed.patientName);
             if (parsed.patientAge !== undefined) setPatientAge(parsed.patientAge);
             if (parsed.patientGender !== undefined) setPatientGender(parsed.patientGender);
+
+            // Session summary toggles & titles
+            if (parsed.showSessionSummary !== undefined) setShowSessionSummary(parsed.showSessionSummary);
+            if (parsed.summaryTitle !== undefined) setSummaryTitle(parsed.summaryTitle);
+
+            if (parsed.showKeyFindings !== undefined) setShowKeyFindings(parsed.showKeyFindings);
+            if (parsed.keyFindingsTitle !== undefined) setKeyFindingsTitle(parsed.keyFindingsTitle);
+            if (parsed.keyFindingsSubtitle !== undefined) setKeyFindingsSubtitle(parsed.keyFindingsSubtitle);
+            if (parsed.keyFindingsSample !== undefined) setKeyFindingsSample(parsed.keyFindingsSample);
+
+            if (parsed.showSupportProvided !== undefined) setShowSupportProvided(parsed.showSupportProvided);
+            if (parsed.supportProvidedTitle !== undefined) setSupportProvidedTitle(parsed.supportProvidedTitle);
+            if (parsed.supportProvidedSubtitle !== undefined) setSupportProvidedSubtitle(parsed.supportProvidedSubtitle);
+            if (parsed.supportProvidedSample !== undefined) setSupportProvidedSample(parsed.supportProvidedSample);
+
+            if (parsed.showActions !== undefined) setShowActions(parsed.showActions);
+            if (parsed.actionsTitle !== undefined) setActionsTitle(parsed.actionsTitle);
+            if (parsed.actionsSubtitle !== undefined) setActionsSubtitle(parsed.actionsSubtitle);
+            if (parsed.actionsSample !== undefined) setActionsSample(parsed.actionsSample);
+
+            if (parsed.showPractice !== undefined) setShowPractice(parsed.showPractice);
+            if (parsed.practiceTitle !== undefined) setPracticeTitle(parsed.practiceTitle);
+            if (parsed.practiceSubtitle !== undefined) setPracticeSubtitle(parsed.practiceSubtitle);
+            if (parsed.practiceSample !== undefined) setPracticeSample(parsed.practiceSample);
+
+            if (parsed.showNextSession !== undefined) setShowNextSession(parsed.showNextSession);
+            if (parsed.nextSessionTitle !== undefined) setNextSessionTitle(parsed.nextSessionTitle);
+            if (parsed.nextSessionSubtitle !== undefined) setNextSessionSubtitle(parsed.nextSessionSubtitle);
+            if (parsed.nextSessionSample !== undefined) setNextSessionSample(parsed.nextSessionSample);
           } else {
             setAppTagline(prescriptionData.headerDescription);
           }
@@ -344,7 +406,6 @@ const ManagePrescription = () => {
     const headerObj = {
       appTagline,
       documentTitle,
-      summaryTitle,
       showLogo,
       showTagline,
       showDocTitle,
@@ -377,6 +438,30 @@ const ManagePrescription = () => {
       patientName,
       patientAge,
       patientGender,
+
+      // Session Summary
+      showSessionSummary,
+      summaryTitle,
+      showKeyFindings,
+      keyFindingsTitle,
+      keyFindingsSubtitle,
+      keyFindingsSample,
+      showSupportProvided,
+      supportProvidedTitle,
+      supportProvidedSubtitle,
+      supportProvidedSample,
+      showActions,
+      actionsTitle,
+      actionsSubtitle,
+      actionsSample,
+      showPractice,
+      practiceTitle,
+      practiceSubtitle,
+      practiceSample,
+      showNextSession,
+      nextSessionTitle,
+      nextSessionSubtitle,
+      nextSessionSample,
     };
 
     const footerObj = {
@@ -419,9 +504,9 @@ const ManagePrescription = () => {
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 shadow-sm">
+          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 shadow-sm shrink-0">
             <FileText size={26} />
           </div>
           <div>
@@ -432,23 +517,26 @@ const ManagePrescription = () => {
           </div>
         </div>
 
-        {/* Action Buttons: Preview Button & Save Changes */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button
-            color="light"
+        {/* Action Buttons: Preview Button & Save Changes (Prevent breaking / text wrapping) */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-nowrap self-end lg:self-auto">
+          <button
+            type="button"
             onClick={() => setShowPreviewModal(true)}
-            className="border-gray-300 hover:bg-gray-100 text-gray-800 font-semibold shadow-xs flex items-center gap-1.5"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-xl text-xs md:text-sm font-semibold shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
           >
-            <Eye size={17} className="mr-1 text-emerald-600" /> Prescription Preview
-          </Button>
+            <Eye size={16} className="text-[#0B8843] shrink-0" />
+            <span className="whitespace-nowrap">Prescription Preview</span>
+          </button>
 
-          <Button
+          <button
+            type="button"
             onClick={handleSave}
             disabled={loading}
-            className="bg-[#0B8843] hover:bg-[#086a34] text-white shadow-md transition-all font-semibold"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#0B8843] hover:bg-[#086a34] text-white rounded-xl text-xs md:text-sm font-semibold shadow-md transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
           >
-            <Save size={18} className="mr-2" /> {loading ? "Saving Changes..." : "Save Changes"}
-          </Button>
+            <Save size={16} className="shrink-0" />
+            <span className="whitespace-nowrap">{loading ? "Saving Changes..." : "Save Changes"}</span>
+          </button>
         </div>
       </div>
 
@@ -487,6 +575,17 @@ const ManagePrescription = () => {
             }`}
           >
             <User size={16} /> Patient Details
+          </button>
+
+          <button
+            onClick={() => setActiveTab("summary")}
+            className={`flex-1 py-2.5 px-3 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeTab === "summary"
+                ? "bg-[#0B8843] text-white shadow-sm"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <ClipboardList size={16} /> Session Summary
           </button>
 
           <button
@@ -1047,7 +1146,279 @@ const ManagePrescription = () => {
           </Card>
         )}
 
-        {/* TAB 4: DISCLAIMERS & EMERGENCY SUPPORT */}
+        {/* TAB 4: SESSION SUMMARY (HEADINGS, SUBTITLES & CLINICAL SECTIONS) */}
+        {activeTab === "summary" && (
+          <Card className="shadow-sm border-gray-200">
+            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
+              <ClipboardList size={18} className="text-[#0B8843]" /> Counselling Session Summary & Clinical Sections
+            </h3>
+
+            {/* Master Summary Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 mb-2">
+              <div className="flex-1">
+                <Label value="Main Summary Heading" className="text-xs font-bold text-gray-800 block mb-1" />
+                <TextInput
+                  value={summaryTitle}
+                  onChange={(e) => setSummaryTitle(e.target.value)}
+                  placeholder="COUNSELLING SESSION SUMMARY"
+                  className="text-xs font-bold max-w-lg"
+                  disabled={!showSessionSummary}
+                />
+              </div>
+
+              <div 
+                className="flex items-center gap-2 select-none cursor-pointer pt-3 sm:pt-4"
+                onClick={() => setShowSessionSummary(!showSessionSummary)}
+              >
+                <span className={`text-[11px] font-bold ${showSessionSummary ? "text-[#0B8843]" : "text-gray-400"}`}>
+                  {showSessionSummary ? "Active" : "Deactive"}
+                </span>
+                <ToggleSwitch checked={showSessionSummary} onChange={setShowSessionSummary} />
+              </div>
+            </div>
+
+            {showSessionSummary && (
+              <div className="space-y-4 pt-1">
+                {/* 1. KEY FINDINGS */}
+                <div className="bg-gray-50/60 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 pb-2.5">
+                    <div className="flex-1">
+                      <Label value="Section 1 Heading / Title" className="text-xs font-bold text-gray-700 block mb-1" />
+                      <TextInput
+                        value={keyFindingsTitle}
+                        onChange={(e) => setKeyFindingsTitle(e.target.value)}
+                        placeholder="KEY FINDINGS"
+                        className="text-xs font-bold max-w-md"
+                        disabled={!showKeyFindings}
+                      />
+                    </div>
+
+                    <div 
+                      className="flex items-center gap-2 select-none cursor-pointer pt-1 shrink-0"
+                      onClick={() => setShowKeyFindings(!showKeyFindings)}
+                    >
+                      <span className={`text-[11px] font-bold ${showKeyFindings ? "text-[#0B8843]" : "text-gray-400"}`}>
+                        {showKeyFindings ? "Active" : "Deactive"}
+                      </span>
+                      <ToggleSwitch checked={showKeyFindings} onChange={setShowKeyFindings} />
+                    </div>
+                  </div>
+
+                  <div className={showKeyFindings ? "space-y-2" : "space-y-2 opacity-40 pointer-events-none"}>
+                    <div>
+                      <Label value="Subtitle / Instruction Hint" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <TextInput
+                        value={keyFindingsSubtitle}
+                        onChange={(e) => setKeyFindingsSubtitle(e.target.value)}
+                        placeholder="Key concerns, observations, patterns..."
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label value="Sample / Preview Body Text" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <Textarea
+                        value={keyFindingsSample}
+                        onChange={(e) => setKeyFindingsSample(e.target.value)}
+                        rows={3}
+                        className="text-xs text-gray-700 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. SUPPORT PROVIDED */}
+                <div className="bg-gray-50/60 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 pb-2.5">
+                    <div className="flex-1">
+                      <Label value="Section 2 Heading / Title" className="text-xs font-bold text-gray-700 block mb-1" />
+                      <TextInput
+                        value={supportProvidedTitle}
+                        onChange={(e) => setSupportProvidedTitle(e.target.value)}
+                        placeholder="SUPPORT PROVIDED"
+                        className="text-xs font-bold max-w-md"
+                        disabled={!showSupportProvided}
+                      />
+                    </div>
+
+                    <div 
+                      className="flex items-center gap-2 select-none cursor-pointer pt-1 shrink-0"
+                      onClick={() => setShowSupportProvided(!showSupportProvided)}
+                    >
+                      <span className={`text-[11px] font-bold ${showSupportProvided ? "text-[#0B8843]" : "text-gray-400"}`}>
+                        {showSupportProvided ? "Active" : "Deactive"}
+                      </span>
+                      <ToggleSwitch checked={showSupportProvided} onChange={setShowSupportProvided} />
+                    </div>
+                  </div>
+
+                  <div className={showSupportProvided ? "space-y-2" : "space-y-2 opacity-40 pointer-events-none"}>
+                    <div>
+                      <Label value="Subtitle / Instruction Hint" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <TextInput
+                        value={supportProvidedSubtitle}
+                        onChange={(e) => setSupportProvidedSubtitle(e.target.value)}
+                        placeholder="Interventions, guidance, techniques..."
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label value="Sample / Preview Body Text" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <Textarea
+                        value={supportProvidedSample}
+                        onChange={(e) => setSupportProvidedSample(e.target.value)}
+                        rows={3}
+                        className="text-xs text-gray-700 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. ACTIONS */}
+                <div className="bg-gray-50/60 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 pb-2.5">
+                    <div className="flex-1">
+                      <Label value="Section 3 Heading / Title" className="text-xs font-bold text-gray-700 block mb-1" />
+                      <TextInput
+                        value={actionsTitle}
+                        onChange={(e) => setActionsTitle(e.target.value)}
+                        placeholder="ACTIONS"
+                        className="text-xs font-bold max-w-md"
+                        disabled={!showActions}
+                      />
+                    </div>
+
+                    <div 
+                      className="flex items-center gap-2 select-none cursor-pointer pt-1 shrink-0"
+                      onClick={() => setShowActions(!showActions)}
+                    >
+                      <span className={`text-[11px] font-bold ${showActions ? "text-[#0B8843]" : "text-gray-400"}`}>
+                        {showActions ? "Active" : "Deactive"}
+                      </span>
+                      <ToggleSwitch checked={showActions} onChange={setShowActions} />
+                    </div>
+                  </div>
+
+                  <div className={showActions ? "space-y-2" : "space-y-2 opacity-40 pointer-events-none"}>
+                    <div>
+                      <Label value="Subtitle / Instruction Hint" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <TextInput
+                        value={actionsSubtitle}
+                        onChange={(e) => setActionsSubtitle(e.target.value)}
+                        placeholder="Specific steps the client has agreed..."
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label value="Sample / Preview Body Text" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <Textarea
+                        value={actionsSample}
+                        onChange={(e) => setActionsSample(e.target.value)}
+                        rows={3}
+                        className="text-xs text-gray-700 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. PRACTICE */}
+                <div className="bg-gray-50/60 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 pb-2.5">
+                    <div className="flex-1">
+                      <Label value="Section 4 Heading / Title" className="text-xs font-bold text-gray-700 block mb-1" />
+                      <TextInput
+                        value={practiceTitle}
+                        onChange={(e) => setPracticeTitle(e.target.value)}
+                        placeholder="PRACTICE"
+                        className="text-xs font-bold max-w-md"
+                        disabled={!showPractice}
+                      />
+                    </div>
+
+                    <div 
+                      className="flex items-center gap-2 select-none cursor-pointer pt-1 shrink-0"
+                      onClick={() => setShowPractice(!showPractice)}
+                    >
+                      <span className={`text-[11px] font-bold ${showPractice ? "text-[#0B8843]" : "text-gray-400"}`}>
+                        {showPractice ? "Active" : "Deactive"}
+                      </span>
+                      <ToggleSwitch checked={showPractice} onChange={setShowPractice} />
+                    </div>
+                  </div>
+
+                  <div className={showPractice ? "space-y-2" : "space-y-2 opacity-40 pointer-events-none"}>
+                    <div>
+                      <Label value="Subtitle / Instruction Hint" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <TextInput
+                        value={practiceSubtitle}
+                        onChange={(e) => setPracticeSubtitle(e.target.value)}
+                        placeholder="Exercises, skills, habits, or techniques..."
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label value="Sample / Preview Body Text" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <Textarea
+                        value={practiceSample}
+                        onChange={(e) => setPracticeSample(e.target.value)}
+                        rows={3}
+                        className="text-xs text-gray-700 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. NEXT SESSION */}
+                <div className="bg-gray-50/60 p-3.5 rounded-xl border border-gray-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 pb-2.5">
+                    <div className="flex-1">
+                      <Label value="Section 5 Heading / Title" className="text-xs font-bold text-gray-700 block mb-1" />
+                      <TextInput
+                        value={nextSessionTitle}
+                        onChange={(e) => setNextSessionTitle(e.target.value)}
+                        placeholder="NEXT SESSION"
+                        className="text-xs font-bold max-w-md"
+                        disabled={!showNextSession}
+                      />
+                    </div>
+
+                    <div 
+                      className="flex items-center gap-2 select-none cursor-pointer pt-1 shrink-0"
+                      onClick={() => setShowNextSession(!showNextSession)}
+                    >
+                      <span className={`text-[11px] font-bold ${showNextSession ? "text-[#0B8843]" : "text-gray-400"}`}>
+                        {showNextSession ? "Active" : "Deactive"}
+                      </span>
+                      <ToggleSwitch checked={showNextSession} onChange={setShowNextSession} />
+                    </div>
+                  </div>
+
+                  <div className={showNextSession ? "space-y-2" : "space-y-2 opacity-40 pointer-events-none"}>
+                    <div>
+                      <Label value="Subtitle / Instruction Hint" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <TextInput
+                        value={nextSessionSubtitle}
+                        onChange={(e) => setNextSessionSubtitle(e.target.value)}
+                        placeholder="Follow-up focus, topics to revisit..."
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label value="Sample / Preview Body Text" className="text-[11px] font-medium text-gray-600 block mb-1" />
+                      <Textarea
+                        value={nextSessionSample}
+                        onChange={(e) => setNextSessionSample(e.target.value)}
+                        rows={3}
+                        className="text-xs text-gray-700 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+        )}
+
+        {/* TAB 5: DISCLAIMERS & EMERGENCY SUPPORT */}
         {activeTab === "content" && (
           <Card className="shadow-sm border-gray-200">
             <h3 className="text-base font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
@@ -1241,26 +1612,29 @@ const ManagePrescription = () => {
         {/* Bottom Save & Preview Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <CheckCircle2 size={16} className="text-[#0B8843]" />
+            <CheckCircle2 size={16} className="text-[#0B8843] shrink-0" />
             <span>Doctor App and User App will immediately sync with these settings</span>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-            <Button
-              color="light"
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-nowrap self-end sm:self-auto">
+            <button
+              type="button"
               onClick={() => setShowPreviewModal(true)}
-              className="border-gray-300 hover:bg-gray-100 text-gray-800 font-semibold shadow-xs flex items-center gap-1.5"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-xl text-xs md:text-sm font-semibold shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Eye size={17} className="mr-1 text-emerald-600" /> Prescription Preview
-            </Button>
+              <Eye size={16} className="text-[#0B8843] shrink-0" />
+              <span className="whitespace-nowrap">Prescription Preview</span>
+            </button>
 
-            <Button
+            <button
+              type="button"
               onClick={handleSave}
               disabled={loading}
-              className="bg-[#0B8843] hover:bg-[#086a34] text-white shadow-md transition-all font-semibold"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#0B8843] hover:bg-[#086a34] text-white rounded-xl text-xs md:text-sm font-semibold shadow-md transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
             >
-              <Save size={18} className="mr-2" /> {loading ? "Saving Changes..." : "Save Changes"}
-            </Button>
+              <Save size={16} className="shrink-0" />
+              <span className="whitespace-nowrap">{loading ? "Saving Changes..." : "Save Changes"}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1312,7 +1686,7 @@ const ManagePrescription = () => {
                   minHeight: "1075px",
                   aspectRatio: "1 / 1.414",
                 }}
-                className="relative bg-white shadow-2xl rounded-sm p-6 md:p-10 flex flex-col justify-between text-gray-800 border border-gray-300 my-auto"
+                className="relative bg-white shadow-2xl rounded-sm p-6 md:p-10 flex flex-col justify-between text-gray-800 border border-gray-300 my-auto overflow-hidden"
               >
                 {/* Background Watermark with Opacity, Scale, Rotate, Position */}
                 {showWatermark && (
@@ -1402,131 +1776,183 @@ const ManagePrescription = () => {
                   </div>
 
                   {/* --- SESSION SUMMARY TITLE --- */}
-                  <div className="mb-2.5">
-                    <h2 className="text-xs md:text-sm font-bold text-[#0B8843] uppercase tracking-wider">
-                      {summaryTitle}
-                    </h2>
-                  </div>
+                  {showSessionSummary && (
+                    <div className="mb-2">
+                      <h2 className="text-xs md:text-sm font-bold text-[#0B8843] uppercase tracking-wider">
+                        {summaryTitle || "COUNSELLING SESSION SUMMARY"}
+                      </h2>
+                    </div>
+                  )}
 
                   {/* --- 5 DYNAMIC CLINICAL SECTIONS --- */}
-                  <div className="space-y-2 text-[11px] leading-relaxed">
-                    {/* 1. KEY FINDINGS */}
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                      <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
-                        KEY FINDINGS
-                      </h3>
-                      <p className="text-gray-500 text-[10px] mb-0.5 italic">
-                        Key concerns, observations, patterns, triggers, or progress identified during the session.
-                      </p>
-                      <p className="text-gray-800 font-normal">
-                        The client discussed ongoing work-related stress and difficulty maintaining a consistent routine. The client reported that periods of increased workload tend to coincide with increased worry and reduced sleep.
-                      </p>
-                    </div>
-
-                    {/* 2. SUPPORT PROVIDED */}
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                      <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
-                        SUPPORT PROVIDED
-                      </h3>
-                      <p className="text-gray-500 text-[10px] mb-0.5 italic">
-                        Interventions, guidance, techniques, psychoeducation, or support provided during the session.
-                      </p>
-                      <p className="text-gray-800 font-normal">
-                        Supportive counselling was provided. The session included discussion of stress-management strategies, grounding techniques, and the importance of maintaining a consistent daily routine.
-                      </p>
-                    </div>
-
-                    {/* 3. ACTIONS */}
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                      <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
-                        ACTIONS
-                      </h3>
-                      <p className="text-gray-500 text-[10px] mb-0.5 italic">
-                        Specific steps the client has agreed to take before the next session.
-                      </p>
-                      <p className="text-gray-800 font-normal">
-                        The client agreed to establish a regular sleep routine, break daily tasks into manageable steps, and use a brief breathing exercise during periods of increased stress.
-                      </p>
-                    </div>
-
-                    {/* 4. PRACTICE */}
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                      <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
-                        PRACTICE
-                      </h3>
-                      <p className="text-gray-500 text-[10px] mb-0.5 italic">
-                        Exercises, skills, habits, or techniques the client should practise between sessions.
-                      </p>
-                      <p className="text-gray-800 font-normal">
-                        Practise slow breathing for a few minutes each day and note situations that appear to increase stress or worry. Review observations during the next session.
-                      </p>
-                    </div>
-
-                    {/* 5. NEXT SESSION */}
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                      <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
-                        NEXT SESSION
-                      </h3>
-                      <p className="text-gray-500 text-[10px] mb-0.5 italic">
-                        Follow-up focus, topics to revisit, and/or agreed next steps for the next session.
-                      </p>
-                      <p className="text-gray-800 font-normal">
-                        Review progress with the agreed routine and coping strategies, discuss any continuing stressors, and identify further areas for counselling support.
-                      </p>
-                    </div>
-
-                    {/* --- IMPORTANT INFORMATION & DISCLAIMER --- */}
-                    {(showDisclaimer || showEmergencySupport) && (
-                      <div className="mt-3 bg-gray-50 p-3 rounded border border-gray-200 text-[10px] text-gray-600 leading-normal">
-                        <h4 className="font-bold text-[#0B8843] uppercase text-[11px] mb-1">
-                          IMPORTANT INFORMATION
-                        </h4>
-                        {showDisclaimer && (
-                          <p className="mb-1">
-                            <strong className="text-gray-800">{disclaimerTitle || "Online Advice Disclaimer"}: </strong>
-                            {disclaimer}
+                  {showSessionSummary && (
+                    <div className="space-y-2 text-[11px] leading-relaxed">
+                      {/* 1. KEY FINDINGS */}
+                      {showKeyFindings && (
+                        <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
+                          <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
+                            {keyFindingsTitle || "KEY FINDINGS"}
+                          </h3>
+                          {keyFindingsSubtitle && (
+                            <p className="text-gray-500 text-[10px] mb-0.5 italic">
+                              {keyFindingsSubtitle}
+                            </p>
+                          )}
+                          <p className="text-gray-800 font-normal whitespace-pre-line">
+                            {keyFindingsSample}
                           </p>
-                        )}
-                        {showEmergencySupport && (
-                          <p>
-                            <strong className="text-gray-800">{emergencySupportTitle || "Emergency Support"}: </strong>
-                            {emergencySupport}
+                        </div>
+                      )}
+
+                      {/* 2. SUPPORT PROVIDED */}
+                      {showSupportProvided && (
+                        <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
+                          <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
+                            {supportProvidedTitle || "SUPPORT PROVIDED"}
+                          </h3>
+                          {supportProvidedSubtitle && (
+                            <p className="text-gray-500 text-[10px] mb-0.5 italic">
+                              {supportProvidedSubtitle}
+                            </p>
+                          )}
+                          <p className="text-gray-800 font-normal whitespace-pre-line">
+                            {supportProvidedSample}
                           </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                        </div>
+                      )}
+
+                      {/* 3. ACTIONS */}
+                      {showActions && (
+                        <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
+                          <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
+                            {actionsTitle || "ACTIONS"}
+                          </h3>
+                          {actionsSubtitle && (
+                            <p className="text-gray-500 text-[10px] mb-0.5 italic">
+                              {actionsSubtitle}
+                            </p>
+                          )}
+                          <p className="text-gray-800 font-normal whitespace-pre-line">
+                            {actionsSample}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* 4. PRACTICE */}
+                      {showPractice && (
+                        <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
+                          <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
+                            {practiceTitle || "PRACTICE"}
+                          </h3>
+                          {practiceSubtitle && (
+                            <p className="text-gray-500 text-[10px] mb-0.5 italic">
+                              {practiceSubtitle}
+                            </p>
+                          )}
+                          <p className="text-gray-800 font-normal whitespace-pre-line">
+                            {practiceSample}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* 5. NEXT SESSION */}
+                      {showNextSession && (
+                        <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
+                          <h3 className="font-bold text-[#0B8843] text-xs uppercase mb-0.5">
+                            {nextSessionTitle || "NEXT SESSION"}
+                          </h3>
+                          {nextSessionSubtitle && (
+                            <p className="text-gray-500 text-[10px] mb-0.5 italic">
+                              {nextSessionSubtitle}
+                            </p>
+                          )}
+                          <p className="text-gray-800 font-normal whitespace-pre-line">
+                            {nextSessionSample}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* --- IMPORTANT INFORMATION & DISCLAIMER --- */}
+                      {(showDisclaimer || showEmergencySupport) && (
+                        <div className="mt-3 bg-gray-50 p-3 rounded border border-gray-200 text-[10px] text-gray-600 leading-normal">
+                          <h4 className="font-bold text-[#0B8843] uppercase text-[11px] mb-1">
+                            IMPORTANT INFORMATION
+                          </h4>
+                          {showDisclaimer && (
+                            <p className="mb-1">
+                              <strong className="text-gray-800">{disclaimerTitle || "Online Advice Disclaimer"}: </strong>
+                              {disclaimer}
+                            </p>
+                          )}
+                          {showEmergencySupport && (
+                            <p>
+                              <strong className="text-gray-800">{emergencySupportTitle || "Emergency Support"}: </strong>
+                              {emergencySupport}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* If Session Summary is disabled but Disclaimers are enabled */}
+                  {!showSessionSummary && (showDisclaimer || showEmergencySupport) && (
+                    <div className="mt-3 bg-gray-50 p-3 rounded border border-gray-200 text-[10px] text-gray-600 leading-normal">
+                      <h4 className="font-bold text-[#0B8843] uppercase text-[11px] mb-1">
+                        IMPORTANT INFORMATION
+                      </h4>
+                      {showDisclaimer && (
+                        <p className="mb-1">
+                          <strong className="text-gray-800">{disclaimerTitle || "Online Advice Disclaimer"}: </strong>
+                          {disclaimer}
+                        </p>
+                      )}
+                      {showEmergencySupport && (
+                        <p>
+                          <strong className="text-gray-800">{emergencySupportTitle || "Emergency Support"}: </strong>
+                          {emergencySupport}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                {/* --- OFFICIAL LETTERHEAD FOOTER --- */}
+                {/* --- OFFICIAL LETTERHEAD FOOTER (MATCHING APPLE PAGES DESIGN) --- */}
                 {showFooterOffice && (showCompanyName || showContactEmail || showWebsite || showRegOffice || showCorpOffice) && (
-                  <div className="relative z-10 pt-3 mt-4 border-t-2 border-[#FA8500] border-b-4 border-[#0B8843] pb-2 text-[10px] text-gray-600">
-                    <div className="grid grid-cols-3 gap-3">
+                  <div className="relative z-10 pt-4 mt-auto">
+                    {/* Orange dividing line */}
+                    <div className="w-full h-[2.5px] bg-[#E28743] mb-3.5" />
+
+                    {/* 3 Columns */}
+                    <div className="grid grid-cols-3 gap-5 text-[10px] text-gray-600 pb-3.5">
                       {/* Col 1: Entity Name & Contact */}
                       {(showCompanyName || showContactEmail || showWebsite) && (
                         <div>
-                          {showCompanyName && <h5 className="font-bold text-gray-900 text-[11px] mb-0.5">{companyName}</h5>}
-                          {showContactEmail && <p className="text-gray-600 hover:text-emerald-700">{contactEmail}</p>}
-                          {showWebsite && <p className="text-gray-600 font-medium">{website}</p>}
+                          {showCompanyName && <h5 className="font-bold text-gray-900 text-[10.5px] mb-0.5">{companyName}</h5>}
+                          {showContactEmail && <p className="text-gray-600 leading-tight">{contactEmail}</p>}
+                          {showWebsite && <p className="text-gray-600 leading-tight font-normal">{website}</p>}
                         </div>
                       )}
 
                       {/* Col 2: Reg Office */}
                       {showRegOffice && (
                         <div>
-                          <h5 className="font-bold text-gray-900 text-[11px] mb-0.5">Reg. Office Address:</h5>
-                          <p className="text-gray-600 leading-snug">{regOffice}</p>
+                          <h5 className="font-bold text-gray-900 text-[10.5px] mb-0.5">Reg. Office Address:</h5>
+                          <p className="text-gray-600 leading-snug whitespace-pre-line">{regOffice}</p>
                         </div>
                       )}
 
                       {/* Col 3: Corporate Office */}
                       {showCorpOffice && (
                         <div>
-                          <h5 className="font-bold text-gray-900 text-[11px] mb-0.5">Corporate Office:</h5>
-                          <p className="text-gray-600 leading-snug">{corpOffice}</p>
+                          <h5 className="font-bold text-gray-900 text-[10.5px] mb-0.5">Corporate Office:</h5>
+                          <p className="text-gray-600 leading-snug whitespace-pre-line">{corpOffice}</p>
                         </div>
                       )}
                     </div>
+
+                    {/* Edge-to-Edge Solid Green Accent Strip across the bottom */}
+                    <div className="-mx-6 md:-mx-10 -mb-6 md:-mb-10 h-4 md:h-5 bg-[#0B8843]" />
                   </div>
                 )}
               </div>

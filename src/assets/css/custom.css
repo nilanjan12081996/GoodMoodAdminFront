@@ -119,6 +119,33 @@ input {
   min-height: 600px !important;
 }
 
+/* Ensure horizontal scrollbars in AG Grid are always visible and styled nicely */
+.ag-theme-alpine .ag-body-horizontal-scroll {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.ag-theme-alpine .ag-body-horizontal-scroll-viewport::-webkit-scrollbar,
+.ag-theme-alpine ::-webkit-scrollbar {
+  display: block !important;
+  height: 8px !important;
+  width: 8px !important;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 4px;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-thumb {
+  background: #94a3b8 !important;
+  border-radius: 4px;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
 .edit_user_profile_btn span {
   background: #f5f8ff;
   color: #143c7c;
