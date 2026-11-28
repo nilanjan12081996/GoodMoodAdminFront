@@ -66,6 +66,8 @@ import Myprofile from '../components/Myprofile.jsx';
 import AddSidebarForm from '../pages/AddSidebar/AddSidebar.jsx';
 import Banner from '../pages/Banner/Banner.jsx';
 import AppMaintenance from '../pages/AppMaintenance/AppMaintenance.jsx';
+import ConsultationTracker from '../pages/ConsultationTracker/ConsultationTracker.jsx';
+import PatientsDirectory from '../pages/Patients/PatientsDirectory.jsx';
 
 const allRoutes = [
   {
@@ -725,6 +727,46 @@ const allRoutes = [
       {
         index: true,
         element: <AppMaintenance />,
+      },
+    ],
+  },
+  {
+    path: '/ConsultationTracker/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ConsultationTracker />,
+      },
+    ],
+  },
+  {
+    path: '/ConsultationTracker',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ConsultationTracker />,
+      },
+    ],
+  },
+  {
+    path: '/PatientsDirectory/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <PatientsDirectory />,
+      },
+    ],
+  },
+  {
+    path: '/PatientsDirectory',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <PatientsDirectory />,
       },
     ],
   },

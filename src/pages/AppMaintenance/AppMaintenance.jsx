@@ -59,49 +59,12 @@ const MaintenanceToggleSwitch = ({ checked, onChange, disabled }) => {
   );
 };
 
-const CUSTOMER_PRESETS = [
-  {
-    label: "Under Development (2 Days)",
-    text: "Good Mood is currently under active development. We will be back online in 2 days with exciting new features!",
-  },
-  {
-    label: "Scheduled Maintenance",
-    text: "Good Mood is currently under scheduled maintenance. Please check back shortly.",
-  },
-  {
-    label: "Server Optimization",
-    text: "We are currently performing server and performance optimization. Service will resume shortly.",
-  },
-  {
-    label: "App Upgrade",
-    text: "A major update is currently in progress. We will be back shortly with a smoother experience!",
-  },
-];
-
-const DOCTOR_PRESETS = [
-  {
-    label: "Under Development (2 Days)",
-    text: "Doctor Portal is currently under development. We will be back online in 2 days with improved clinical tools!",
-  },
-  {
-    label: "Scheduled Maintenance",
-    text: "Doctor Portal is currently under scheduled maintenance. Please check back shortly.",
-  },
-  {
-    label: "Consultation System Upgrade",
-    text: "We are currently upgrading our consultation and appointment servers. Normal services will resume shortly.",
-  },
-  {
-    label: "System Optimization",
-    text: "Doctor services are undergoing routine maintenance. Thank you for your patience, we'll be back online shortly.",
-  },
-];
-
 const AppMaintenance = () => {
   const navigate = useNavigate();
 
   // Customer App State
   const [customerMaintenance, setCustomerMaintenance] = useState(false);
+  const [customerTitle, setCustomerTitle] = useState("Under Maintenance");
   const [customerMessage, setCustomerMessage] = useState(
     "Good Mood is currently under scheduled maintenance. Please check back shortly."
   );
@@ -110,6 +73,7 @@ const AppMaintenance = () => {
 
   // Doctor App State
   const [doctorMaintenance, setDoctorMaintenance] = useState(false);
+  const [doctorTitle, setDoctorTitle] = useState("Under Maintenance");
   const [doctorMessage, setDoctorMessage] = useState(
     "Doctor Portal is currently under scheduled maintenance. Please check back shortly."
   );
@@ -218,6 +182,9 @@ const AppMaintenance = () => {
       const resCustomer = await api.get('/goodmood/users/maintenance-status');
       if (resCustomer?.data?.status) {
         setCustomerMaintenance(Boolean(resCustomer.data.maintenance));
+        if (resCustomer.data.title) {
+          setCustomerTitle(resCustomer.data.title);
+        }
         if (resCustomer.data.message) {
           setCustomerMessage(resCustomer.data.message);
         }
@@ -230,6 +197,9 @@ const AppMaintenance = () => {
       const resDoctor = await api.get('/goodmood/users/doctor-maintenance-status');
       if (resDoctor?.data?.status) {
         setDoctorMaintenance(Boolean(resDoctor.data.maintenance));
+        if (resDoctor.data.title) {
+          setDoctorTitle(resDoctor.data.title);
+        }
         if (resDoctor.data.message) {
           setDoctorMessage(resDoctor.data.message);
         }
@@ -251,6 +221,7 @@ const AppMaintenance = () => {
     try {
       const res = await api.post('/goodmood/users/maintenance-toggle', {
         enabled: nextVal,
+        title: customerTitle.trim(),
         message: customerMessage.trim(),
       });
       if (res?.data?.status) {
@@ -279,6 +250,7 @@ const AppMaintenance = () => {
     try {
       const res = await api.post('/goodmood/users/maintenance-toggle', {
         enabled: customerMaintenance,
+        title: customerTitle.trim() || "Under Maintenance",
         message: customerMessage.trim(),
       });
       if (res?.data?.status) {
@@ -298,6 +270,7 @@ const AppMaintenance = () => {
     try {
       const res = await api.post('/goodmood/users/doctor-maintenance-toggle', {
         enabled: nextVal,
+        title: doctorTitle.trim(),
         message: doctorMessage.trim(),
       });
       if (res?.data?.status) {
@@ -326,6 +299,7 @@ const AppMaintenance = () => {
     try {
       const res = await api.post('/goodmood/users/doctor-maintenance-toggle', {
         enabled: doctorMaintenance,
+        title: doctorTitle.trim() || "Under Maintenance",
         message: doctorMessage.trim(),
       });
       if (res?.data?.status) {
@@ -413,38 +387,40 @@ const AppMaintenance = () => {
             <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-xs">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-bold text-gray-800">
-                  Dynamic Maintenance Message:
+                  Dynamic Maintenance Notice:
                 </label>
                 <span className="text-[11px] text-gray-400">
                   {customerMessage.length} characters
                 </span>
               </div>
 
-              {/* Presets */}
+              {/* Heading Input */}
               <div className="mb-2.5">
-                <p className="text-[11px] font-semibold text-gray-500 mb-1.5">Quick Presets / Templates:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {CUSTOMER_PRESETS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setCustomerMessage(preset.text)}
-                      className="text-[11px] px-2.5 py-1 rounded-md bg-gray-100 hover:bg-[#52B69A]/15 hover:text-[#0B8843] hover:border-[#52B69A] border border-gray-200 text-gray-700 font-medium transition-all cursor-pointer"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
+                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                  Maintenance Heading / Title:
+                </label>
+                <input
+                  type="text"
+                  value={customerTitle}
+                  onChange={(e) => setCustomerTitle(e.target.value)}
+                  placeholder="e.g., Under Maintenance / Under Development"
+                  className="w-full text-xs font-semibold text-gray-800 px-2.5 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#52B69A] focus:border-[#52B69A] outline-none transition-all"
+                />
               </div>
 
               {/* Textarea */}
-              <textarea
-                value={customerMessage}
-                onChange={(e) => setCustomerMessage(e.target.value)}
-                rows={3}
-                placeholder="Enter custom maintenance notice for customers..."
-                className="w-full text-xs text-gray-800 p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#52B69A] focus:border-[#52B69A] resize-none outline-none leading-relaxed transition-all"
-              />
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                  Maintenance Message:
+                </label>
+                <textarea
+                  value={customerMessage}
+                  onChange={(e) => setCustomerMessage(e.target.value)}
+                  rows={3}
+                  placeholder="Enter custom maintenance notice for customers..."
+                  className="w-full text-xs text-gray-800 p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#52B69A] focus:border-[#52B69A] resize-none outline-none leading-relaxed transition-all"
+                />
+              </div>
 
               {/* Action Button */}
               <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
@@ -522,38 +498,40 @@ const AppMaintenance = () => {
             <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-xs">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-bold text-gray-800">
-                  Dynamic Maintenance Message:
+                  Dynamic Maintenance Notice:
                 </label>
                 <span className="text-[11px] text-gray-400">
                   {doctorMessage.length} characters
                 </span>
               </div>
 
-              {/* Presets */}
+              {/* Heading Input */}
               <div className="mb-2.5">
-                <p className="text-[11px] font-semibold text-gray-500 mb-1.5">Quick Presets / Templates:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {DOCTOR_PRESETS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setDoctorMessage(preset.text)}
-                      className="text-[11px] px-2.5 py-1 rounded-md bg-gray-100 hover:bg-[#52B69A]/15 hover:text-[#0B8843] hover:border-[#52B69A] border border-gray-200 text-gray-700 font-medium transition-all cursor-pointer"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
+                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                  Maintenance Heading / Title:
+                </label>
+                <input
+                  type="text"
+                  value={doctorTitle}
+                  onChange={(e) => setDoctorTitle(e.target.value)}
+                  placeholder="e.g., Under Maintenance / Under Development"
+                  className="w-full text-xs font-semibold text-gray-800 px-2.5 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#52B69A] focus:border-[#52B69A] outline-none transition-all"
+                />
               </div>
 
               {/* Textarea */}
-              <textarea
-                value={doctorMessage}
-                onChange={(e) => setDoctorMessage(e.target.value)}
-                rows={3}
-                placeholder="Enter custom maintenance notice for doctors..."
-                className="w-full text-xs text-gray-800 p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#52B69A] focus:border-[#52B69A] resize-none outline-none leading-relaxed transition-all"
-              />
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                  Maintenance Message:
+                </label>
+                <textarea
+                  value={doctorMessage}
+                  onChange={(e) => setDoctorMessage(e.target.value)}
+                  rows={3}
+                  placeholder="Enter custom maintenance notice for doctors..."
+                  className="w-full text-xs text-gray-800 p-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#52B69A] focus:border-[#52B69A] resize-none outline-none leading-relaxed transition-all"
+                />
+              </div>
 
               {/* Action Button */}
               <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">

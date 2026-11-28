@@ -41,7 +41,7 @@ export const getCategoryWithoutParent=createAsyncThunk(
     'getCategoryWithoutParent',
     async (_, { rejectWithValue }) => {
         try {
-          const response = await api.get("goodmood/support/category/without-parent");
+          const response = await api.get("goodmood/support/category/list/parents");
            if (response?.data?.statusCode === 201||response?.data?.statusCode === 200) {
                 return response?.data;
             } else {

@@ -119,7 +119,26 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                     <ul className="ml-4 pl-3.5 my-1 border-l-2 border-emerald-100 flex flex-col gap-1">
                       {(() => {
                         let subList = side.subsidebar ? [...side.subsidebar] : [];
-                        const isSystemSettings = (side.sidebarName || '').toUpperCase().includes('SYSTEM') || (side.sidebarShortName || '').toUpperCase().includes('SYSTEM');
+                        const upperName = (side.sidebarName || '').toUpperCase();
+                        const upperShort = (side.sidebarShortName || '').toUpperCase();
+                        const isSystemSettings = upperName.includes('SYSTEM') || upperShort.includes('SYSTEM');
+                        const isVerification = upperName.includes('VERIFICATION') || upperName.includes('APPROVAL');
+                        const isSupport = upperName === 'SUPPORT' || upperShort === 'SUPPORT';
+
+                        if (isVerification && !subList.some((s: any) => s.subSidebarShortName === 'PatientsDirectory')) {
+                          subList.push({
+                            id: 'patients',
+                            subSidebarName: 'Patients',
+                            subSidebarShortName: 'PatientsDirectory'
+                          });
+                        }
+                        if (isSupport && !subList.some((s: any) => s.subSidebarShortName === 'ConsultationTracker')) {
+                          subList.push({
+                            id: 'tracker',
+                            subSidebarName: 'Consultation Tracker',
+                            subSidebarShortName: 'ConsultationTracker'
+                          });
+                        }
                         if (isSystemSettings && !subList.some((s: any) => s.subSidebarShortName === 'AppMaintenance')) {
                           subList.push({
                             id: 'maintenance',

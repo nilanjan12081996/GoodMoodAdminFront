@@ -1,116 +1,495 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllDoctorTransactionTotals } from "../../Reducer/DoctorTransactionSlice";
+import {
+    getAllDoctorTransactionTotals,
+    settleSingleDoctor,
+    clearDoctorTransactionMessage,
+} from "../../Reducer/DoctorTransactionSlice";
+import { getAllTransactions, toggleIsPaid } from "../../Reducer/TransactionHistorySlice";
 import { getDoctor } from "../../Reducer/DoctorSlice";
-import { Eye, IndianRupee, ArrowLeft, Search, CheckCircle, CreditCard } from "lucide-react";
-import { Button, Modal, Select, Label, TextInput } from "flowbite-react";
-import { useNavigate } from "react-router-dom";
-import { Filter, X } from "lucide-react";
-import { toggleIsPaid, getAllTransactions } from "../../Reducer/TransactionHistorySlice";
-import { FileText } from "lucide-react";
+import api from "../../store/Api";
+import BankVerifySettleModal from "./BankVerifySettleModal";
+import {
+    Eye,
+    Search,
+    CheckCircle,
+    Download,
+    Send,
+    ShieldCheck,
+    AlertTriangle,
+    FileText,
+    Filter,
+    X,
+    Wallet,
+    Building2,
+    IndianRupee,
+    RefreshCw,
+    List,
+    Users,
+} from "lucide-react";
+import { Modal } from "flowbite-react";
+import { useNavigate, useParams } from "react-router-dom";
+
+const formatINR = (val) => {
+    const num = Number(val || 0);
+    return `₹${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
 
 const DoctorTransaction = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { doctorTotals, loading } = useSelector((state) => state?.doctorTransaction);
-    const { doctorsDetails } = useSelector((state) => state?.doctors);
+    const { id } = useParams();
+
+    const { doctorTotals, loading, settling, message, error } = useSelector(
+        (state) => state?.doctorTransaction
+    );
     const { transactionHistory } = useSelector((state) => state?.transactionHistory);
-    const [selectedDoctor, setSelectedDoctor] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { doctorsDetails } = useSelector((state) => state?.doctors);
+
     const [searchTerm, setSearchTerm] = useState("");
-    
-    // Filter states
+    const [defaultMainRate, setDefaultMainRate] = useState(0);
+    const [bankMapByDoctorId, setBankMapByDoctorId] = useState({});
+    const [batchSubmitting, setBatchSubmitting] = useState(false);
+
+    // Filters
     const [filters, setFilters] = useState({
         startDate: "",
         endDate: "",
         month: "",
-        year: ""
+        year: "",
     });
 
-    useEffect(() => {
+    // Modals
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+
+    const [settleModalOpen, setSettleModalOpen] = useState(false);
+    const [doctorToPay, setDoctorToPay] = useState(null);
+
+    const [batchModalOpen, setBatchModalOpen] = useState(false);
+    const [batchVerified, setBatchVerified] = useState(false);
+    const [batchUtrPrefix, setBatchUtrPrefix] = useState("");
+
+    const reloadAll = () => {
         dispatch(getAllDoctorTransactionTotals(filters));
-        dispatch(getDoctor());
         dispatch(getAllTransactions());
+        dispatch(getDoctor());
+    };
+
+    useEffect(() => {
+        reloadAll();
     }, [dispatch, filters]);
 
-    const handleTogglePaid = async (tx) => {
-        const transaction = transactionHistory?.find(t => t.transactionCode === tx.transactionCode);
-        const idToToggle = tx.id || transaction?.id;
-        if (idToToggle) {
-            await dispatch(toggleIsPaid(idToToggle));
-            dispatch(getAllDoctorTransactionTotals(filters));
-            dispatch(getAllTransactions());
-            
-            // Update selectedDoctor in the modal to reflect changes
-            if (selectedDoctor) {
-                // The re-fetch will update doctorTotals, we should update selectedDoctor
-                // But since doctorTotals is used in rowData, maybe just close modal or let user see it disappear.
-                // We'll close the modal or let the user close it.
-                // It might be better to just let Redux update state, but selectedDoctor is local state.
-                // To safely update the modal without closing, we can trigger a refetch and update selectedDoctor from new rowData.
-            }
-        }
-    };
-
-    // Keep selectedDoctor in sync with Redux updates
+    // Load configured Main Category commission rate for fallback accuracy
     useEffect(() => {
-        if (selectedDoctor && doctorTotals) {
-            const updatedDoctor = doctorTotals.find(d => d.doctorId === selectedDoctor.doctorId);
-            if (updatedDoctor) {
-                const doctorInfo = doctorsDetails?.data?.find(d => d.id === updatedDoctor.doctorId);
-                setSelectedDoctor({
-                    ...updatedDoctor,
-                    doctorName: updatedDoctor.doctorName || (doctorInfo ? `${doctorInfo.firstName} ${doctorInfo.lastName}` : `Expert ID: ${updatedDoctor.doctorId}`),
-                    unpaidAmount: updatedDoctor.unpaidAmount || 0,
-                    unpaidTransactionCount: updatedDoctor.unpaidTransactionCount || 0,
-                    paidAmount: updatedDoctor.paidAmount || 0,
-                    paidTransactionCount: updatedDoctor.paidTransactionCount || 0,
-                    platformPercentage: updatedDoctor.platformPercentage || 0,
-                    appliedPercentages: updatedDoctor.appliedPercentages || [],
-                    platformCharges: updatedDoctor.platformCharges || 0,
-                    payableAmount: updatedDoctor.payableAmount || 0,
-                    unpaidTransactions: updatedDoctor.unpaidTransactions || [],
-                    paidTransactions: updatedDoctor.paidTransactions || []
+        api.get("goodmood/support/category/list/parents")
+            .then((res) => {
+                const cats = (res?.data?.data || []).filter(
+                    (c) => Number(c?.parentId ?? c?.parent_id ?? 0) === 0
+                );
+                return Promise.all(
+                    cats.map((c) =>
+                        api
+                            .get(`goodmood/charges/get-charges/${c.id}`)
+                            .then((r) => Number(r?.data?.data?.charge ?? 0))
+                            .catch(() => 0)
+                    )
+                );
+            })
+            .then((rates) => {
+                const activeRate = (rates || []).find((r) => r > 0);
+                if (activeRate) setDefaultMainRate(activeRate);
+            })
+            .catch(() => {});
+    }, []);
+
+    // Fetch live Bank Account status for every relevant doctor via /goodmood/doctors/details/:id
+    useEffect(() => {
+        const docIds = new Set();
+        (doctorTotals || []).forEach((d) => d?.doctorId && docIds.add(d.doctorId));
+        (doctorsDetails?.data || []).forEach((d) => d?.id && docIds.add(d.id));
+        const idsToFetch = Array.from(docIds).filter((dId) => bankMapByDoctorId[dId] === undefined);
+        if (idsToFetch.length === 0) return;
+
+        Promise.all(
+            idsToFetch.map((dId) =>
+                api
+                    .get(`goodmood/doctors/details/${dId}`)
+                    .then((res) => {
+                        const list = res?.data?.data?.bankDetails || [];
+                        const active =
+                            list.find((b) => (b.status === undefined || b.status === 1) && b.isMain === 1) ||
+                            list.find((b) => b.status === undefined || b.status === 1) ||
+                            list[0];
+                        return {
+                            doctorId: dId,
+                            bank: active
+                                ? {
+                                      accountHolderName: active.accountHolderName || "",
+                                      bankName: active.bankName || "",
+                                      accountNumber: active.accountOn || active.accountNumber || "",
+                                      ifscCode: active.ifscCode || "",
+                                      upiId: active.upi || active.upiId || "",
+                                  }
+                                : null,
+                        };
+                    })
+                    .catch(() => ({ doctorId: dId, bank: null }))
+            )
+        ).then((results) => {
+            setBankMapByDoctorId((prev) => {
+                const next = { ...prev };
+                results.forEach((r) => {
+                    next[r.doctorId] = r.bank;
                 });
-            } else {
-                setIsModalOpen(false);
-            }
-        }
-    }, [doctorTotals, doctorsDetails]);
-    
-    const handleGeneratePDF = async () => {
-        const element = document.getElementById('transaction-modal-content');
-        if (!element) return;
-        
-        const html2pdf = (await import('html2pdf.js/dist/html2pdf.bundle.min.js')).default;
-
-        const opt = {
-            margin:       [10, 10, 10, 10],
-            filename:     `${selectedDoctor?.doctorName || 'Expert'}_Payment_Statement.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // Temporarily hide actions column if any
-        html2pdf().from(element).set(opt).save();
-    };
-
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilters(prev => ({ ...prev, [name]: value }));
-    };
-
-    const resetFilters = () => {
-        setFilters({
-            startDate: "",
-            endDate: "",
-            month: "",
-            year: ""
+                return next;
+            });
         });
+    }, [doctorTotals, doctorsDetails?.data]);
+
+    useEffect(() => {
+        if (message) {
+            dispatch(clearDoctorTransactionMessage());
+        }
+    }, [message, dispatch]);
+
+    // Merge backend Doctor Totals + Transaction History fallback (handles NULL is_paid on un-restarted server seamlessly!)
+    const enrichedDoctors = useMemo(() => {
+        const docsList = doctorsDetails?.data || [];
+        const docByName = {};
+        const docById = {};
+        docsList.forEach((d) => {
+            docById[d.id] = d;
+            const nameKey = `${d.firstName || ""} ${d.lastName || ""}`.trim().toLowerCase();
+            if (nameKey) docByName[nameKey] = d;
+        });
+
+        // Group SUCCESS transactions by doctor so we always have exact numbers even if backend wasn't restarted
+        const txGroupByDocId = {};
+        (transactionHistory || []).forEach((tx) => {
+            if (tx.transactionStatus !== "SUCCESS") return;
+
+            // Date filter check if filters applied
+            const txDateStr = tx.appointmentDate || (tx.createdAt ? String(tx.createdAt).slice(0, 10) : "");
+            if (filters.startDate && txDateStr && txDateStr < filters.startDate) return;
+            if (filters.endDate && txDateStr && txDateStr > filters.endDate) return;
+            if (filters.month && txDateStr && Number(txDateStr.slice(5, 7)) !== Number(filters.month)) return;
+            if (filters.year && txDateStr && Number(txDateStr.slice(0, 4)) !== Number(filters.year)) return;
+
+            const matchedDoc =
+                (tx.doctorId && docById[tx.doctorId]) ||
+                docByName[(tx.doctorName || "").trim().toLowerCase()];
+            const dId = tx.doctorId || matchedDoc?.id || `name_${tx.doctorName}`;
+
+            if (!txGroupByDocId[dId]) {
+                txGroupByDocId[dId] = {
+                    doctorId: typeof dId === "number" ? dId : null,
+                    doctorName:
+                        tx.doctorName ||
+                        (matchedDoc ? `${matchedDoc.firstName || ""} ${matchedDoc.lastName || ""}`.trim() : "Expert"),
+                    doctorMobile: matchedDoc?.mobile || "",
+                    unpaidTxs: [],
+                    paidTxs: [],
+                };
+            }
+
+            const gross = Number(tx.transactionPrice || 0);
+            const pct =
+                tx.commissionPercentage !== undefined && tx.commissionPercentage !== null
+                    ? Number(tx.commissionPercentage)
+                    : defaultMainRate;
+            const comm =
+                tx.commissionAmount !== undefined && tx.commissionAmount !== null
+                    ? Number(tx.commissionAmount)
+                    : Number(((gross * pct) / 100).toFixed(2));
+            const net =
+                tx.doctorPayableAmount !== undefined && tx.doctorPayableAmount !== null
+                    ? Number(tx.doctorPayableAmount)
+                    : Math.max(0, Number((gross - comm).toFixed(2)));
+
+            const detailObj = {
+                id: tx.id,
+                transactionId: tx.id,
+                patientName: tx.userName || "Patient",
+                transactionCode: tx.transactionCode,
+                date: txDateStr,
+                totalAmount: gross,
+                platformPercentage: pct,
+                platformChargeAmount: comm,
+                payoutAmount: net,
+                supportCategoryName: tx.mainCategoryName || "Consultation",
+                settlementUtr: tx.settlementUtr,
+            };
+
+            if (tx.isPaid === 1) {
+                txGroupByDocId[dId].paidTxs.push(detailObj);
+            } else {
+                txGroupByDocId[dId].unpaidTxs.push(detailObj);
+            }
+        });
+
+        // Combine backend doctorTotals + txGroupByDocId
+        const allKeys = new Set([
+            ...(doctorTotals || []).map((d) => d.doctorId),
+            ...Object.keys(txGroupByDocId).map((k) => (isNaN(Number(k)) ? k : Number(k))),
+        ]);
+
+        const merged = [];
+        allKeys.forEach((key) => {
+            const backendRow = (doctorTotals || []).find((d) => d.doctorId === key);
+            const fallbackGrp = txGroupByDocId[key];
+            const docMeta = typeof key === "number" ? docById[key] : null;
+            const liveBank = typeof key === "number" ? bankMapByDoctorId[key] : null;
+
+            const useBackendNumbers =
+                backendRow &&
+                (Number(backendRow.unpaidTransactionCount || 0) > 0 ||
+                    Number(backendRow.paidTransactionCount || 0) > 0);
+
+            const unpaidList = useBackendNumbers
+                ? backendRow.unpaidTransactions || []
+                : fallbackGrp?.unpaidTxs || [];
+            const paidList = useBackendNumbers
+                ? backendRow.paidTransactions || []
+                : fallbackGrp?.paidTxs || [];
+
+            const unpaidCount = useBackendNumbers
+                ? Number(backendRow.unpaidTransactionCount || 0)
+                : unpaidList.length;
+            const unpaidGross = useBackendNumbers
+                ? Number(backendRow.unpaidAmount || 0)
+                : unpaidList.reduce((s, t) => s + t.totalAmount, 0);
+            const unpaidComm = useBackendNumbers
+                ? Number(backendRow.platformCharges || 0)
+                : unpaidList.reduce((s, t) => s + t.platformChargeAmount, 0);
+            const unpaidNet = useBackendNumbers
+                ? Number(backendRow.payableAmount || 0)
+                : unpaidList.reduce((s, t) => s + t.payoutAmount, 0);
+
+            const paidCount = useBackendNumbers
+                ? Number(backendRow.paidTransactionCount || 0)
+                : paidList.length;
+            const paidNet = useBackendNumbers
+                ? Number(backendRow.paidNetAmount ?? backendRow.paidAmount ?? 0)
+                : paidList.reduce((s, t) => s + t.payoutAmount, 0);
+
+            const pct =
+                unpaidGross > 0
+                    ? Number(((unpaidComm * 100) / unpaidGross).toFixed(2))
+                    : Number(backendRow?.platformPercentage || defaultMainRate || 0);
+
+            const bankObj = liveBank || {
+                accountHolderName: backendRow?.accountHolderName || "",
+                bankName: backendRow?.bankName || "",
+                accountNumber: backendRow?.accountNumber || "",
+                ifscCode: backendRow?.ifscCode || "",
+                upiId: backendRow?.upiId || "",
+            };
+            const hasValidBank = Boolean(
+                (bankObj?.accountNumber &&
+                    String(bankObj.accountNumber).trim() !== "" &&
+                    bankObj?.ifscCode &&
+                    String(bankObj.ifscCode).trim() !== "") ||
+                    (bankObj?.upiId && String(bankObj.upiId).trim() !== "")
+            );
+
+            if (unpaidCount === 0 && paidCount === 0 && !backendRow) return;
+
+            merged.push({
+                doctorId: typeof key === "number" ? key : backendRow?.doctorId,
+                doctorName:
+                    backendRow?.doctorName ||
+                    fallbackGrp?.doctorName ||
+                    (docMeta ? `${docMeta.firstName || ""} ${docMeta.lastName || ""}`.trim() : "Expert"),
+                doctorMobile: backendRow?.doctorMobile || docMeta?.mobile || fallbackGrp?.doctorMobile || "",
+                unpaidCount,
+                unpaidGross,
+                unpaidComm,
+                unpaidNet,
+                paidCount,
+                paidNet,
+                platformPercentage: pct,
+                hasBankDetails: hasValidBank,
+                bankChecking: typeof key === "number" && bankMapByDoctorId[key] === undefined,
+                bankInfo: bankObj,
+                unpaidTransactions: unpaidList,
+                paidTransactions: paidList,
+            });
+        });
+
+        merged.sort((a, b) => b.unpaidNet - a.unpaidNet);
+        return merged;
+    }, [doctorTotals, transactionHistory, doctorsDetails?.data, bankMapByDoctorId, defaultMainRate, filters]);
+
+    const rows = useMemo(() => {
+        if (!searchTerm.trim()) return enrichedDoctors;
+        const q = searchTerm.toLowerCase().trim();
+        return enrichedDoctors.filter(
+            (d) =>
+                (d.doctorName || "").toLowerCase().includes(q) ||
+                (d.doctorMobile || "").toLowerCase().includes(q) ||
+                (d.bankInfo?.bankName || "").toLowerCase().includes(q) ||
+                (d.bankInfo?.upiId || "").toLowerCase().includes(q)
+        );
+    }, [enrichedDoctors, searchTerm]);
+
+    const selectedDoctor = useMemo(() => {
+        if (!selectedDoctorId) return null;
+        return enrichedDoctors.find((d) => d.doctorId === selectedDoctorId) || null;
+    }, [selectedDoctorId, enrichedDoctors]);
+
+    const overview = useMemo(() => {
+        let pendingDoctors = 0;
+        let bankVerifiedPendingDoctors = 0;
+        let pendingSessions = 0;
+        let pendingNetTotal = 0;
+        let verifiedNetTotal = 0;
+        let totalCommission = 0;
+        let totalSettledNet = 0;
+        let totalSettledSessions = 0;
+
+        enrichedDoctors.forEach((d) => {
+            if (d.unpaidCount > 0) {
+                pendingDoctors += 1;
+                pendingSessions += d.unpaidCount;
+                pendingNetTotal += d.unpaidNet;
+                totalCommission += d.unpaidComm;
+                if (d.hasBankDetails) {
+                    bankVerifiedPendingDoctors += 1;
+                    verifiedNetTotal += d.unpaidNet;
+                }
+            }
+            totalSettledNet += d.paidNet;
+            totalSettledSessions += d.paidCount;
+        });
+
+        return {
+            pendingDoctors,
+            bankVerifiedPendingDoctors,
+            pendingSessions,
+            pendingNetTotal,
+            verifiedNetTotal,
+            totalCommission,
+            totalSettledNet,
+            totalSettledSessions,
+        };
+    }, [enrichedDoctors]);
+
+    const handleExportBankCSV = () => {
+        const docsToExport = enrichedDoctors.filter((d) => d.unpaidCount > 0);
+        if (docsToExport.length === 0) {
+            return;
+        }
+
+        const headers = [
+            "Doctor ID",
+            "Expert Name",
+            "Mobile",
+            "Bank Status",
+            "Pending Sessions",
+            "Gross Amount (INR)",
+            "Platform Commission (INR)",
+            "Net Payout Amount (INR)",
+            "Account Holder Name",
+            "Bank Name",
+            "Account Number",
+            "IFSC Code",
+            "UPI ID",
+        ];
+
+        const csvRows = [
+            headers.join(","),
+            ...docsToExport.map((d) =>
+                [
+                    d.doctorId || "",
+                    `"${(d.doctorName || "").replace(/"/g, '""')}"`,
+                    `"${d.doctorMobile || ""}"`,
+                    d.hasBankDetails ? "VERIFIED" : "BANK_MISSING",
+                    d.unpaidCount,
+                    d.unpaidGross.toFixed(2),
+                    d.unpaidComm.toFixed(2),
+                    d.unpaidNet.toFixed(2),
+                    `"${(d.bankInfo?.accountHolderName || "").replace(/"/g, '""')}"`,
+                    `"${(d.bankInfo?.bankName || "").replace(/"/g, '""')}"`,
+                    `"${d.bankInfo?.accountNumber || ""}"`,
+                    `"${d.bankInfo?.ifscCode || ""}"`,
+                    `"${d.bankInfo?.upiId || ""}"`,
+                ].join(",")
+            ),
+        ];
+
+        const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `GoodMood_Doctor_Settlements_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const settleDoctorWithFallback = async (doc, utr, mode = "BANK_TRANSFER") => {
+        // Try new batch doctor endpoint first; if backend hasn't been restarted yet, settle each unpaid transaction cleanly
+        const res = await dispatch(
+            settleSingleDoctor({
+                doctorId: doc.doctorId,
+                mode,
+                utr,
+            })
+        );
+        if (res.error && doc.unpaidTransactions?.length > 0) {
+            for (const tx of doc.unpaidTransactions) {
+                const txId = tx.id || tx.transactionId;
+                if (txId) {
+                    await dispatch(toggleIsPaid({ id: txId, utr, mode }));
+                }
+            }
+            dispatch(clearDoctorTransactionMessage());
+        }
+    };
+
+    const handleConfirmSingleDoctorSettle = async ({ utr, mode }) => {
+        if (!doctorToPay) return;
+        await settleDoctorWithFallback(doctorToPay, utr, mode);
+        setSettleModalOpen(false);
+        setDoctorToPay(null);
+        reloadAll();
+    };
+
+    const handleConfirmBatchSettle = async () => {
+        const eligible = enrichedDoctors.filter((d) => d.unpaidCount > 0 && d.hasBankDetails);
+        if (eligible.length === 0) return;
+
+        setBatchSubmitting(true);
+        try {
+            for (const doc of eligible) {
+                const ref = batchUtrPrefix
+                    ? `${batchUtrPrefix.trim()}_DOC${doc.doctorId}`
+                    : `GMPAY${new Date().toISOString().slice(2, 10).replace(/-/g, "")}D${doc.doctorId}`;
+                await settleDoctorWithFallback(doc, ref);
+            }
+            setBatchModalOpen(false);
+            setBatchVerified(false);
+            setBatchUtrPrefix("");
+            reloadAll();
+        } finally {
+            setBatchSubmitting(false);
+        }
+    };
+
+    const handleGeneratePDF = async () => {
+        const element = document.getElementById("transaction-modal-content");
+        if (!element) return;
+        const html2pdf = (await import("html2pdf.js/dist/html2pdf.bundle.min.js")).default;
+        html2pdf()
+            .from(element)
+            .set({
+                margin: [10, 10, 10, 10],
+                filename: `${selectedDoctor?.doctorName || "Expert"}_Settlement_Statement.pdf`,
+                image: { type: "jpeg", quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            })
+            .save();
     };
 
     const months = [
@@ -125,359 +504,633 @@ const DoctorTransaction = () => {
         { value: "9", label: "September" },
         { value: "10", label: "October" },
         { value: "11", label: "November" },
-        { value: "12", label: "December" }
+        { value: "12", label: "December" },
     ];
-
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 5 }, (_, i) => (currentYear - i).toString());
 
-    // Merge doctor details with totals if needed, or just use totals
-    const rowData = useMemo(() => {
-        if (!doctorTotals) return [];
-        
-        return doctorTotals.map(total => {
-            const doctor = doctorsDetails?.data?.find(d => d.id === total.doctorId);
-            return {
-                ...total,
-                doctorName: total.doctorName || (doctor ? `${doctor.firstName} ${doctor.lastName}` : `Expert ID: ${total.doctorId}`),
-                unpaidAmount: total.unpaidAmount || 0,
-                unpaidTransactionCount: total.unpaidTransactionCount || 0,
-                paidAmount: total.paidAmount || 0,
-                paidTransactionCount: total.paidTransactionCount || 0,
-                platformPercentage: total.platformPercentage || 0,
-                appliedPercentages: total.appliedPercentages || [],
-                platformCharges: total.platformCharges || 0,
-                payableAmount: total.payableAmount || 0,
-                unpaidTransactions: total.unpaidTransactions || [],
-                paidTransactions: total.paidTransactions || []
-            };
-        });
-    }, [doctorTotals, doctorsDetails]);
-
-    const columnDefs = useMemo(() => [
-        {
-            field: "doctorName",
-            headerName: "Expert Name",
-            sortable: true,
-            filter: true,
-            flex: 1.5
-        },
-        {
-            field: "unpaidTransactionCount",
-            headerName: "Unpaid Payments",
-            sortable: true,
-            filter: true,
-            flex: 1,
-            cellRenderer: (params) => (
-                <div className="flex items-center h-full">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
-                        {params.value}
-                    </span>
-                </div>
-            )
-        },
-        {
-            field: "unpaidAmount",
-            headerName: "Unpaid Amount",
-            sortable: true,
-            filter: true,
-            flex: 1,
-            valueFormatter: (params) => {
-                return params.value ? `₹${params.value.toFixed(2)}` : "₹0.00";
-            },
-            cellClass: "font-bold text-red-500"
-        },
-        {
-            field: "platformCharges",
-            headerName: "Platform Charges",
-            sortable: true,
-            filter: true,
-            flex: 1,
-            valueFormatter: (params) => {
-                return params.value ? `₹${params.value.toFixed(2)}` : "₹0.00";
-            },
-            cellClass: "text-gray-600 italic"
-        },
-        {
-            field: "platformPercentage",
-            headerName: "Platform %",
-            sortable: true,
-            filter: true,
-            flex: 0.8,
-            valueFormatter: (params) => {
-                return params.value ? `${params.value}%` : "0%";
-            },
-            cellClass: "text-blue-500 font-medium"
-        },
-        {
-            field: "payableAmount",
-            headerName: "Payout Due",
-            sortable: true,
-            filter: true,
-            flex: 1,
-            valueFormatter: (params) => {
-                return params.value ? `₹${params.value.toFixed(2)}` : "₹0.00";
-            },
-            cellClass: "font-bold text-[#52b69a]"
-        },
-        {
-            headerName: "Actions",
-            width: 120,
-            cellRenderer: (params) => (
-                <div className="flex items-center h-full">
-                    <Button
-                        size="xs"
-                        className="bg-[#52b69a] hover:bg-black text-white"
-                        onClick={() => {
-                            setSelectedDoctor(params.data);
-                            setIsModalOpen(true);
-                        }}
-                    >
-                        <Eye size={14} className="mr-1" /> View
-                    </Button>
-                </div>
-            )
-        }
-    ], []);
-
     return (
-        <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white shadow-sm">
-            <div className="h-full">
-                <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => navigate(-1)}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        <div className="wrapper_area my-0 mx-auto h-[calc(100vh-104px)] max-h-full flex flex-col overflow-hidden p-4 rounded-2xl bg-white shadow-sm border border-gray-100 gap-3">
+            {/* Identical Top Header + Same Switcher Tabs as TransactionUser */}
+            <div className="shrink-0 flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 pb-2.5 border-b border-gray-100">
+                <div>
+                    <h2 className="text-base font-bold text-gray-900 leading-tight">
+                        Payments, Settlements &amp; Refunds
+                    </h2>
+                    <p className="text-gray-500 text-[11px]">
+                        Check expert&apos;s bank account / UPI first, then settle pending payouts individually or all at once
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2 overflow-x-auto shrink-0">
+                    {/* Identical 2-View Switcher */}
+                    <div className="inline-flex p-1 rounded-xl bg-gray-100 border border-gray-200">
+                        <button
+                            type="button"
+                            onClick={() => navigate(`/TransactionHistory/${id || 14}`)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 whitespace-nowrap cursor-pointer transition-all"
                         >
-                            <ArrowLeft size={20} className="text-gray-600" />
+                            <List size={13} />
+                            All Transactions
                         </button>
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-800">Experts Revenue</h2>
-                            <p className="text-gray-500 text-sm mt-1">Manage pending and completed settlements</p>
-                        </div>
+                        <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0B8843] text-white shadow-xs whitespace-nowrap cursor-pointer"
+                        >
+                            <Users size={13} />
+                            Doctor Settlements
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigate("/ConsultationTracker/tracker")}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 whitespace-nowrap cursor-pointer transition-all"
+                        >
+                            Call Tracker
+                        </button>
                     </div>
 
-                    <div className="relative w-72">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search size={18} className="text-gray-400" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search expert or amount..."
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-[#52b69a] focus:border-[#52b69a] sm:text-sm transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
+                    <button
+                        onClick={handleExportBankCSV}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-xs font-bold text-blue-800 cursor-pointer whitespace-nowrap"
+                    >
+                        <Download size={13} />
+                        Bank CSV
+                    </button>
 
-                {/* Filter Bar */}
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 space-y-4">
-                    <div className="flex items-center gap-2 text-gray-700 font-bold text-sm mb-2">
-                        <Filter size={16} />
-                        Settlement Filters
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                        <div className="space-y-1">
-                            <Label htmlFor="startDate" value="Start Date" className="text-[10px] uppercase text-gray-500 font-bold" />
-                            <TextInput
-                                id="startDate"
-                                name="startDate"
-                                type="date"
-                                size="sm"
-                                value={filters.startDate}
-                                onChange={handleFilterChange}
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="endDate" value="End Date" className="text-[10px] uppercase text-gray-500 font-bold" />
-                            <TextInput
-                                id="endDate"
-                                name="endDate"
-                                type="date"
-                                size="sm"
-                                value={filters.endDate}
-                                onChange={handleFilterChange}
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="month" value="By Month" className="text-[10px] uppercase text-gray-500 font-bold" />
-                            <Select id="month" name="month" value={filters.month} onChange={handleFilterChange}>
-                                <option value="">All Months</option>
-                                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-                            </Select>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="year" value="By Year" className="text-[10px] uppercase text-gray-500 font-bold" />
-                            <Select id="year" name="year" value={filters.year} onChange={handleFilterChange}>
-                                <option value="">All Years</option>
-                                {years.map(y => <option key={y} value={y}>{y}</option>)}
-                            </Select>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button 
-                                color="light" 
-                                className="w-full border-gray-300 text-gray-600 hover:bg-gray-100"
-                                onClick={resetFilters}
-                                disabled={!filters.startDate && !filters.endDate && !filters.month && !filters.year}
-                            >
-                                <X size={16} className="mr-2" /> Reset
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="ag-theme-alpine w-full overflow-hidden rounded-lg border border-gray-200" style={{ height: 'calc(100vh - 250px)' }}>
-                    <AgGridReact
-                        rowData={rowData}
-                        columnDefs={columnDefs}
-                        pagination={true}
-                        paginationPageSize={15}
-                        domLayout="normal"
-                        quickFilterText={searchTerm}
-                        defaultColDef={{
-                            resizable: true,
+                    <button
+                        onClick={() => {
+                            setBatchVerified(false);
+                            setBatchModalOpen(true);
                         }}
-                        overlayLoadingTemplate='<span class="ag-overlay-loading-center">Fetching data...</span>'
-                        overlayNoRowsTemplate='<span class="ag-overlay-no-rows-center">No records found</span>'
+                        disabled={overview.bankVerifiedPendingDoctors === 0 || settling || batchSubmitting}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0B8843] hover:bg-black disabled:opacity-40 text-white text-xs font-bold shadow-xs transition-all cursor-pointer whitespace-nowrap"
+                        title="Settle all doctors who have verified bank accounts"
+                    >
+                        <Send size={13} />
+                        Settle All Verified ({overview.bankVerifiedPendingDoctors})
+                    </button>
+
+                    <button
+                        onClick={reloadAll}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-700 cursor-pointer whitespace-nowrap"
+                    >
+                        <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            {/* 4 Compact Summary Cards */}
+            <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <div className="py-2.5 px-3 rounded-xl bg-amber-50/60 border border-amber-200">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 whitespace-nowrap">
+                            Total Pending Payout
+                        </span>
+                        <div className="p-1 rounded-md bg-amber-100 text-amber-700 shrink-0">
+                            <IndianRupee size={13} />
+                        </div>
+                    </div>
+                    <div className="text-lg font-black text-gray-900 mt-0.5 whitespace-nowrap leading-tight">
+                        {formatINR(overview.pendingNetTotal)}
+                    </div>
+                    <div className="text-[10px] text-gray-600 truncate">
+                        {overview.pendingDoctors} doctors • {overview.pendingSessions} sessions
+                    </div>
+                </div>
+
+                <div className="py-2.5 px-3 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B8843] whitespace-nowrap">
+                            Bank Verified &amp; Ready
+                        </span>
+                        <div className="p-1 rounded-md bg-emerald-100 text-[#0B8843] shrink-0">
+                            <Building2 size={13} />
+                        </div>
+                    </div>
+                    <div className="text-lg font-black text-[#0B8843] mt-0.5 whitespace-nowrap leading-tight">
+                        {formatINR(overview.verifiedNetTotal)}
+                    </div>
+                    <div className="text-[10px] text-gray-600 truncate">
+                        {overview.bankVerifiedPendingDoctors} of {overview.pendingDoctors} have bank added
+                    </div>
+                </div>
+
+                <div className="py-2.5 px-3 rounded-xl bg-blue-50/50 border border-blue-200">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 whitespace-nowrap">
+                            Platform Commission
+                        </span>
+                        <div className="p-1 rounded-md bg-blue-100 text-blue-700 shrink-0">
+                            <ShieldCheck size={13} />
+                        </div>
+                    </div>
+                    <div className="text-lg font-black text-blue-800 mt-0.5 whitespace-nowrap leading-tight">
+                        {formatINR(overview.totalCommission)}
+                    </div>
+                    <div className="text-[10px] text-gray-600 truncate">
+                        Main Category % share
+                    </div>
+                </div>
+
+                <div className="py-2.5 px-3 rounded-xl bg-teal-50/50 border border-teal-200">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 whitespace-nowrap">
+                            Already Settled
+                        </span>
+                        <div className="p-1 rounded-md bg-teal-100 text-teal-700 shrink-0">
+                            <Wallet size={13} />
+                        </div>
+                    </div>
+                    <div className="text-lg font-black text-teal-800 mt-0.5 whitespace-nowrap leading-tight">
+                        {formatINR(overview.totalSettledNet)}
+                    </div>
+                    <div className="text-[10px] text-gray-600 truncate">
+                        {overview.totalSettledSessions} settled sessions
+                    </div>
+                </div>
+            </div>
+
+            {/* Important Admin Rule Caution Strip */}
+            <div className="shrink-0 py-2 px-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center gap-2 text-[11px] text-amber-950">
+                <AlertTriangle size={14} className="text-amber-600 shrink-0" />
+                <span className="truncate">
+                    <strong>Note:</strong> Refund any missed (No-Show) session from <em>All Transactions</em> <strong>before</strong> settling — once marked <strong>Settled ✓</strong>, customer Refund is locked to prevent double loss.
+                </span>
+            </div>
+
+            {/* Compact Filter + Search Bar */}
+            <div className="shrink-0 bg-gray-50 py-2 px-3 rounded-xl border border-gray-200 flex flex-wrap lg:flex-nowrap items-center justify-between gap-2">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 flex-1 min-w-0">
+                    <span className="inline-flex items-center gap-1 text-gray-600 font-bold text-[10px] uppercase tracking-wider whitespace-nowrap shrink-0">
+                        <Filter size={12} /> Date Filter:
+                    </span>
+                    <input
+                        type="date"
+                        value={filters.startDate}
+                        onChange={(e) => setFilters((p) => ({ ...p, startDate: e.target.value }))}
+                        className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-[11px] text-gray-700"
+                    />
+                    <input
+                        type="date"
+                        value={filters.endDate}
+                        onChange={(e) => setFilters((p) => ({ ...p, endDate: e.target.value }))}
+                        className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-[11px] text-gray-700"
+                    />
+                    <select
+                        value={filters.month}
+                        onChange={(e) => setFilters((p) => ({ ...p, month: e.target.value }))}
+                        className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-[11px] text-gray-700"
+                    >
+                        <option value="">All Months</option>
+                        {months.map((m) => (
+                            <option key={m.value} value={m.value}>
+                                {m.label}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filters.year}
+                        onChange={(e) => setFilters((p) => ({ ...p, year: e.target.value }))}
+                        className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-[11px] text-gray-700"
+                    >
+                        <option value="">All Years</option>
+                        {years.map((y) => (
+                            <option key={y} value={y}>
+                                {y}
+                            </option>
+                        ))}
+                    </select>
+                    {(filters.startDate || filters.endDate || filters.month || filters.year) && (
+                        <button
+                            onClick={() => setFilters({ startDate: "", endDate: "", month: "", year: "" })}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-[10px] font-semibold text-gray-700 cursor-pointer whitespace-nowrap"
+                        >
+                            <X size={11} /> Reset
+                        </button>
+                    )}
+                </div>
+
+                <div className="relative w-full lg:w-64 shrink-0">
+                    <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <Search size={13} className="text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search doctor, bank or UPI..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="block w-full pl-8 pr-3 py-1 border border-gray-300 rounded-lg bg-white text-[11px] focus:outline-none focus:border-[#0B8843]"
                     />
                 </div>
             </div>
 
-            <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)} size="4xl">
-                <Modal.Header>
-                    Transaction Details: {selectedDoctor?.doctorName}
-                </Modal.Header>
+            {/* Doctor Settlements Table — Internal Scroll within 100vh */}
+            <div className="flex-1 min-h-0 w-full overflow-auto rounded-xl border border-gray-200 relative">
+                <table className="w-full min-w-[820px] text-left border-collapse">
+                    <thead className="sticky top-0 z-20 bg-gray-50 shadow-[0_1px_0_0_#e5e7eb]">
+                        <tr className="text-[10px] font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap">
+                            <th className="py-2.5 px-3 bg-gray-50">Doctor Name</th>
+                            <th className="py-2.5 px-3 bg-gray-50">Bank / UPI Verification</th>
+                            <th className="py-2.5 px-3 bg-gray-50">Pending Gross</th>
+                            <th className="py-2.5 px-3 bg-gray-50">Commission</th>
+                            <th className="py-2.5 px-3 bg-gray-50">Net Payable</th>
+                            <th className="py-2.5 px-3 bg-gray-50">Settled</th>
+                            <th className="py-2.5 px-3 text-right sticky right-0 z-30 bg-gray-50 shadow-[-1px_0_0_0_#e5e7eb]">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-[11px]">
+                        {loading && rows.length === 0 ? (
+                            <tr>
+                                <td colSpan={7} className="py-12 text-center text-gray-400 font-medium">
+                                    Loading doctor settlements...
+                                </td>
+                            </tr>
+                        ) : rows.length === 0 ? (
+                            <tr>
+                                <td colSpan={7} className="py-12 text-center text-gray-400 font-medium">
+                                    No doctor settlement records found.
+                                </td>
+                            </tr>
+                        ) : (
+                            rows.map((doc, idx) => {
+                                const hasPending = doc.unpaidCount > 0;
+
+                                return (
+                                    <tr
+                                        key={doc.doctorId || idx}
+                                        className="group bg-white hover:bg-gray-50 transition-colors whitespace-nowrap"
+                                    >
+                                        {/* Doctor Name */}
+                                        <td className="py-2.5 px-3 align-middle">
+                                            <div className="font-bold text-xs text-gray-900">
+                                                Dr. {doc.doctorName}
+                                            </div>
+                                            {doc.doctorMobile && (
+                                                <div className="text-[10px] text-gray-400">{doc.doctorMobile}</div>
+                                            )}
+                                        </td>
+
+                                        {/* Bank Account Check Column */}
+                                        <td className="py-2.5 px-3 align-middle">
+                                            {doc.bankChecking ? (
+                                                <span className="text-[10px] text-gray-400 animate-pulse">
+                                                    Checking bank...
+                                                </span>
+                                            ) : doc.hasBankDetails ? (
+                                                <div>
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                                                        <CheckCircle size={10} />
+                                                        {doc.bankInfo?.bankName || "UPI / Bank"} Available
+                                                    </span>
+                                                    <div className="text-[10px] font-mono text-gray-400 mt-0.5">
+                                                        {doc.bankInfo?.accountNumber
+                                                            ? `A/C: ••••${String(doc.bankInfo.accountNumber).slice(-4)}`
+                                                            : `UPI: ${doc.bankInfo?.upiId}`}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold">
+                                                    <AlertTriangle size={10} />
+                                                    No Bank Account
+                                                </span>
+                                            )}
+                                        </td>
+
+                                        {/* Pending Gross */}
+                                        <td className="py-2.5 px-3 align-middle">
+                                            <div className="font-semibold text-xs text-gray-800">
+                                                {formatINR(doc.unpaidGross)}
+                                            </div>
+                                            <div className="text-[10px] text-gray-400">
+                                                {doc.unpaidCount} pending session(s)
+                                            </div>
+                                        </td>
+
+                                        {/* Commission */}
+                                        <td className="py-2.5 px-3 align-middle">
+                                            <div className="font-bold text-xs text-blue-700">
+                                                -{formatINR(doc.unpaidComm)}
+                                            </div>
+                                            <div className="text-[10px] text-gray-400">
+                                                {doc.platformPercentage}% rate
+                                            </div>
+                                        </td>
+
+                                        {/* Net Payable */}
+                                        <td className="py-2.5 px-3 align-middle">
+                                            <div
+                                                className={`text-sm font-black ${
+                                                    hasPending ? "text-[#0B8843]" : "text-gray-400"
+                                                }`}
+                                            >
+                                                {formatINR(doc.unpaidNet)}
+                                            </div>
+                                        </td>
+
+                                        {/* Already Settled */}
+                                        <td className="py-2.5 px-3 align-middle">
+                                            <div className="font-bold text-xs text-gray-700">
+                                                {formatINR(doc.paidNet)}
+                                            </div>
+                                            <div className="text-[10px] text-gray-400">
+                                                {doc.paidCount} settled
+                                            </div>
+                                        </td>
+
+                                        {/* Identical Actions: Settle (opens Bank Check Modal!) + Details */}
+                                        <td className="py-2.5 px-3 align-middle text-right sticky right-0 z-10 bg-white group-hover:bg-gray-50 shadow-[-1px_0_0_0_#f3f4f6]">
+                                            <div className="inline-flex items-center justify-end gap-1.5">
+                                                <button
+                                                    onClick={() => {
+                                                        setDoctorToPay(doc);
+                                                        setSettleModalOpen(true);
+                                                    }}
+                                                    disabled={!hasPending}
+                                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer disabled:opacity-35 ${
+                                                        hasPending && doc.hasBankDetails
+                                                            ? "bg-[#0B8843] hover:bg-black text-white"
+                                                            : hasPending && !doc.hasBankDetails
+                                                            ? "bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300"
+                                                            : "bg-gray-100 text-gray-400"
+                                                    }`}
+                                                >
+                                                    <Send size={11} />
+                                                    Settle
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedDoctorId(doc.doctorId);
+                                                        setDetailModalOpen(true);
+                                                    }}
+                                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 text-[10px] font-semibold cursor-pointer"
+                                                >
+                                                    <Eye size={12} /> Details
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Footer Count */}
+            <div className="shrink-0 flex items-center justify-between text-[11px] text-gray-500 pt-0.5">
+                <span>
+                    Total Experts Listed: <strong className="text-gray-900">{rows.length}</strong>
+                </span>
+                <span>
+                    Bank Verified Pending: <strong className="text-[#0B8843]">{overview.bankVerifiedPendingDoctors}</strong> • Missing Bank:{" "}
+                    <strong className="text-red-600">
+                        {Math.max(0, overview.pendingDoctors - overview.bankVerifiedPendingDoctors)}
+                    </strong>
+                </span>
+            </div>
+
+            {/* 1. Shared Pre-Settlement Bank Account Check & Verify Modal */}
+            <BankVerifySettleModal
+                show={settleModalOpen}
+                onClose={() => {
+                    setSettleModalOpen(false);
+                    setDoctorToPay(null);
+                }}
+                doctorId={doctorToPay?.doctorId}
+                doctorName={doctorToPay?.doctorName}
+                sessionsCount={doctorToPay?.unpaidCount || 0}
+                grossAmount={doctorToPay?.unpaidGross || 0}
+                commissionPercentage={doctorToPay?.platformPercentage || 0}
+                commissionAmount={doctorToPay?.unpaidComm || 0}
+                netPayableAmount={doctorToPay?.unpaidNet || 0}
+                initialBank={doctorToPay?.bankInfo}
+                onConfirmSettle={handleConfirmSingleDoctorSettle}
+                submitting={settling}
+            />
+
+            {/* 2. Batch Settle All Bank-Verified Doctors Modal */}
+            <Modal show={batchModalOpen} onClose={() => setBatchModalOpen(false)} size="lg" dismissible>
+                <Modal.Header>Settle All Bank-Verified Experts</Modal.Header>
                 <Modal.Body>
-                    <div id="transaction-modal-content" className="space-y-6 p-2">
-                        {/* Unpaid Section */}
-                        <div className="border border-orange-200 rounded-xl overflow-hidden">
-                            <div className="bg-orange-50 px-4 py-2 border-b border-orange-200">
-                                <h3 className="text-orange-800 font-bold flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                                    Unpaid Summary
-                                </h3>
+                    <div className="space-y-4 text-xs">
+                        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5">
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">Experts with Verified Bank / UPI:</span>
+                                <span className="font-bold text-gray-900">
+                                    {overview.bankVerifiedPendingDoctors} Experts
+                                </span>
                             </div>
-                            <div className="p-4 grid grid-cols-2 gap-4">
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500 uppercase font-semibold">Payments</span>
-                                    <span className="text-xl font-bold text-gray-800">{selectedDoctor?.unpaidTransactionCount}</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500 uppercase font-semibold">Pending Amount</span>
-                                    <span className="text-xl font-bold text-red-600">₹{selectedDoctor?.unpaidAmount?.toFixed(2)}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Paid Section */}
-                        <div className="border border-green-200 rounded-xl overflow-hidden">
-                            <div className="bg-green-50 px-4 py-2 border-b border-green-200">
-                                <h3 className="text-green-800 font-bold flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                    Paid Summary
-                                </h3>
-                            </div>
-                            <div className="p-4 grid grid-cols-2 gap-4">
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500 uppercase font-semibold">Payments</span>
-                                    <span className="text-xl font-bold text-gray-800">{selectedDoctor?.paidTransactionCount}</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-gray-500 uppercase font-semibold">Total Settled</span>
-                                    <span className="text-xl font-bold text-green-700">₹{selectedDoctor?.paidAmount?.toFixed(2)}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Overall Section */}
-                        <div className="border border-blue-200 rounded-xl overflow-hidden">
-                            <div className="bg-blue-50 px-4 py-2 border-b border-blue-200">
-                                <h3 className="text-blue-800 font-bold flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                    Settlement Summary
-                                </h3>
-                            </div>
-                            <div className="p-4 space-y-3">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-600 font-medium text-sm">Unpaid Revenue (Pending)</span>
-                                    <span className="font-bold text-gray-800">
-                                        ₹{selectedDoctor?.unpaidAmount?.toFixed(2) || "0.00"}
+                            {overview.pendingDoctors > overview.bankVerifiedPendingDoctors && (
+                                <div className="flex justify-between text-red-700">
+                                    <span>Skipped (No Bank Account Added):</span>
+                                    <span className="font-bold">
+                                        {overview.pendingDoctors - overview.bankVerifiedPendingDoctors} Expert(s)
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-start text-sm border-t border-blue-100 pt-2">
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-600 font-medium italic">Platform Charges ({selectedDoctor?.platformPercentage}% Effective)</span>
-                                        {selectedDoctor?.appliedPercentages?.length > 1 && (
-                                            <span className="text-[10px] text-gray-400">Applied rates: {selectedDoctor.appliedPercentages.join("%, ")}%</span>
-                                        )}
+                            )}
+                            <div className="flex justify-between pt-2 border-t border-emerald-200 text-sm">
+                                <span className="font-bold text-gray-900">Total Net Amount to Settle:</span>
+                                <span className="font-black text-lg text-[#0B8843]">
+                                    {formatINR(overview.verifiedNetTotal)}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* List of Verified Doctors Being Settled */}
+                        <div className="max-h-44 overflow-y-auto border border-gray-200 rounded-xl divide-y divide-gray-100">
+                            {enrichedDoctors
+                                .filter((d) => d.unpaidCount > 0 && d.hasBankDetails)
+                                .map((d) => (
+                                    <div
+                                        key={d.doctorId}
+                                        className="px-3 py-2 flex items-center justify-between bg-white"
+                                    >
+                                        <div>
+                                            <div className="font-bold text-gray-900">Dr. {d.doctorName}</div>
+                                            <div className="text-[10px] font-mono text-gray-500">
+                                                {d.bankInfo?.bankName || "UPI"} •{" "}
+                                                {d.bankInfo?.accountNumber
+                                                    ? `${d.bankInfo.accountNumber} (${d.bankInfo.ifscCode})`
+                                                    : d.bankInfo?.upiId}
+                                            </div>
+                                        </div>
+                                        <div className="font-black text-[#0B8843]">{formatINR(d.unpaidNet)}</div>
                                     </div>
-                                    <span className="font-bold text-red-500">- ₹{selectedDoctor?.platformCharges?.toFixed(2) || "0.00"}</span>
-                                </div>
-                                <div className="flex justify-between items-center pt-2 border-t border-blue-200 mt-1">
-                                    <span className="text-lg font-bold text-gray-900 uppercase tracking-tight">Net Payout Due</span>
-                                    <span className="text-2xl font-black text-[#52b69a]">
-                                        ₹{selectedDoctor?.payableAmount?.toFixed(2) || "0.00"}
-                                    </span>
-                                </div>
-                            </div>
+                                ))}
                         </div>
 
-                        {/* Total Revenue Footer */}
-                        <div className="p-4 bg-gray-50 rounded-xl flex justify-between items-center border border-gray-200">
-                            <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Overall Expert Earnings</span>
-                                <span className="text-sm text-gray-400 font-medium">(Paid + Unpaid)</span>
-                            </div>
-                            <span className="text-xl font-bold text-gray-700">
-                                ₹{((selectedDoctor?.unpaidAmount || 0) + (selectedDoctor?.paidAmount || 0)).toFixed(2)}
+                        <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 flex items-start gap-2 text-[11px] text-amber-950">
+                            <AlertTriangle size={15} className="text-amber-600 shrink-0 mt-0.5" />
+                            <span>
+                                <strong>Important Warning:</strong> Once settled, customer <strong>Refund</strong> will be locked for these sessions to prevent double loss. If any doctor did not join a session, refund that booking from <em>All Transactions</em> before settling. Dynamic payout notifications will be sent to each settled doctor.
                             </span>
                         </div>
 
-                        {/* Detailed Transactions Section */}
-                        <div className="mt-8 space-y-8">
-                            {/* Unpaid Detailed Table */}
-                            {selectedDoctor?.unpaidTransactions?.length > 0 && (
-                                <div className="space-y-3">
-                                    <h4 className="text-sm font-bold text-orange-700 uppercase tracking-wider flex items-center gap-2 px-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                                        Pending Payments Breakdown
+                        <label className="flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50/50 border border-emerald-200 cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                checked={batchVerified}
+                                onChange={(e) => setBatchVerified(e.target.checked)}
+                                className="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#0B8843] cursor-pointer"
+                            />
+                            <span className="text-xs font-semibold text-gray-800">
+                                I have verified the bank accounts above and transferred{" "}
+                                <strong className="text-[#0B8843]">{formatINR(overview.verifiedNetTotal)}</strong>.
+                            </span>
+                        </label>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer className="flex justify-end gap-2">
+                    <button
+                        onClick={() => setBatchModalOpen(false)}
+                        className="px-4 py-2 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleConfirmBatchSettle}
+                        disabled={!batchVerified || batchSubmitting}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B8843] hover:bg-black text-white text-xs font-bold cursor-pointer disabled:opacity-40"
+                    >
+                        <Send size={13} />
+                        {batchSubmitting
+                            ? "Settling..."
+                            : `Confirm & Settle All (${overview.bankVerifiedPendingDoctors})`}
+                    </button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* 3. Expert Full Statement & Bank Details Modal */}
+            <Modal show={detailModalOpen} onClose={() => setDetailModalOpen(false)} size="4xl" dismissible>
+                <Modal.Header>
+                    Doctor Statement &amp; Bank Details — Dr. {selectedDoctor?.doctorName}
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedDoctor && (
+                        <div id="transaction-modal-content" className="space-y-5 p-1 text-xs">
+                            {/* Bank Account Details Banner */}
+                            {selectedDoctor.hasBankDetails ? (
+                                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                    <div>
+                                        <span className="text-[10px] uppercase text-gray-400 font-bold block">
+                                            Bank Name
+                                        </span>
+                                        <span className="font-bold text-gray-900">
+                                            {selectedDoctor.bankInfo?.bankName || "-"}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] uppercase text-gray-400 font-bold block">
+                                            Account Number
+                                        </span>
+                                        <span className="font-mono font-bold text-gray-900">
+                                            {selectedDoctor.bankInfo?.accountNumber || "-"}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] uppercase text-gray-400 font-bold block">
+                                            IFSC Code
+                                        </span>
+                                        <span className="font-mono font-bold text-gray-900">
+                                            {selectedDoctor.bankInfo?.ifscCode || "-"}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] uppercase text-gray-400 font-bold block">
+                                            UPI ID
+                                        </span>
+                                        <span className="font-mono font-bold text-gray-900">
+                                            {selectedDoctor.bankInfo?.upiId || "-"}
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-red-800 font-semibold">
+                                    <AlertTriangle size={16} className="text-red-600 shrink-0" />
+                                    Dr. {selectedDoctor.doctorName} has not added any Bank Account or UPI ID yet.
+                                </div>
+                            )}
+
+                            {/* 3 Summary Boxes */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+                                    <div className="text-[10px] font-bold uppercase text-amber-700">
+                                        Pending Net Payout
+                                    </div>
+                                    <div className="text-xl font-black text-amber-900 mt-1">
+                                        {formatINR(selectedDoctor.unpaidNet)}
+                                    </div>
+                                    <div className="text-[11px] text-amber-700 mt-0.5">
+                                        {selectedDoctor.unpaidCount} pending session(s)
+                                    </div>
+                                </div>
+
+                                <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200">
+                                    <div className="text-[10px] font-bold uppercase text-blue-700">
+                                        Platform Commission ({selectedDoctor.platformPercentage}%)
+                                    </div>
+                                    <div className="text-xl font-black text-blue-900 mt-1">
+                                        {formatINR(selectedDoctor.unpaidComm)}
+                                    </div>
+                                    <div className="text-[11px] text-blue-700 mt-0.5">
+                                        On {formatINR(selectedDoctor.unpaidGross)} gross
+                                    </div>
+                                </div>
+
+                                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                                    <div className="text-[10px] font-bold uppercase text-emerald-700">
+                                        Already Settled
+                                    </div>
+                                    <div className="text-xl font-black text-emerald-900 mt-1">
+                                        {formatINR(selectedDoctor.paidNet)}
+                                    </div>
+                                    <div className="text-[11px] text-emerald-700 mt-0.5">
+                                        {selectedDoctor.paidCount} settled session(s)
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Pending Sessions Breakdown */}
+                            {selectedDoctor.unpaidTransactions?.length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="font-bold text-gray-800 uppercase tracking-wider text-[11px]">
+                                        Pending Consultations ({selectedDoctor.unpaidTransactions.length})
                                     </h4>
-                                    <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
-                                        <table className="w-full text-sm text-left text-gray-500">
-                                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                                    <div className="overflow-x-auto border border-gray-200 rounded-xl">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-gray-50 border-b border-gray-200 text-[10px] uppercase text-gray-600 font-bold">
                                                 <tr>
-                                                    <th className="px-4 py-3 font-bold">Date / Category</th>
-                                                    <th className="px-4 py-3 font-bold">Total</th>
-                                                    <th className="px-4 py-3 font-bold text-red-500 text-center">Platform Charges</th>
-                                                    <th className="px-4 py-3 font-bold text-[#52b69a] text-right">Net Payout</th>
-                                                    <th className="px-4 py-3 font-bold text-center">Action</th>
+                                                    <th className="px-3 py-2">Date &amp; Patient</th>
+                                                    <th className="px-3 py-2">Payment ID</th>
+                                                    <th className="px-3 py-2">Gross</th>
+                                                    <th className="px-3 py-2">Commission</th>
+                                                    <th className="px-3 py-2 text-right">Net Payout</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
                                                 {selectedDoctor.unpaidTransactions.map((tx, idx) => (
-                                                    <tr key={idx} className="bg-white hover:bg-orange-50/30 transition-colors">
-                                                        <td className="px-4 py-3">
-                                                            <div className="font-semibold text-gray-900">{tx.date}</div>
-                                                            <div className="text-[10px] text-gray-400 font-medium uppercase">{tx.supportCategoryName || "General Support"}</div>
-                                                            <div className="text-[9px] text-gray-300 font-mono mt-0.5">{tx.transactionCode}</div>
+                                                    <tr key={idx} className="bg-white">
+                                                        <td className="px-3 py-2">
+                                                            <div className="font-bold text-gray-900">
+                                                                {tx.patientName || "Patient"}
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500">{tx.date}</div>
                                                         </td>
-                                                        <td className="px-4 py-3 font-medium text-gray-700">₹{tx.totalAmount.toFixed(2)}</td>
-                                                        <td className="px-4 py-3 text-center">
-                                                            <div className="text-red-500 font-bold">-₹{tx.platformChargeAmount.toFixed(2)}</div>
-                                                            <div className="text-[10px] text-gray-400 italic">({tx.platformPercentage}%)</div>
+                                                        <td className="px-3 py-2 font-mono text-[10px] text-gray-600">
+                                                            {tx.transactionCode}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right">
-                                                            <div className="text-[#52b69a] font-black text-base">₹{tx.payoutAmount.toFixed(2)}</div>
+                                                        <td className="px-3 py-2 font-semibold">
+                                                            {formatINR(tx.totalAmount)}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
-                                                            <Button
-                                                                size="xs"
-                                                                className="bg-[#52b69a] hover:bg-black text-white w-full max-w-[110px] mx-auto"
-                                                                onClick={() => handleTogglePaid(tx)}
-                                                            >
-                                                                <CheckCircle size={14} className="mr-1" /> Mark Paid
-                                                            </Button>
+                                                        <td className="px-3 py-2 text-blue-700">
+                                                            -{formatINR(tx.platformChargeAmount)} ({tx.platformPercentage}%)
+                                                        </td>
+                                                        <td className="px-3 py-2 text-right font-black text-[#0B8843]">
+                                                            {formatINR(tx.payoutAmount)}
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -487,38 +1140,41 @@ const DoctorTransaction = () => {
                                 </div>
                             )}
 
-                            {/* Paid Detailed Table */}
-                            {selectedDoctor?.paidTransactions?.length > 0 && (
-                                <div className="space-y-3">
-                                    <h4 className="text-sm font-bold text-green-700 uppercase tracking-wider flex items-center gap-2 px-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                                        Settled Payments History
+                            {/* Settled History */}
+                            {selectedDoctor.paidTransactions?.length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="font-bold text-emerald-800 uppercase tracking-wider text-[11px]">
+                                        Settled Payout History ({selectedDoctor.paidTransactions.length})
                                     </h4>
-                                    <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
-                                        <table className="w-full text-sm text-left text-gray-500">
-                                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                                    <div className="overflow-x-auto border border-gray-200 rounded-xl">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-gray-50 border-b border-gray-200 text-[10px] uppercase text-gray-600 font-bold">
                                                 <tr>
-                                                    <th className="px-4 py-3 font-bold">Date / Category</th>
-                                                    <th className="px-4 py-3 font-bold">Total</th>
-                                                    <th className="px-4 py-3 font-bold text-gray-500 text-center">Platform Charges</th>
-                                                    <th className="px-4 py-3 font-bold text-green-700 text-right">Settled Amount</th>
+                                                    <th className="px-3 py-2">Date &amp; Patient</th>
+                                                    <th className="px-3 py-2">Gross</th>
+                                                    <th className="px-3 py-2">Commission</th>
+                                                    <th className="px-3 py-2">UTR / Ref</th>
+                                                    <th className="px-3 py-2 text-right">Settled Net</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
                                                 {selectedDoctor.paidTransactions.map((tx, idx) => (
-                                                    <tr key={idx} className="bg-white hover:bg-green-50/30 transition-colors">
-                                                        <td className="px-4 py-3">
-                                                            <div className="font-semibold text-gray-900">{tx.date}</div>
-                                                            <div className="text-[10px] text-gray-400 font-medium uppercase">{tx.supportCategoryName || "General Support"}</div>
-                                                            <div className="text-[9px] text-gray-300 font-mono mt-0.5">{tx.transactionCode}</div>
+                                                    <tr key={idx} className="bg-white">
+                                                        <td className="px-3 py-2">
+                                                            <div className="font-semibold text-gray-900">
+                                                                {tx.patientName || "Patient"}
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500">{tx.date}</div>
                                                         </td>
-                                                        <td className="px-4 py-3 font-medium text-gray-700">₹{tx.totalAmount.toFixed(2)}</td>
-                                                        <td className="px-4 py-3 text-center">
-                                                            <div className="text-gray-500 font-bold">-₹{tx.platformChargeAmount.toFixed(2)}</div>
-                                                            <div className="text-[10px] text-gray-400 italic">({tx.platformPercentage}%)</div>
+                                                        <td className="px-3 py-2">{formatINR(tx.totalAmount)}</td>
+                                                        <td className="px-3 py-2 text-gray-500">
+                                                            -{formatINR(tx.platformChargeAmount)} ({tx.platformPercentage}%)
                                                         </td>
-                                                        <td className="px-4 py-3 text-right">
-                                                            <div className="text-green-700 font-black text-base">₹{tx.payoutAmount.toFixed(2)}</div>
+                                                        <td className="px-3 py-2 font-mono text-[10px] text-gray-600">
+                                                            {tx.settlementUtr || "Settled"}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-right font-black text-emerald-700">
+                                                            {formatINR(tx.payoutAmount)}
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -528,24 +1184,25 @@ const DoctorTransaction = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    )}
                 </Modal.Body>
                 <Modal.Footer className="flex justify-between items-center">
-                    <Button 
-                        color="success" 
+                    <button
                         onClick={handleGeneratePDF}
-                        className="bg-[#52b69a] hover:bg-black font-bold"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B8843] hover:bg-black text-white text-xs font-bold cursor-pointer"
                     >
-                        <FileText size={18} className="mr-2" /> Generate PDF Statement
-                    </Button>
-                    <Button color="gray" onClick={() => setIsModalOpen(false)}>
+                        <FileText size={14} /> Download PDF Statement
+                    </button>
+                    <button
+                        onClick={() => setDetailModalOpen(false)}
+                        className="px-4 py-2 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 cursor-pointer"
+                    >
                         Close
-                    </Button>
+                    </button>
                 </Modal.Footer>
             </Modal>
         </div>
     );
 };
-
 
 export default DoctorTransaction;
